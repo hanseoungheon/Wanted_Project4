@@ -1,0 +1,21 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Animation/AnimNotifies/AnimNotify.h"
+#include "AnimNotify_ReleaseKatana.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class WANTED_PROJECT4_API UAnimNotify_ReleaseKatana : public UAnimNotify
+{
+	GENERATED_BODY()
+	
+public:
+	UAnimNotify_ReleaseKatana();
+
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+};
