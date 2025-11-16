@@ -105,13 +105,14 @@ AP4CharacterPlayer::AP4CharacterPlayer()
 		DrawKatanaMontage = DrawKatanaRef.Object;
 	}
 
-	//// 납도 몽타주 로드 (만약 있다면)
-	//static ConstructorHelpers::FObjectFinder<UAnimMontage> SheathKatanaRef(
-	//	TEXT("/Game/Character/Animation/AM_SheathKatana.AM_SheathKatana"));  // 경로 확인 필요
-	//if (SheathKatanaRef.Succeeded())
-	//{
-	//	SheathKatanaMontage = SheathKatanaRef.Object;
-	//}
+	// -작성: 노현기 -일시: 2025.11.15
+	// 납도 몽타주 로드 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SheathKatanaRef(
+		TEXT("/Game/Character/Animation/AM_SheathKatana.AM_SheathKatana"));
+	if (SheathKatanaRef.Succeeded())
+	{
+		SheathKatanaMontage = SheathKatanaRef.Object;
+	}
 }
 
 void AP4CharacterPlayer::GASInputPressed(int32 InputId)
