@@ -3,11 +3,15 @@
 
 #include "Monster/Mob/P4BossMonsterNemielle.h"
 
+#include "Character/P4CharacterBase.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/OverlapResult.h"
 #include "Monster/P4MonsterBase.h"
 #include "Monster/AI/P4MonsterAIController.h"
 #include "Monster/GA/P4GA_EnergyBomb.h"
 #include "Monster/GA/P4GA_Howling.h"
 #include "Monster/GA/P4GA_LeftWingStomp.h"
+#include "Player/P4PlayerController.h"
 
 AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 {
@@ -20,7 +24,7 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshRef(
 		TEXT("/Game/Monster/Model/Nemielle/Nemielle.Nemielle")
-		);
+	);
 	if (MeshRef.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshRef.Object);
@@ -34,6 +38,15 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
 	}
 
+	// 보스 몬스터 패턴 데이터테이블 불러오기
+	static ConstructorHelpers::FObjectFinder<UDataTable> PatternDataRef(
+		TEXT("/Game/Monster/Data/NemiellePatternData.NemiellePatternData")
+		);
+	if (PatternDataRef.Succeeded())
+	{
+		MonsterPatternData = PatternDataRef.Object;
+	}
+
 	// @Todo: 보스 몬스터 몽타주 생성자 초기화
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackActionMontageRef(
 		TEXT("/Game/Monster/Model/Nemielle/AM_NamielleAttack.AM_NamielleAttack")
@@ -42,6 +55,8 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	{
 		AttackActionMontage = AttackActionMontageRef.Object;
 	}
+
+	
 }
 
 void AP4BossMonsterNemielle::BeginPlay()
@@ -50,14 +65,28 @@ void AP4BossMonsterNemielle::BeginPlay()
 
 	// Nemielle 몬스터 패턴 설정
 	TArray<FPatternData> Patterns;
-	Patterns.Add({"LeftWingStomp", 30.f, 0.f, 1000.f, 1.f});
-	Patterns.Add({"Howling", 30.f, 0.f, 600.f, 1.f});
-	Patterns.Add({"EnergyBomb", 30.f, 0.f, 300.f, 1.f});
+
+	TArray<FPatternData*> AllRows;
+	MonsterPatternData->GetAllRows(TEXT("Pattern Initialization"), AllRows);
+	
+	for (auto Row : AllRows)
+	{
+		if (!Row)
+		{
+			continue;
+		}
+
+		Patterns.Add(*Row);
+	}
+	
+	//Patterns.Add({"LeftWingStomp", 5.f, 0.f, 1000.f, 0.f, 0.f, 1.f});
+	//Patterns.Add({"Howling", 30.f, 0.f, 600.f, 0.f, 0.f, 1.f});
+	//Patterns.Add({"EnergyBomb", 30.f, 0.f, 300.f, 0.f, 0.f, 1.f});
 
 	// 설정한 패턴으로 패턴 컴포넌트의 패턴 초기화
 	PatternComponent->InitializePatterns(Patterns);
 
-	
+
 	// 몬스터 스킬 어빌리티 태그 설정
 	FGameplayAbilitySpec Spec1(UP4GA_LeftWingStomp::StaticClass());
 	Spec1.GetDynamicSpecSourceTags().AddTag(
@@ -70,7 +99,7 @@ void AP4BossMonsterNemielle::BeginPlay()
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.Howling"))
 	);
 	ASC->GiveAbility(Spec2);
-	
+
 	FGameplayAbilitySpec Spec3(UP4GA_EnergyBomb::StaticClass());
 	Spec3.GetDynamicSpecSourceTags().AddTag(
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.EnergyBomb"))
@@ -89,12 +118,12 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 	// 각 섹션에 맞는 공격함수 델리게이트로 바인드
 	FMonsterAttackDelegate Patern1;
 	Patern1.BindUObject(this, &AP4BossMonsterNemielle::LeftWingStomp);
-	
+
 	FMonsterAttackDelegate Patern2;
-	Patern1.BindUObject(this, &AP4BossMonsterNemielle::Howling);
-	
+	Patern2.BindUObject(this, &AP4BossMonsterNemielle::Howling);
+
 	FMonsterAttackDelegate Patern3;
-	Patern1.BindUObject(this, &AP4BossMonsterNemielle::EnergyBomb);
+	Patern3.BindUObject(this, &AP4BossMonsterNemielle::EnergyBomb);
 
 	// 바인딩한 델리게이트로 AttackDelegates 배열 설정
 	AttackDelegates = {Patern1, Patern2, Patern3};
@@ -103,6 +132,63 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 void AP4BossMonsterNemielle::LeftWingStomp()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call LeftWingStomp func"));
+	// @Todo: 나중에 변수 값으로 변경하기
+	const float AttackRange = 400.f;
+
+	FVector Start =
+		GetActorLocation() +
+		GetActorForwardVector() *
+		AttackRange;
+
+	const float AttackRadius = 500.f;
+
+	// 자신은 판정 제외
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	TArray<FOverlapResult> OutHitResults;
+	bool HitDetected = GetWorld()->OverlapMultiByChannel(
+		OutHitResults,
+		Start,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		FCollisionShape::MakeBox(FVector(AttackRadius, AttackRadius, AttackRadius)),
+		Params
+	);
+
+	// 몬스터 공격 범위 디버그 표시
+#if ENABLE_DRAW_DEBUG
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugBox(
+		GetWorld(),
+		Start,
+		FVector(AttackRadius, AttackRadius, AttackRadius),
+		FRotationMatrix::MakeFromX(GetActorForwardVector()).ToQuat(),
+		DrawColor,
+		false,
+		5.f
+	);
+#endif
+	if (HitDetected)
+	{
+		for (auto& OutHitResult : OutHitResults)
+		{
+			AP4CharacterBase* Player = Cast<AP4CharacterBase>(OutHitResult.GetActor());
+			if (Player)
+			{
+				// @MobTODO: 몬스터 충돌 판정 확인용
+				UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트: %s"), *OutHitResult.GetActor()->GetName());
+
+				// 다른 액터가 공격 당했을 시 처리
+				GiveDamage(OutHitResult.GetActor(), AttributeSet->GetAttack());
+			}
+		}
+	}
+	else
+	{
+		// @MobTODO: 몬스터 충돌 판정 확인용
+		UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트가 없습니다."));
+	}
 }
 
 void AP4BossMonsterNemielle::Howling()
@@ -114,6 +200,3 @@ void AP4BossMonsterNemielle::EnergyBomb()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call EnergyBomb func"));
 }
-
-
-

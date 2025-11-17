@@ -13,9 +13,23 @@
 
 // 패턴들의 데이터를 구조체로 생성
 USTRUCT(Blueprintable)
-struct FPatternData
+struct FPatternData : public FTableRowBase
 {
 	GENERATED_BODY()
+
+	FPatternData() {}
+	FPatternData(
+		FName InPatternName,
+		float InCooldown,
+		float InMinDistance,
+		float InMaxDistance,
+		float InAttackRange,
+		float InAttackRadius,
+		float InWeight)
+		: PatternName(InPatternName), MinDistance(InMinDistance), MaxDistance(InMaxDistance),
+		  AttackRange(InAttackRange), AttackRadius(InAttackRadius), Weight(InWeight)
+	{
+	}
 
 	// 패턴 이름
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -33,17 +47,25 @@ struct FPatternData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxDistance = 1000.f;
 
+	// 패턴 시전 사거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackRange = 0.f;
+
+	// 패턴 시전 범위
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackRadius = 0.f;
+
 	// 패턴 선택 확률 가중치
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Weight = 1.f;
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class WANTED_PROJECT4_API UP4MonsterPatternComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UP4MonsterPatternComponent();
 
@@ -66,5 +88,4 @@ private:
 
 	// 해당 패턴 실행 함수
 	void ExecutePattern(const FPatternData& Pattern);
-	
 };

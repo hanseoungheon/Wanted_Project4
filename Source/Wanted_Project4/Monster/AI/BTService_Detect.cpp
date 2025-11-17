@@ -6,7 +6,9 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/OverlapResult.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/MonsterAIInterface.h"
+#include "Monster/P4BossMonsterBase.h"
 
 UBTService_Detect::UBTService_Detect()
 {
@@ -76,6 +78,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			{
 				// 감지된 폰 정보를 블랙보드에 타겟으로
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), Pawn);
+				AIPawn->SetCharacterMovementSpeed(AIPawn->GetAIChaseSpeed());
 
 				// 감지 영역 디버그
 				DrawDebugSphere(
@@ -115,6 +118,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	// 감지 실패 시 타겟에 nullptr
 	OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), nullptr);
+	AIPawn->SetCharacterMovementSpeed(AIPawn->GetAIMovementSpeed());
 
 	// 감지 영역 빨간색으로 디버그
 	DrawDebugSphere(

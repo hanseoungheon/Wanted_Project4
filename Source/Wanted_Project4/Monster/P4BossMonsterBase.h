@@ -10,6 +10,8 @@
 #include "Stat/P4MonsterAttributeSet.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interface/P4DamageableInterface.h"
 #include "P4BossMonsterBase.generated.h"
 
 /*
@@ -30,7 +32,8 @@ UCLASS()
 class WANTED_PROJECT4_API AP4BossMonsterBase
 	: public ACharacter,
 	  public IAbilitySystemInterface,
-	  public IMonsterAIInterface
+	  public IMonsterAIInterface,
+	  public IP4DamageableInterface
 {
 	GENERATED_BODY()
 
@@ -57,28 +60,37 @@ public:
 
 
 	// MonsterAIInterface 구현
-public:	
+public:
 	// AI 관련해서 구현 필요한 함수
 	// BB, BT 불러오기
 	FORCEINLINE virtual UBlackboardData* GetBBAsset() const override { return BBAsset; }
 	FORCEINLINE virtual UBehaviorTree* GetBTAsset() const override { return BTAsset; }
-	
+
 	// AttributeSet 에 있음
 	FORCEINLINE virtual float GetAIDetectRange() override { return AttributeSet->GetDetectRange(); }
 	FORCEINLINE virtual float GetAIChaseRange() override { return AttributeSet->GetChaseRange(); }
 	FORCEINLINE virtual float GetAITurnSpeed() override { return AttributeSet->GetTurnSpeed(); }
 
+	FORCEINLINE virtual float GetAIChaseSpeed() override { return AttributeSet->GetChaseSpeed(); }
+	FORCEINLINE virtual float GetAIMovementSpeed() override { return AttributeSet->GetMovementSpeed(); }
+
 	// @Todo: AttributeSet 에 없는 애들을 일단 어떻게 할 것인가
 	// AttributeSet 에 없음
 	FORCEINLINE virtual float GetAIAttackRange() override { return 250.f; }
-	FORCEINLINE virtual float GetAIPatrolRadius() override { return 900.f; }
+	FORCEINLINE virtual float GetAIPatrolRadius() override { return 1500.f; }
 
 	// 공격, 피격 재생 여부
 	virtual bool GetIsDamaged() override;
 	virtual bool GetIsAttacking() override;
-	
+
 	// 공격 요청 함수
 	virtual void AttackByAI() override;
+
+	// 이동속도 설정 함수
+	FORCEINLINE void SetCharacterMovementSpeed(float InSpeed) override
+	{
+		GetCharacterMovement()->MaxWalkSpeed = InSpeed;
+	}
 
 	// 공격 종료 시점 델리게이트 호출 함수 (종료 시점임을 알림)
 	virtual void SetAIAttackDelegate(const FAIMonsterAttackFinished& InOnAttackFinished) override;
@@ -92,7 +104,7 @@ public:
 	// 입력받은 섹션 네임의 공격 몽타주를 실행할 함수
 	virtual void AttackActionBegin(FName& InAttackMontageSectionName, const float AttackSpeed);
 	void AttackActionEnd(UAnimMontage* TargetMontage, bool Interrupted);
-	
+
 protected:
 	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UBlackboardData> BBAsset;
@@ -139,6 +151,10 @@ protected:
 
 	// 몬스터 공격 관리 섹션
 protected:
+	// 몬스터 패턴 정보를 들고올 DataTable
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat)
+	TObjectPtr<UDataTable> MonsterPatternData;
+	
 	// 패턴 관리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UP4MonsterPatternComponent> PatternComponent;
@@ -158,11 +174,16 @@ protected:
 	bool IsPatternActive = false;
 
 public:
-	void ExecuteAttackSection(const FName& SectionName);
+	virtual void ExecuteAttackSection(const FName& SectionName) override;
 	FORCEINLINE void SetIsPatternActive(bool InIsPatternActive) { IsPatternActive = InIsPatternActive; }
 
 private:
 	FTimerHandle PatternCheckTimerHandle;
 
 	void CheckPatternProbability();
+
+	// 데미지 관련 인터페이스 함수 구현
+public:
+	virtual void ApplyDamage(const float DamageAmount) override;
+	virtual void GiveDamage(AActor* TargetActor, const float DamageAmount) override;
 };

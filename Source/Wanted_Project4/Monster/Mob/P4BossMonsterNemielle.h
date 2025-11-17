@@ -22,6 +22,8 @@ public:
 	virtual void SetupAttackDelegate() override;
 
 protected:
+	
+protected:
 	void LeftWingStomp();
 	void Howling();
 	void EnergyBomb();
