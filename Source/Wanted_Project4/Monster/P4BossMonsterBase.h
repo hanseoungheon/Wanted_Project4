@@ -27,6 +27,7 @@
 
 // 몬스터 공격 시 각 공격을 실행할 델리게이트
 DECLARE_DELEGATE(FBossMonsterAttackDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDashStartDelegate);
 
 UCLASS()
 class WANTED_PROJECT4_API AP4BossMonsterBase
@@ -148,6 +149,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
+public:
+	UPROPERTY(BlueprintAssignable, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
+	FOnDashStartDelegate OnDashStart;
 
 	// 몬스터 공격 관리 섹션
 protected:

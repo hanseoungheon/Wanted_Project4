@@ -8,6 +8,7 @@
 #include "Engine/OverlapResult.h"
 #include "Monster/P4MonsterBase.h"
 #include "Monster/AI/P4MonsterAIController.h"
+#include "Monster/GA/P4GA_DashAttack.h"
 #include "Monster/GA/P4GA_EnergyBomb.h"
 #include "Monster/GA/P4GA_Howling.h"
 #include "Monster/GA/P4GA_LeftWingStomp.h"
@@ -66,6 +67,7 @@ void AP4BossMonsterNemielle::BeginPlay()
 	// Nemielle 몬스터 패턴 설정
 	TArray<FPatternData> Patterns;
 
+	// 데이터 테이블로 패턴 데이터 초기화 진행
 	TArray<FPatternData*> AllRows;
 	MonsterPatternData->GetAllRows(TEXT("Pattern Initialization"), AllRows);
 	
@@ -105,6 +107,12 @@ void AP4BossMonsterNemielle::BeginPlay()
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.EnergyBomb"))
 	);
 	ASC->GiveAbility(Spec3);
+
+	FGameplayAbilitySpec Spec4(UP4GA_DashAttack::StaticClass());
+	Spec4.GetDynamicSpecSourceTags().AddTag(
+		FGameplayTag::RequestGameplayTag(FName("Monster.Action.DashAttack"))
+	);
+	ASC->GiveAbility(Spec4);
 }
 
 void AP4BossMonsterNemielle::SetupAttackDelegate()
@@ -113,20 +121,23 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 	Super::SetupAttackDelegate();
 
 	// 몽타주 섹션에 맞게 섹션 이름들 설정
-	AttackSectionNames = {"LeftWingStomp", "Howling", "EnergyBomb"};
+	AttackSectionNames = {"LeftWingStomp", "Howling", "EnergyBomb", "DashAttack"};
 
 	// 각 섹션에 맞는 공격함수 델리게이트로 바인드
-	FMonsterAttackDelegate Patern1;
-	Patern1.BindUObject(this, &AP4BossMonsterNemielle::LeftWingStomp);
+	FMonsterAttackDelegate Pattern1;
+	Pattern1.BindUObject(this, &AP4BossMonsterNemielle::LeftWingStomp);
 
-	FMonsterAttackDelegate Patern2;
-	Patern2.BindUObject(this, &AP4BossMonsterNemielle::Howling);
+	FMonsterAttackDelegate Pattern2;
+	Pattern2.BindUObject(this, &AP4BossMonsterNemielle::Howling);
 
-	FMonsterAttackDelegate Patern3;
-	Patern3.BindUObject(this, &AP4BossMonsterNemielle::EnergyBomb);
+	FMonsterAttackDelegate Pattern3;
+	Pattern3.BindUObject(this, &AP4BossMonsterNemielle::EnergyBomb);
+	
+	FMonsterAttackDelegate Pattern4;
+	Pattern4.BindUObject(this, &AP4BossMonsterNemielle::DashAttack);
 
 	// 바인딩한 델리게이트로 AttackDelegates 배열 설정
-	AttackDelegates = {Patern1, Patern2, Patern3};
+	AttackDelegates = {Pattern1, Pattern2, Pattern3, Pattern4};
 }
 
 void AP4BossMonsterNemielle::LeftWingStomp()
@@ -199,4 +210,9 @@ void AP4BossMonsterNemielle::Howling()
 void AP4BossMonsterNemielle::EnergyBomb()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call EnergyBomb func"));
+}
+
+void AP4BossMonsterNemielle::DashAttack()
+{
+	
 }

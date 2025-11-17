@@ -27,4 +27,5 @@ protected:
 	void LeftWingStomp();
 	void Howling();
 	void EnergyBomb();
+	void DashAttack();
 };
