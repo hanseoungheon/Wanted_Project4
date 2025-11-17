@@ -5,6 +5,9 @@
 
 #include "Monster/P4MonsterBase.h"
 #include "Monster/AI/P4MonsterAIController.h"
+#include "Monster/GA/P4GA_EnergyBomb.h"
+#include "Monster/GA/P4GA_Howling.h"
+#include "Monster/GA/P4GA_LeftWingStomp.h"
 
 AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 {
@@ -32,6 +35,13 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	}
 
 	// @Todo: 보스 몬스터 몽타주 생성자 초기화
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackActionMontageRef(
+		TEXT("/Game/Monster/Model/Nemielle/AM_NamielleAttack.AM_NamielleAttack")
+	);
+	if (AttackActionMontageRef.Succeeded())
+	{
+		AttackActionMontage = AttackActionMontageRef.Object;
+	}
 }
 
 void AP4BossMonsterNemielle::BeginPlay()
@@ -45,7 +55,28 @@ void AP4BossMonsterNemielle::BeginPlay()
 	Patterns.Add({"EnergyBomb", 10.f, 0.f, 300.f, 1.f});
 
 	// 설정한 패턴으로 패턴 컴포넌트의 패턴 초기화
-	PAtternComponent->InitializePatterns(Patterns);
+	PatternComponent->InitializePatterns(Patterns);
+
+	
+	// @MobTODO: 몬스터 스킬 어빌리티 태그 설정
+	FGameplayAbilitySpec Spec1(UP4GA_LeftWingStomp::StaticClass());
+	Spec1.GetDynamicSpecSourceTags().AddTag(
+		FGameplayTag::RequestGameplayTag(FName("Monster.Action.LeftWingStomp"))
+	);
+	ASC->GiveAbility(Spec1);
+
+	FGameplayAbilitySpec Spec2(UP4GA_Howling::StaticClass());
+	Spec2.GetDynamicSpecSourceTags().AddTag(
+		FGameplayTag::RequestGameplayTag(FName("Monster.Action.Howling"))
+	);
+	ASC->GiveAbility(Spec2);
+
+	
+	FGameplayAbilitySpec Spec3(UP4GA_EnergyBomb::StaticClass());
+	Spec3.GetDynamicSpecSourceTags().AddTag(
+		FGameplayTag::RequestGameplayTag(FName("Monster.Action.EnergyBomb"))
+	);
+	ASC->GiveAbility(Spec3);
 }
 
 void AP4BossMonsterNemielle::SetupAttackDelegate()

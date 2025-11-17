@@ -11,16 +11,16 @@
 // Sets default values
 AP4BossMonsterBase::AP4BossMonsterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	// ASC 설정===========================================
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AttributeSet = CreateDefaultSubobject<UP4MonsterAttributeSet>(TEXT("AttributeSet"));
 	ASC->AddAttributeSetSubobject<UP4MonsterAttributeSet>(AttributeSet);
 
-	
-	PAtternComponent = CreateDefaultSubobject<UP4MonsterPatternComponent>(TEXT("PatternComponent"));
+
+	PatternComponent = CreateDefaultSubobject<UP4MonsterPatternComponent>(TEXT("PatternComponent"));
 
 	// Monster Stat Data Table
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(
@@ -30,7 +30,7 @@ AP4BossMonsterBase::AP4BossMonsterBase()
 	{
 		MonsterStatData = DataTableRef.Object;
 	}
-	
+
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(
 		TEXT("/Game/Monster/AI/BB_BossMonster.BB_BossMonster")
 	);
@@ -38,7 +38,7 @@ AP4BossMonsterBase::AP4BossMonsterBase()
 	{
 		BBAsset = BBAssetRef.Object;
 	}
-	
+
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTAssetRef(
 		TEXT("/Game/Monster/AI/BT_BossMonster.BT_BossMonster")
 	);
@@ -46,7 +46,7 @@ AP4BossMonsterBase::AP4BossMonsterBase()
 	{
 		BTAsset = BTAssetRef.Object;
 	}
-	
+
 	// AI 설정
 	AIControllerClass = AP4MonsterAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -56,6 +56,7 @@ AP4BossMonsterBase::AP4BossMonsterBase()
 void AP4BossMonsterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	// Stat 설정
 	if (ASC)
 	{
 		ASC->InitAbilityActorInfo(this, this);
@@ -82,20 +83,27 @@ void AP4BossMonsterBase::BeginPlay()
 			}
 		}
 	}
+
+	// 일정 시간마다 패턴 확률 체크
+	GetWorld()->GetTimerManager().SetTimer(
+		PatternCheckTimerHandle,
+		this,
+		&AP4BossMonsterBase::CheckPatternProbability,
+		1.0f,
+		true
+	);
 }
 
 // Called every frame
 void AP4BossMonsterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void AP4BossMonsterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 bool AP4BossMonsterBase::GetIsDamaged()
@@ -129,11 +137,14 @@ void AP4BossMonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, co
 {
 	// 공격 모션동안 이동 막기
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
-	
+
 	// 몽타주 재생을 위해 AnimInstance 갖고 오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
-	{		
+	{
+		// @MobTodo: 몽타주 재생 확인용 로그
+		UE_LOG(LogTemp, Log, TEXT("Monster Has AnimInstance"));
+
 		// 입력받은 섹션으로 몽타주 섹션 변경
 		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
 
@@ -143,7 +154,11 @@ void AP4BossMonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, co
 		AAIController* AIController = Cast<AAIController>(GetController());
 		if (AIController)
 		{
+			IsPatternActive = true;
 			AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsPatternActive"), true);
+
+			// @MobTodo: 몽타주 재생 확인용 로그
+			UE_LOG(LogTemp, Log, TEXT("Monster Has AIController"));
 		}
 
 		// 몽타주 재생이 끝날 때 실행될 함수 바인딩
@@ -163,6 +178,7 @@ void AP4BossMonsterBase::AttackActionEnd(UAnimMontage* TargetMontage, bool Inter
 	AAIController* AIController = Cast<AAIController>(GetController());
 	if (AIController)
 	{
+		IsPatternActive = false;
 		AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsPatternActive"), false);
 	}
 
@@ -191,3 +207,23 @@ void AP4BossMonsterBase::ExecuteAttackSection(const FName& SectionName)
 	}
 }
 
+void AP4BossMonsterBase::CheckPatternProbability()
+{
+	// 만약 패턴이 실행 중이라면 반환
+	if (IsPatternActive)
+	{
+		return;
+	}
+
+	// 패턴 컴포넌트에서 가중치로 패턴 확인
+	AP4MonsterAIController* AICon = Cast<AP4MonsterAIController>(GetController());
+	if (AICon)
+	{
+		UBlackboardComponent* BB = AICon->GetBlackboardComponent();
+		if (BB)
+		{
+			AActor* Target = Cast<AActor>(BB->GetValueAsObject(TEXT("Target")));
+			PatternComponent->TryExecutePattern(Target);
+		}
+	}
+}

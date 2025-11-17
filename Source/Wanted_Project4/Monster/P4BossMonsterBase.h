@@ -141,7 +141,7 @@ protected:
 protected:
 	// 패턴 관리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UP4MonsterPatternComponent> PAtternComponent;
+	TObjectPtr<UP4MonsterPatternComponent> PatternComponent;
 
 	// 공격 델리게이트를 배열로 저장
 	TArray<FBossMonsterAttackDelegate> AttackDelegates;
@@ -154,6 +154,15 @@ protected:
 	// 공격 델리게이트 배열을 설정 (자식이 오버라이드)
 	virtual void SetupAttackDelegate();
 
+	// 몬스터가 패턴 발동 중인지 저장하는 변수
+	bool IsPatternActive = false;
+
 public:
 	void ExecuteAttackSection(const FName& SectionName);
+	FORCEINLINE void SetIsPatternActive(bool InIsPatternActive) { IsPatternActive = InIsPatternActive; }
+
+private:
+	FTimerHandle PatternCheckTimerHandle;
+
+	void CheckPatternProbability();
 };

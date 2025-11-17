@@ -43,6 +43,24 @@ void AP4MonsterAIController::StopAI()
 	}
 }
 
+void AP4MonsterAIController::SetPatternActive(bool InActive)
+{
+	UBlackboardComponent* BB = GetBlackboardComponent();
+	if (!BB)
+	{
+		return;
+	}
+
+	// 블랙보드의 IsPatternActive 세팅
+	BB->SetValueAsBool("IsPatternActive", InActive);
+
+	// 만약 패턴이 발동 중이면 이동을 중단
+	if (InActive)
+	{
+		StopMovement();
+	}
+}
+
 void AP4MonsterAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

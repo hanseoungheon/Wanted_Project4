@@ -21,6 +21,8 @@ public:
 
 	void StopAI();
 
+	void SetPatternActive(bool InActive);
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	

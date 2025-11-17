@@ -9,7 +9,9 @@
 UP4GA_LeftWingStomp::UP4GA_LeftWingStomp()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.LeftWingStomp")));
+	// 단순히 AddTag의 경우에는 AbilitySped 에 반영되지 않음
+	// 그로인해 TryActivateAbilitiesByTag 가 태그로 AbilitySpec 을 찾지 못함
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.LeftWingStomp")));
 }
 
 void UP4GA_LeftWingStomp::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -21,7 +23,7 @@ void UP4GA_LeftWingStomp::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	// @Todo: Ability 호출 확인
 	UE_LOG(LogTemp, Log, TEXT("LeftWingStomp Ability 호출"));
-	
+
 	// 몬스터 베이스 캐스트
 	AP4BossMonsterBase* Monster = Cast<AP4BossMonsterBase>(ActorInfo->AvatarActor.Get());
 	if (Monster)

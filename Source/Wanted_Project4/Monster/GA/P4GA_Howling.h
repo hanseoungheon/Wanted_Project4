@@ -13,5 +13,9 @@ UCLASS()
 class WANTED_PROJECT4_API UP4GA_Howling : public UGameplayAbility
 {
 	GENERATED_BODY()
+
+	UP4GA_Howling();
+
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 };

@@ -3,6 +3,7 @@
 
 #include "Monster/AI/P4MonsterPatternComponent.h"
 
+#include "Monster/P4BossMonsterBase.h"
 #include "Monster/P4MonsterBase.h"
 
 // Sets default values for this component's properties
@@ -24,6 +25,9 @@ void UP4MonsterPatternComponent::InitializePatterns(const TArray<FPatternData>& 
 // 가중치 계산을 통해 패턴 선택, 실행함수 호출
 void UP4MonsterPatternComponent::TryExecutePattern(AActor* Target)
 {
+	// @MobTODO: 패턴 체크 실행하는지 확인용 로그
+	UE_LOG(LogTemp, Log, TEXT("TryExecutePattern"));
+	
 	if (!Target)
 	{
 		return;
@@ -47,6 +51,9 @@ void UP4MonsterPatternComponent::TryExecutePattern(AActor* Target)
 			AvailablePatterns.Add(&Pattern);
 		}
 	}
+	
+	// @MobTODO: 사용 가능 패턴 확인용 로그
+	UE_LOG(LogTemp, Log, TEXT("[Available Pattern Count] %d"), AvailablePatterns.Num());
 
 	// 사용 가능한 패턴이 없으면 반환
 	if (AvailablePatterns.IsEmpty())
@@ -99,14 +106,26 @@ bool UP4MonsterPatternComponent::IsPatternAvailable(const FPatternData& Pattern,
 
 void UP4MonsterPatternComponent::ExecutePattern(const FPatternData& Pattern)
 {
-	AP4MonsterBase* Monster = Cast<AP4MonsterBase>(GetOwner());
+	// @MobTODO: 패턴 발동 확인용
+	UE_LOG(LogTemp, Log, TEXT("ExecutePattern"));
+	
+	AP4BossMonsterBase* Monster = Cast<AP4BossMonsterBase>(GetOwner());
 	if (Monster)
 	{
 		UAbilitySystemComponent* ASC = Monster->GetAbilitySystemComponent();
 		if (ASC)
 		{
+			// @MobTODO: 패턴 발동 확인용
+			UE_LOG(LogTemp, Log, TEXT("Get Monster's ASC Complete"));
+			
 			// AbilityTag 를 통해 패턴 Ability 찾기
-			FGameplayTag AbilityTag = FGameplayTag::RequestGameplayTag(Pattern.PatternName);
+			FString PatternName = TEXT("Monster.Action.");
+			PatternName.Append(Pattern.PatternName.ToString());
+			
+			FGameplayTag AbilityTag = FGameplayTag::RequestGameplayTag(*PatternName);
+
+			// @MobTODO: 패턴 태그 확인용
+			UE_LOG(LogTemp, Log, TEXT("[MobPattern]: %s"), *AbilityTag.ToString());
 			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(AbilityTag));
 
 			// 사용한 패턴 쿨타임 기록
