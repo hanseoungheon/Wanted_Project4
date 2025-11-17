@@ -18,6 +18,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Tag/P4GameplayTag.h"
 #include "Item/Equipment/P4WeaponComponent.h"
+#include "Inventory/P4EquipmentInvenComponent.h"
 
 // Sets default values
 AP4CharacterBase::AP4CharacterBase()
@@ -35,6 +36,10 @@ AP4CharacterBase::AP4CharacterBase()
 	// -작성: 노현기 -일시: 2025.11.14
 	// 무기 컴포넌트 생성
 	WeaponComponent = CreateDefaultSubobject<UP4WeaponComponent>(TEXT("WeaponComponent"));
+
+	// -작성: 노현기 -일시: 2025.11.18
+	// 장비창 컴포넌트 생성
+	EquipmentInvenComp = CreateDefaultSubobject<UP4EquipmentInvenComponent>(TEXT("EquipmentInvenComponent"));
 
 	// Pawn
 	bUseControllerRotationPitch = false;
