@@ -8,6 +8,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "Game/P4GameInstance.h"
+#include "Player/P4PlayerController.h"
 UP4GA_Interaction::UP4GA_Interaction()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -39,6 +40,9 @@ void UP4GA_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 
 
+	AP4PlayerController* PC = Cast<AP4PlayerController>(PlayerCharacter->GetController());
+
+	PC->Test();
 	// 1) 루트 인터랙트 태그부터 검사 (Character.Interact)
 	//static const FGameplayTag InteractTag =
 	//	FGameplayTag::RequestGameplayTag(TEXT("Character.Interact"));
@@ -108,7 +112,6 @@ void UP4GA_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 		//NPC_Character->ShowQuestUI(NPC_Character->GetNPCQuestCode());
 	}
-
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 

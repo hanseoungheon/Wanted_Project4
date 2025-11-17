@@ -13,6 +13,7 @@
 #include "Engine/Texture2D.h"
 #include "Animation/AnimMontage.h"
 #include "GameplayEffect.h"
+#include "Game/P4UpgradeType.h"
 
 AP4CharacterPlayer::AP4CharacterPlayer()
 {
@@ -230,7 +231,7 @@ void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value)
 	}
 }
 
-void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBonusMaxHealth)
+void AP4CharacterPlayer::ApplyEnchantWeapon(float InRate, EP4UpgradeType UpgradeType)
 {
 	if (ASC == nullptr || EnchantEffectClass == nullptr)
 	{
@@ -266,14 +267,20 @@ void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBon
 		//static FGameplayTag TAG_Data_Weapon_MaxHealth =
 		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
 
-		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack")), InBonusAttackRate);
-		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth")), InBonusMaxHealth);
+		if (UpgradeType == EP4UpgradeType::Attack)
+		{
+			//공격력 업그레이드.
+			Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack")), InRate);
+			CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);		//자기자신에게 적용
 
-		//자기자신에게 적용
-		CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);
-
-		UE_LOG(LogTemp, Log, TEXT("Enchant applied: +Attack %f, +MaxHealth %f to %s"),
-			InBonusAttackRate, InBonusMaxHealth, *GetName());
+		}
+		else if (UpgradeType == EP4UpgradeType::MaxHealth)
+		{
+			Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth")), InRate);
+			CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);		//자기자신에게 적용
+		}
+		//UE_LOG(LogTemp, Log, TEXT("Enchant applied: +Attack %f, +MaxHealth %f to %s"),
+		//	InBonusAttackRate, InBonusMaxHealth, *GetName());
 
 	}
 }

@@ -98,6 +98,11 @@ AP4PlayerController::AP4PlayerController()
 	}
 }
 
+void AP4PlayerController::Test()
+{
+	ToggleInventory();
+}
+
 void AP4PlayerController::BeginPlay()
 {
 	Super::BeginPlay();

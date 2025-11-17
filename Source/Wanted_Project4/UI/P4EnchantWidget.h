@@ -30,6 +30,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Enchant)
 	void OnDeclinClicked(); //거절버튼 누를때 발생하는 코드.
+
+	//UFUNCTION(BlueprintCallable, Category = Enchant)
+
+	//void TryEnchant();
 		
 public:
 
@@ -40,6 +44,21 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> DeclineButton;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UP4EnchantSlotWidget> WeaponSlot;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UP4EnchantSlotWidget> StoneSlot;
+
+	//// 결과 텍스트 (성공/실패 표시용, BP에서 만들어도 되고 안 써도 됨)
+	//UPROPERTY(meta = (BindWidgetOptional))
+	//TObjectPtr<UTextBlock> ResultText;
+
+	UPROPERTY()
+	TObjectPtr<class UP4InventoryComponent> InventoryComp;
+
 	UPROPERTY()
 	TScriptInterface<IP4NPCEnchantWeaponInterface> EnchantNPC;
+
+
 };

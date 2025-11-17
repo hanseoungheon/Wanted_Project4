@@ -4,6 +4,8 @@
 #include "NPC/P4CatWoman.h"
 #include "UI/P4EnchantWidget.h"
 #include "Character/P4CharacterPlayer.h"
+#include "Game/P4UpgradeType.h"
+#include "Game/P4UpgradeType.h"
 AP4CatWoman::AP4CatWoman()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Game/NPC/DollCat/DollCat.DollCat"));
@@ -48,12 +50,12 @@ void AP4CatWoman::HandleEnchantWeapon()
 	UE_LOG(LogTemp, Warning, TEXT("CatWoman::HandleEnchantWeapon called"));
 	const float BonusAttackRate = 10.0f;
 	const float BonusMaxHelath = 20.0f;
-
+	//EP4UpgradeType UpgradeType = EP4UpgradeType::Attack;
 	AP4CharacterPlayer* PlayerCharacter = Cast<AP4CharacterPlayer>(OverlapedActor);
 
 	if (PlayerCharacter != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CatWoman: Found player, applying enchant"));
-		PlayerCharacter->ApplyEnchantWeapon(BonusAttackRate, BonusMaxHelath);
+		PlayerCharacter->ApplyEnchantWeapon(BonusAttackRate,EP4UpgradeType::Attack);
 	}
 }

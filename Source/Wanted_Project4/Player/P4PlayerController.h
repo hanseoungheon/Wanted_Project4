@@ -31,6 +31,8 @@ class WANTED_PROJECT4_API AP4PlayerController : public APlayerController
 public:
     AP4PlayerController();
 
+    void Test();
+
 protected:
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
