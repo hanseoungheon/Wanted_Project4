@@ -28,11 +28,14 @@ void UP4InventoryWidget::NativeConstruct()
 
 	if (EquipmentTypeSlot)
 	{
+        // 인덱스 카운터 추가
+        int32 Index = 0; 
 		for (UWidget* Child : EquipmentTypeSlot->GetAllChildren())
 		{
 			if (UP4Slot* SlotWidget = Cast<UP4Slot>(Child))
 			{
-                SlotWidget->SlotType = EInventorySlotType::Equipment;
+                SlotWidget->SlotType = P4InventoryTags::Slot::Equipment;
+                SlotWidget->SlotIndex = Index++;  // 슬롯 인덱스 설정
 				EquipmentSlots.Add(SlotWidget);
 			}
 		}
@@ -40,11 +43,14 @@ void UP4InventoryWidget::NativeConstruct()
 
 	if (ConsumableTypeSlot)
 	{
+        // 인덱스 카운터 추가
+        int32 Index = 0; 
 		for (UWidget* Child : ConsumableTypeSlot->GetAllChildren())
 		{
 			if (UP4Slot* SlotWidget = Cast<UP4Slot>(Child))
 			{
-                SlotWidget->SlotType = EInventorySlotType::Consumable;
+                SlotWidget->SlotType = P4InventoryTags::Slot::Consumable;
+                SlotWidget->SlotIndex = Index++;  // 슬롯 인덱스 설정
 				ConsumableSlots.Add(SlotWidget);
 			}
 		}
@@ -76,6 +82,21 @@ void UP4InventoryWidget::NativeConstruct()
             }
         }
     }
+
+    // ✅ 디버그: 슬롯 인덱스 확인
+    UE_LOG(LogTemp, Warning, TEXT("=== 장비 슬롯 초기화 ==="));
+    for (int32 i = 0; i < EquipmentSlots.Num(); ++i)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("EquipmentSlots[%d] → SlotIndex: %d"),
+            i, EquipmentSlots[i]->SlotIndex);
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("=== 소비 슬롯 초기화 ==="));
+    for (int32 i = 0; i < ConsumableSlots.Num(); ++i)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ConsumableSlots[%d] → SlotIndex: %d"),
+            i, ConsumableSlots[i]->SlotIndex);
+    }
 }
 
 void UP4InventoryWidget::BindInventory(UP4InventoryComponent* InInventoryComp)
@@ -106,7 +127,7 @@ void UP4InventoryWidget::RefreshUI()
     }
 
     // 장비 인벤토리 갱신
-    const TArray<FInventoryItem>* EquipItems = InventoryComp->GetInventoryByType(EInventorySlotType::Equipment);
+    const TArray<FInventoryItem>* EquipItems = InventoryComp->GetInventoryByType(P4InventoryTags::Slot::Equipment);
     if (EquipItems)
     {
         for (int32 i = 0; i < EquipmentSlots.Num() && i < EquipItems->Num(); ++i)
@@ -116,7 +137,7 @@ void UP4InventoryWidget::RefreshUI()
     }
 
     // 소비 인벤토리 갱신
-    const TArray<FInventoryItem>* ConsumItems = InventoryComp->GetInventoryByType(EInventorySlotType::Consumable);
+    const TArray<FInventoryItem>* ConsumItems = InventoryComp->GetInventoryByType(P4InventoryTags::Slot::Consumable);
     if (ConsumItems)
     {
         for (int32 i = 0; i < ConsumableSlots.Num() && i < ConsumItems->Num(); ++i)
@@ -127,7 +148,7 @@ void UP4InventoryWidget::RefreshUI()
 
 }
 
-void UP4InventoryWidget::RefreshSlot(EInventorySlotType SlotType, int32 SlotIndex)
+void UP4InventoryWidget::RefreshSlot(FGameplayTag SlotType, int32 SlotIndex)
 {
     if (!InventoryComp)
     {
@@ -139,27 +160,25 @@ void UP4InventoryWidget::RefreshSlot(EInventorySlotType SlotType, int32 SlotInde
     const TArray<FInventoryItem>* TargetArray = InventoryComp->GetInventoryByType(SlotType);
     if (!TargetArray || !TargetArray->IsValidIndex(SlotIndex))
     {
-        UE_LOG(LogTemp, Error, TEXT("RefreshSlot: 잘못된 타입[%d] 또는 인덱스[%d]"), (int32)SlotType, SlotIndex);
+        UE_LOG(LogTemp, Error, TEXT("RefreshSlot: 잘못된 타입[%s] 또는 인덱스[%d]"), *SlotType.ToString(),
+            SlotIndex);
         return;
     }
 
     // 해당 타입의 UI 슬롯 배열 가져오기
     TArray<TObjectPtr<UP4Slot>>* SlotArray = nullptr;
 
-    switch (SlotType)
+    if (SlotType == P4InventoryTags::Slot::Equipment)
     {
-    case EInventorySlotType::Equipment:
         SlotArray = &EquipmentSlots;
-        break;
-    case EInventorySlotType::Consumable:
+    }
+    else if (SlotType == P4InventoryTags::Slot::Consumable)
+    {
         SlotArray = &ConsumableSlots;
-        break;
-        //  나중에 타입 추가 시
-        // case EInventorySlotType::Material:
-        //     SlotArray = &MaterialSlots;
-        //     break;
-    default:
-        UE_LOG(LogTemp, Error, TEXT("RefreshSlot: 알 수 없는 SlotType[%d]"), (int32)SlotType);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("RefreshSlot: 알 수 없는 SlotType[%s]"), *SlotType.ToString());
         return;
     }
 

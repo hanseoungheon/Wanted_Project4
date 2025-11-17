@@ -28,7 +28,7 @@ public:
 	void RefreshUI();
 
 	// 특정 슬롯만 업데이트
-	void RefreshSlot(EInventorySlotType SlotType, int32 SlotIndex);
+	void RefreshSlot(FGameplayTag SlotType, int32 SlotIndex);
 
 	// 마우스 클릭 감지(인벤토리 클릭 시 공격모션 방지하기 위해)
 	virtual FReply NativeOnMouseButtonDown(

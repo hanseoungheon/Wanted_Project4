@@ -14,8 +14,8 @@
 UP4InventoryComponent::UP4InventoryComponent()
 {
     //  배열 초기화
-    MaxSlotsPerType.Add(EInventorySlotType::Equipment, 16);
-    MaxSlotsPerType.Add(EInventorySlotType::Consumable, 16);
+    MaxSlotsPerType.Add(P4InventoryTags::Slot::Equipment, 16);
+    MaxSlotsPerType.Add(P4InventoryTags::Slot::Consumable, 16);
 
     InitiailizeInventoryArrays();
 }
@@ -25,7 +25,7 @@ bool UP4InventoryComponent::AddItem(UItemDataBase* ItemData, int32 Quantity)
     if (!ItemData) return false;
 
     // 아이템 슬롯 타입 결정
-    EInventorySlotType SlotType = GetSlotTypeFromItemData(ItemData);
+    FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
     TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
     if (!TargetArray)
@@ -89,7 +89,7 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
 {
     if (!ItemData) return false;
 
-    EInventorySlotType SlotType = GetSlotTypeFromItemData(ItemData);
+    FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
     TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
     if (!TargetArray) return false;
@@ -154,12 +154,29 @@ bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
     // 특정 슬롯이 지정된 경우 해당 슬롯의 아이템 확인
     if (SlotIndex >= 0)
     {
-        EInventorySlotType SlotType = GetSlotTypeFromItemData(ItemData);
+        FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
+        // 🔍 디버그 로그 추가
+        UE_LOG(LogTemp, Warning, TEXT("🔍 아이템[%s]의 SlotType: %s"),
+            *ItemData->GetItemName().ToString(),
+            *SlotType.ToString());
         TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
         if (!TargetArray || !TargetArray->IsValidIndex(SlotIndex))
         {
             UE_LOG(LogTemp, Error, TEXT("UseItem: 잘못된 슬롯 인덱스[%d]"), SlotIndex);
+            return false;
+        }
+
+        // 🔍 디버그 로그 추가
+        UE_LOG(LogTemp, Warning, TEXT("🔍 슬롯[%d]의 아이템: %s, SlotType: %s"),
+            SlotIndex,
+            (*TargetArray)[SlotIndex].ItemData ? *(*TargetArray)[SlotIndex].ItemData->GetItemName().ToString() :
+            TEXT("없음"),
+            *(*TargetArray)[SlotIndex].SlotType.ToString());
+
+        if ((*TargetArray)[SlotIndex].ItemData != ItemData)
+        {
+            UE_LOG(LogTemp, Error, TEXT("UseItem: 슬롯[%d]의 아이템이 일치하지 않음"), SlotIndex);
             return false;
         }
 
@@ -238,11 +255,45 @@ bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
     return true;
 }
 
-bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData)
+bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
 {
     if (!ItemData) return false;
 
     UE_LOG(LogTemp, Log, TEXT("EquipItem 함수 호출"));
+
+    // 특정 슬롯이 지정된 경우 해당 슬롯의 아이템 확인
+    if (SlotIndex >= 0)
+    {
+        FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
+        TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
+
+        if (!TargetArray || !TargetArray->IsValidIndex(SlotIndex))
+        {
+            UE_LOG(LogTemp, Error, TEXT("EquipItem: 잘못된 슬롯 인덱스[%d]"), SlotIndex);
+            return false;
+        }
+
+        if ((*TargetArray)[SlotIndex].ItemData != ItemData)
+        {
+            UE_LOG(LogTemp, Error, TEXT("EquipItem: 슬롯[%d]의 아이템이 일치하지 않음"), SlotIndex);
+            return false;
+        }
+
+        if ((*TargetArray)[SlotIndex].Quantity <= 0)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("EquipItem: 슬롯[%d]의 아이템 수량이 0개"), SlotIndex);
+            return false;
+        }
+    }
+    // 슬롯이 지정되지 않은 경우 전체 개수 확인
+    else
+    {
+        if (GetItemCount(ItemData) <= 0)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("아이템이 인벤토리에 없습니다!"));
+            return false;
+        }
+    }
 
     // 장비 태그 확인
     FGameplayTag EquipmentTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment"));
@@ -258,6 +309,8 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData)
         UE_LOG(LogTemp, Warning, TEXT("이미 착용 중인 아이템입니다!"));
         return false;
     }
+
+    
 
     // AbilitySystemComponent 가져오기
     AActor* Owner = GetOwner();
@@ -286,20 +339,7 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData)
         }
     }
 
-    //// 아이템 태그가 무기라면
-    //FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag((FName("Item.Equipment.Weapon")));
-    //if (ItemData->HasTag(WeaponTag))
-    //{
-    //    if (AP4CharacterBase* PlayerCharacter = Cast<AP4CharacterBase>(Owner))
-    //    {
-    //        if (UP4WeaponComponent* WeaponComp = PlayerCharacter->GetWeaponComponent())
-    //        {
-    //            WeaponComp->EquipWeapon(ItemData);
-    //        }
-    //    }
-    //}
-
-     // ⭐ 무기라면 WeaponComponent에 전달 + bIsEquipped 설정
+     // 무기라면 WeaponComponent에 전달 + bIsEquipped 설정
     FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
     if (ItemData->HasTag(WeaponTag))
     {
@@ -308,10 +348,17 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData)
             // WeaponComponent로 무기 장착 (등에 부착)
             if (UP4WeaponComponent* WeaponComp = PlayerCharacter->GetWeaponComponent())
             {
-                WeaponComp->EquipWeapon(ItemData);
+               // WeaponComp->EquipWeapon(ItemData);
+                bool bEquipSuccess = WeaponComp->EquipWeapon(ItemData);
+                if (!bEquipSuccess)
+                {
+                    // 장착 실패 시 인벤토리에서 제거하지 않음
+                    UE_LOG(LogTemp, Warning, TEXT("[EquipItem] 무기 장착 실패 - 인벤토리에서 아이템 제거하지 않음"));
+                    return false;
+                }
             }
 
-            // ⭐ AnimInstance의 bIsEquipped를 true로 설정
+            //  AnimInstance의 bIsEquipped를 true로 설정
             if (USkeletalMeshComponent* MeshComp = PlayerCharacter->GetMesh())
             {
                 if (UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()))
@@ -322,14 +369,15 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData)
             }
         }
 
-        UE_LOG(LogTemp, Log, TEXT("EquipItem 함수 리턴"));
+        // 특정 슬롯의 아이템 제거
+        RemoveItem(ItemData, 1, SlotIndex);
         return true;
     }
 
     return true;
 }
 
-bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData)
+bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData, int32 SlotIndex)
 {
     if (!ItemData) return false;
 
@@ -355,7 +403,7 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData)
 
     UE_LOG(LogTemp, Log, TEXT("장비 해제: %s"), *ItemData->GetItemName().ToString());
 
-    // ⭐ 무기라면 WeaponComponent에서 제거 + bIsEquipped 설정
+    // 무기라면 WeaponComponent에서 제거 + bIsEquipped 설정
     FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
     if (ItemData->HasTag(WeaponTag))
     {
@@ -367,7 +415,7 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData)
                 WeaponComp->UnequipWeapon();
             }
 
-            // ⭐ AnimInstance의 bIsEquipped, bIsKatanaOnHand를 false로 설정
+            // AnimInstance의 bIsEquipped, bIsKatanaOnHand를 false로 설정
             if (USkeletalMeshComponent* MeshComp = PlayerCharacter->GetMesh())
             {
                 if (UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()))
@@ -384,7 +432,7 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData)
 }
 
 
-void UP4InventoryComponent::SwapSlots(int32 SlotIndexA, int32 SlotIndexB, EInventorySlotType SlotType)
+void UP4InventoryComponent::SwapSlots(int32 SlotIndexA, int32 SlotIndexB, FGameplayTag SlotType)
 {
     TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
@@ -399,8 +447,8 @@ void UP4InventoryComponent::SwapSlots(int32 SlotIndexA, int32 SlotIndexB, EInven
     // 인덱스 유효성 검사
     if (SlotIndexA < 0 || SlotIndexA >= MaxSlots || SlotIndexB < 0 || SlotIndexB >= MaxSlots)
     {
-        UE_LOG(LogTemp, Error, TEXT("SwapSlots: 잘못된 인덱스 (A: %d, B: %d, Max: %d, Type: %d)"),
-            SlotIndexA, SlotIndexB, MaxSlots, (int32)SlotType);
+        UE_LOG(LogTemp, Error, TEXT("SwapSlots: 잘못된 인덱스 (A: %d, B: %d, Max: %d, Type: %s)"),
+            SlotIndexA, SlotIndexB, MaxSlots, *SlotType.ToString());
         return;
     }
 
@@ -413,8 +461,8 @@ void UP4InventoryComponent::SwapSlots(int32 SlotIndexA, int32 SlotIndexB, EInven
     (*TargetArray)[SlotIndexA].SlotIndex = SlotIndexA;
     (*TargetArray)[SlotIndexB].SlotIndex = SlotIndexB;
 
-    UE_LOG(LogTemp, Log, TEXT("✅ SwapSlots: 타입[%d] 슬롯[%d] ↔ 슬롯[%d]"),
-        (int32)SlotType, SlotIndexA, SlotIndexB);
+    UE_LOG(LogTemp, Log, TEXT("SwapSlots: 타입[%s] 슬롯[%d] ↔ 슬롯[%d]"),
+        *SlotType.ToString(), SlotIndexA, SlotIndexB);
 
     // UI 갱신 이벤트 브로드캐스트
     OnInventoryUpdated.Broadcast(SlotType, SlotIndexA);
@@ -425,7 +473,7 @@ bool UP4InventoryComponent::HasSpace(UItemDataBase* ItemData) const
 {
     if (!ItemData) return false;
 
-    EInventorySlotType SlotType = GetSlotTypeFromItemData(ItemData);
+    FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
     const TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
     if (!TargetArray) return false;
@@ -448,7 +496,7 @@ int32 UP4InventoryComponent::GetItemCount(UItemDataBase* ItemData) const
 {
     if (!ItemData) return 0;
 
-    EInventorySlotType SlotType = GetSlotTypeFromItemData(ItemData);
+    FGameplayTag SlotType = GetSlotTypeFromItemData(ItemData);
     const TArray<FInventoryItem>* TargetArray = GetInventoryByType(SlotType);
 
     if (!TargetArray) return 0;
@@ -464,67 +512,73 @@ int32 UP4InventoryComponent::GetItemCount(UItemDataBase* ItemData) const
     return TotalCount;
 }
 
-TArray<FInventoryItem>* UP4InventoryComponent::GetInventoryByType(EInventorySlotType SlotType)
+TArray<FInventoryItem>* UP4InventoryComponent::GetInventoryByType(FGameplayTag SlotType)
 {
-    switch (SlotType)
+    if (SlotType == P4InventoryTags::Slot::Equipment)
     {
-    case EInventorySlotType::Equipment:
         return &EquipmentItems;
-    case EInventorySlotType::Consumable:
+    }
+    else if (SlotType == P4InventoryTags::Slot::Consumable)
+    {
         return &ConsumableItems;
-    default:
+    }
+    else
+    {
         UE_LOG(LogTemp, Error, TEXT("GetInventoryByType: 알 수 없는 SlotType"));
         return nullptr;
     }
 }
 
-const TArray<FInventoryItem>* UP4InventoryComponent::GetInventoryByType(EInventorySlotType SlotType) const
+const TArray<FInventoryItem>* UP4InventoryComponent::GetInventoryByType(FGameplayTag SlotType) const
 {
-    switch (SlotType)
+    if (SlotType == P4InventoryTags::Slot::Equipment)
     {
-    case EInventorySlotType::Equipment:
         return &EquipmentItems;
-    case EInventorySlotType::Consumable:
+    }
+    else if (SlotType == P4InventoryTags::Slot::Consumable)
+    {
         return &ConsumableItems;
-    default:
+    }
+    else
+    {
         UE_LOG(LogTemp, Error, TEXT("GetInventoryByType: 알 수 없는 SlotType"));
         return nullptr;
     }
 }
 
-EInventorySlotType UP4InventoryComponent::GetSlotTypeFromItemData(UItemDataBase* ItemData) const
+FGameplayTag UP4InventoryComponent::GetSlotTypeFromItemData(UItemDataBase* ItemData) const
 {
-    if (!ItemData) return EInventorySlotType::Equipment;
+    if (!ItemData) return P4InventoryTags::Slot::Equipment;
 
     if (ItemData->HasTag(P4InventoryTags::Item::Equipment))
     {
-        return EInventorySlotType::Equipment;
+        return P4InventoryTags::Slot::Equipment;
     }
     else if (ItemData->HasTag(P4InventoryTags::Item::Consumable))
     {
-        return EInventorySlotType::Consumable;
+        return P4InventoryTags::Slot::Consumable;
     }
 
-    return EInventorySlotType::Equipment; // 기본(임시)
+    return P4InventoryTags::Slot::Equipment; // 기본(임시)
 }
 
 void UP4InventoryComponent::InitiailizeInventoryArrays()
 {
     // 각 타입별 배열 고정크기로 초기화
-    EquipmentItems.SetNum(MaxSlotsPerType[EInventorySlotType::Equipment]);
-    ConsumableItems.SetNum(MaxSlotsPerType[EInventorySlotType::Consumable]);
+    EquipmentItems.SetNum(MaxSlotsPerType[P4InventoryTags::Slot::Equipment]);
+    ConsumableItems.SetNum(MaxSlotsPerType[P4InventoryTags::Slot::Consumable]);
 
     for (int32 i = 0; i < EquipmentItems.Num(); ++i)
     {
         EquipmentItems[i] = FInventoryItem();
-        EquipmentItems[i].SlotType = EInventorySlotType::Equipment;
+        EquipmentItems[i].SlotType = P4InventoryTags::Slot::Equipment;
         EquipmentItems[i].SlotIndex = i;
     }
 
     for (int32 i = 0; i < ConsumableItems.Num(); ++i)
     {
         ConsumableItems[i] = FInventoryItem();
-        ConsumableItems[i].SlotType = EInventorySlotType::Consumable;
+        ConsumableItems[i].SlotType = P4InventoryTags::Slot::Consumable;
         ConsumableItems[i].SlotIndex = i;
     }
 }

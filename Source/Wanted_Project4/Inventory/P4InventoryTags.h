@@ -15,7 +15,13 @@ namespace P4InventoryTags
         WANTED_PROJECT4_API extern const FGameplayTag Consumable;
 
         // 추가 확장 가능
-        WANTED_PROJECT4_API extern const FGameplayTag Quest;
-        WANTED_PROJECT4_API extern const FGameplayTag Material;
+        //WANTED_PROJECT4_API extern const FGameplayTag Quest;
+        //WANTED_PROJECT4_API extern const FGameplayTag Material;
+    }
+
+    namespace Slot
+    {
+        WANTED_PROJECT4_API extern const FGameplayTag Equipment;
+        WANTED_PROJECT4_API extern const FGameplayTag Consumable;
     }
 }

@@ -61,7 +61,7 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 					{
 						if (CurrentItem.ItemData->HasTag(P4InventoryTags::Item::Equipment))
 						{
-							InvComp->EquipItem(CurrentItem.ItemData);
+							InvComp->EquipItem(CurrentItem.ItemData, SlotIndex);
 						}
 						else if (CurrentItem.ItemData->HasTag(P4InventoryTags::Item::Consumable))
 						{
