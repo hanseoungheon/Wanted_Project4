@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "Game/P4GameInstance.h"
 #include "NPC/Quest/P4QuestManager.h"
+
 void UP4QuestWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -86,7 +87,6 @@ void UP4QuestWidget::InitWithQuestCode(int32 InQuestCode)
 		}
 	}
 }
-
 void UP4QuestWidget::OnAcceptClicked()
 {
 	//퀘스트 실행하기.

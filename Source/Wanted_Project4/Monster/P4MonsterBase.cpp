@@ -323,6 +323,10 @@ void AP4MonsterBase::ExecuteAttackSection(const FName& SectionName)
 {
 	// 섹션 이름을 Index로 변경
 	int32 Index = AttackSectionNames.IndexOfByKey(SectionName);
+
+	// @MobTODO: 몽타주 노티파이 확인용 로그
+	UE_LOG(LogTemp, Log, TEXT("몽타주 재생, Index : %d"), Index);
+	
 	if (AttackDelegates.IsValidIndex(Index) && AttackDelegates[Index].IsBound())
 	{
 		// 해당 인덱스의 함수 실행

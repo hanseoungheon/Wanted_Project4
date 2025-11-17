@@ -95,6 +95,16 @@ void UP4GA_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 				}
 			}
 		}
+		else if (
+			ASC
+			->HasMatchingGameplayTag(
+				FGameplayTag::RequestGameplayTag(TEXT("Character.Interaction.Enchant"))
+			)
+			) //인첸트(무기강화) 태그를 가지고 있는지?
+		{
+			//Todo: 무기강화 구현해야됨.
+			NPC_Character->ShowEnchantUI();
+		}
 
 		//NPC_Character->ShowQuestUI(NPC_Character->GetNPCQuestCode());
 	}

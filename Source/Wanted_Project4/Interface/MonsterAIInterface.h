@@ -36,6 +36,9 @@ public:
 	virtual float GetAIChaseRange() = 0;
 	virtual float GetAITurnSpeed() = 0;
 
+	virtual float GetAIChaseSpeed() = 0;
+	virtual float GetAIMovementSpeed() = 0;
+
 	// @Todo: AttributeSet 에 없는 애들을 일단 어떻게 할 것인가
 	// AttributeSet 에 없음
 	virtual float GetAIAttackRange() = 0;
@@ -47,6 +50,11 @@ public:
 	
 	// 공격 요청 함수
 	virtual void AttackByAI() = 0;
+
+	// 이동 속도 조정 함수
+	virtual void SetCharacterMovementSpeed(float InSpeed) = 0;
+
+	virtual void ExecuteAttackSection(const FName& SectionName) = 0;
 
 	// 공격 종료 시점 델리게이트 호출 함수 (종료 시점임을 알림)
 	virtual void SetAIAttackDelegate(const FAIMonsterAttackFinished& InOnAttackFinished) = 0;

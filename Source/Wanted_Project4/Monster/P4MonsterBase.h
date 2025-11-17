@@ -11,6 +11,7 @@
 #include "Wanted_Project4/Interface/AnimationAttackInterface.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "GameFramework/CharacterMovementComponent.h"
 //#include "GameplayCueInterface.h"  // Cue 인터페이스 정의 포함
 #include "P4MonsterBase.generated.h"
 
@@ -72,6 +73,9 @@ public:
 	FORCEINLINE virtual float GetAIDetectRange() override { return AttributeSet->GetDetectRange(); }
 	FORCEINLINE virtual float GetAIChaseRange() override { return AttributeSet->GetChaseRange(); }
 	FORCEINLINE virtual float GetAITurnSpeed() override { return AttributeSet->GetTurnSpeed(); }
+	
+	FORCEINLINE virtual float GetAIChaseSpeed() override { return AttributeSet->GetChaseSpeed(); }
+	FORCEINLINE virtual float GetAIMovementSpeed() override { return AttributeSet->GetMovementSpeed(); }
 
 	// @Todo: AttributeSet 에 없는 애들을 일단 어떻게 할 것인가
 	// AttributeSet 에 없음
@@ -80,6 +84,9 @@ public:
 
 	// 공격 요청 함수
 	virtual void AttackByAI() override;
+
+	// 이동속도 설정 함수
+	FORCEINLINE void SetCharacterMovementSpeed(float InSpeed) override { GetCharacterMovement()->MaxWalkSpeed = InSpeed; }
 
 	// 공격 종료 시점 델리게이트 호출 함수 (종료 시점임을 알림)
 	virtual void SetAIAttackDelegate(const FAIMonsterAttackFinished& InOnAttackFinished) override;
@@ -166,5 +173,5 @@ protected:
 	virtual void SetupAttackDelegate();
 
 public:
-	void ExecuteAttackSection(const FName& SectionName);
+	virtual void ExecuteAttackSection(const FName& SectionName) override;
 };

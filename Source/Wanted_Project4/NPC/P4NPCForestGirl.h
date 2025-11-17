@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "NPC/P4NPCBase.h"
-#include "P4NPCDollCat.generated.h"
+#include "P4NPCForestGirl.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WANTED_PROJECT4_API AP4NPCDollCat : public AP4NPCBase
+class WANTED_PROJECT4_API AP4ForestGirl : public AP4NPCBase
 {
 	GENERATED_BODY()
 	//함수 섹션.
 public:
-	AP4NPCDollCat();
+	AP4ForestGirl();
 protected:
 	virtual void BeginPlay() override;
 

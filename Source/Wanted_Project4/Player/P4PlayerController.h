@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
@@ -19,7 +17,7 @@ enum class GASInputID : uint8
 };
 
 /**
- * 
+ *
  */
 class UInputMappingContext;
 class UInputAction;
@@ -28,8 +26,8 @@ class UAbilitySystemComponent;
 UCLASS()
 class WANTED_PROJECT4_API AP4PlayerController : public APlayerController
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 public:
     AP4PlayerController();
 
@@ -45,11 +43,11 @@ protected:
     // -작성: 노현기 -일시: 2025.11.10
     // 인벤토리 토글 함수
     void ToggleInventory();
-   
+
     // -작성: 노현기 -일시: 2025.11.14
     // 캐릭터 무기 장착 토글 함수
     //void ToggleHandOnWeapon();
-    
+
 
 public:
     //작성 한승헌 일시 2025.11.13
@@ -67,7 +65,6 @@ private:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> SuicideAction;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> JumpAction;
 
@@ -96,7 +93,7 @@ private:
     UFUNCTION(Exec)
     void DebugDamage(float Amount = 20.f);
 private:
-    // GAS 
+    // GAS
     void HandleAbilityPressed(int32 InputID);
     void HandleAbilityReleased(int32 InputID);
     // 입력 처리 함수
@@ -108,7 +105,7 @@ private:
     // 발도/납도 토글 처리
     void ToggleDrawSheath();
 
-//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
+    //HUD 생성 -작성: 한승헌 -일시: 2025.11.07
 protected:
     //생성할 위젯의 클래스.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
@@ -122,16 +119,16 @@ protected:
     // 인벤토리 위젯 클래스
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
     TSubclassOf<class UP4InventoryWidget> InventoryWidgetClass;
-    
-//- 작성: 한승헌 일시: 2025.11.13
-//퀘스트 UI
+
+    //- 작성: 한승헌 일시: 2025.11.13
+    //퀘스트 UI
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
     TSubclassOf<class UP4QuestWidget> QuestWidgetClass;
 
     UPROPERTY()
     TObjectPtr<UP4QuestWidget> QuestWidget;
 
-// -작성: 노현기 -일시: 2025.11.10 
+    // -작성: 노현기 -일시: 2025.11.10
 private:
     // 인벤토리 위젯 참조
     UPROPERTY()

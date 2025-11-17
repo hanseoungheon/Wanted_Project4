@@ -35,7 +35,7 @@ void UAnimNotify_MonsterAttackHitCheck::Notify(USkeletalMeshComponent* MeshComp,
 		if (Montage)
 		{
 			FName CurrentSection = AnimInstance->Montage_GetCurrentSection(Montage);
-			AP4MonsterBase* Monster = Cast<AP4MonsterBase>(MeshComp->GetOwner());
+			IMonsterAIInterface* Monster = Cast<IMonsterAIInterface>(MeshComp->GetOwner());
 			if (Monster)
 			{
 				Monster->ExecuteAttackSection(CurrentSection);
