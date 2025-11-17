@@ -67,7 +67,11 @@ public:
 
 	// 슬롯 타입 (에디터에서 설정)
 	UPROPERTY(EditAnywhere, Category = "Slot")
-	EInventorySlotType SlotType = EInventorySlotType::Equipment;
+	FGameplayTag SlotType;// = EInventorySlotType::Equipment;
+
+	// 태그
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	FGameplayTagContainer ItemTags;
 
 protected:
 	// 슬롯이 현재 가진 아이템 정보

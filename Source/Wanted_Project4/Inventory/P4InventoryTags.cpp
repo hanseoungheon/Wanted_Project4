@@ -10,4 +10,10 @@ namespace P4InventoryTags
         const FGameplayTag Quest = FGameplayTag::RequestGameplayTag(FName("Item.Quest"));
         const FGameplayTag Material = FGameplayTag::RequestGameplayTag(FName("Item.Material"));
     }
+
+    namespace Slot
+    {
+        const FGameplayTag Equipment = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment"));
+        const FGameplayTag Consumable = FGameplayTag::RequestGameplayTag(FName("Slot.Consumable"));
+    }
 }

@@ -279,9 +279,7 @@ void AP4CharacterBase::BeginPlay()
 
 		if (TestSword)
 		{
-			InventoryComp->AddItem(TestSword, 1);
-			InventoryComp->AddItem(TestSword, 1);
-			InventoryComp->AddItem(TestShield, 1);
+			InventoryComp->AddItem(TestSword, 2);
 		}
 
 		if (TestPotion)

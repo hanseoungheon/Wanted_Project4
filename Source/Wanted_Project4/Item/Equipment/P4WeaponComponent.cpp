@@ -16,13 +16,21 @@ UP4WeaponComponent::UP4WeaponComponent()
 
 }
 
-void UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
+bool UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
 {
-	if (!WeaponData) return;
+	if (!WeaponData) return false;
 
-	// 기존에 무기가 있으면 제거
+	if (CurrentWeaponData && CurrentWeaponData == WeaponData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[EquipWeapon] 이미 같은 무기가 장착되어 있습니다: %s"),
+			*WeaponData->GetItemName().ToString());
+		return false;  // 실패 - 인벤토리에서 아이템 제거 안 됨
+	}
+
+	// 기존에 다른 무기가 있으면 제거
 	if (WeaponMesh)
 	{
+		UE_LOG(LogTemp, Error, TEXT("무기 이미 있음"));
 		DestroyWeaponMesh();
 	}
 
@@ -31,7 +39,7 @@ void UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
 	if (!Mesh)
 	{
 		UE_LOG(LogTemp, Error, TEXT("무기 메시를 로드할 수 없습니다!"));
-		return;
+		return false;
 	}
 
 	CurrentWeaponData = WeaponData;
@@ -50,6 +58,7 @@ void UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("무기 장착: %s"), *WeaponData->GetItemName().ToString());
+	return true;
 }
 
 void UP4WeaponComponent::UnequipWeapon()

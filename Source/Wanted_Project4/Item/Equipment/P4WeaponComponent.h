@@ -18,7 +18,7 @@ public:
 
     // 무기 장착/해제
     UFUNCTION(BlueprintCallable, Category = "Weapon")
-    void EquipWeapon(class UItemDataBase* WeaponData);
+    bool EquipWeapon(class UItemDataBase* WeaponData);
 
     UFUNCTION(BlueprintCallable, Category = "Weapon")
     void UnequipWeapon();
