@@ -23,6 +23,9 @@ void UP4InventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+    // ✅ 최상위 위젯의 Visibility를 코드로 설정
+    SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
 	EquipmentSlots.Empty();
 	ConsumableSlots.Empty();
 
@@ -226,18 +229,20 @@ FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
                 // 오프셋 = 마우스 위치 - 패널 위치
                 DragOffset = MousePosViewport - CurrentPanelPosition;
             }
-
+            UE_LOG(LogTemp, Log, TEXT("인벤토리 DragHeader 클릭 - Handled"));
             return FReply::Handled().CaptureMouse(TakeWidget());
         }
 
         // DragHeader가 아닌 인벤토리 내부를 클릭한 경우
         if (InventoryPanel && InventoryPanel->IsHovered())
         {
+            UE_LOG(LogTemp, Log, TEXT("인벤토리 내부 클릭 - 게임 입력 차단"));
             return FReply::Handled();  // 게임 입력 차단만
         }
     }
 
     // 인벤토리 외부 클릭 - 게임 입력 허용
+    UE_LOG(LogTemp, Warning, TEXT("인벤토리 외부 - Unhandled 반환"));
     return FReply::Unhandled();
 }
 

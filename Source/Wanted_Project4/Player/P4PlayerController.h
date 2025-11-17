@@ -44,9 +44,10 @@ protected:
     // 인벤토리 토글 함수
     void ToggleInventory();
 
-    // -작성: 노현기 -일시: 2025.11.14
-    // 캐릭터 무기 장착 토글 함수
-    //void ToggleHandOnWeapon();
+    // -작성: 노현기 -일시: 2025.11.18
+    // 인벤토리 토글 함수
+    void ToggleEquipmentInven();
+
 
 
 public:
@@ -79,14 +80,19 @@ private:
     TObjectPtr<UInputAction> InteractionAction;
 
     // -작성: 노현기 -일시: 2025.11.14
-    // 인벤토리 토글을 위한 키 추가
+    // 인벤토리 토글을 위한 키 추가 ('I')
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> InventoryAction;
 
     // -작성: 노현기 -일시: 2025.11.14
-    // 카타나 발도/납도 하기위한 키 추가
+    // 카타나 발도/납도 하기위한 키 추가 ('V')
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> DrawKatanaAction;
+
+    // -작성: 노현기 -일시: 2025.11.18
+    // 장비창 토글을 위한 키 추가 ('U')
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UInputAction> EquipmentInvenAction;
 
     //작성 - 한승헌 2025-11-10
     //디버그용 데미지 주기.
@@ -120,6 +126,11 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
     TSubclassOf<class UP4InventoryWidget> InventoryWidgetClass;
 
+    // -작성: 노현기 -일시: 2025.11.18
+    // 장비창 위젯 클래스
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+    TSubclassOf<class UP4EquipmentInvenWidget> EquipmentInvenWidgetClass;
+
     //- 작성: 한승헌 일시: 2025.11.13
     //퀘스트 UI
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
@@ -137,7 +148,14 @@ private:
     // 인벤토리 창 띄우기 = false
     bool bIsInventoryVisible = false;
 
-    //// -작성: 노현기 -일시: 2025.11.14
-    //// 캐릭터 무기 들고있는 상태 토글
-    //bool bIsEquip = false;
+    // -작성: 노현기 -일시: 2025.11.18
+     // 장비창 위젯 참조
+    UPROPERTY()
+    TObjectPtr<class UP4EquipmentInvenWidget> EquipmentInvenWidget;
+
+    // 장비창 창 띄우기 = false
+    bool bIsEquipmentInvenVisible = false;
+
+    // UI 상태에 따라 입력 모드 업데이트
+    void UpdateInputMode();
 };

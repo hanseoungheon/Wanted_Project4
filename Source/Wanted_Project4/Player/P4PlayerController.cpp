@@ -13,6 +13,8 @@
 #include "Inventory/P4InventoryComponent.h"
 #include "UI/P4InventoryWidget.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
+#include "Inventory/P4EquipmentInvenComponent.h"
+#include "UI/P4EquipmentInvenWidget.h"
 
 AP4PlayerController::AP4PlayerController()
 {
@@ -78,6 +80,13 @@ AP4PlayerController::AP4PlayerController()
 	if (DrawKatanaActionRef.Succeeded())
 	{
 		DrawKatanaAction = DrawKatanaActionRef.Object;
+	}
+
+	//작성- 노현기 일시- 2025.11.18
+	static ConstructorHelpers::FObjectFinder<UInputAction> EquipmentInvenActionRef(TEXT("/Game/Character/Input/Action/IA_EquipmentInven.IA_EquipmentInven"));
+	if (EquipmentInvenActionRef.Succeeded())
+	{
+		EquipmentInvenAction = EquipmentInvenActionRef.Object;
 	}
 
 	//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
@@ -211,12 +220,42 @@ void AP4PlayerController::OnPossess(APawn* InPawn)
 				return;
 			}
 
-			InventoryWidget->AddToViewport();
+			InventoryWidget->AddToViewport(1);
 			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 
 		// 인벤토리 바인딩
 		InventoryWidget->BindInventory(CharacterPlayer->GetInventoryComponent());
+
+		// -작성: 노현기 -일시: 2025.11.18
+		//  장비창 위젯 생성 추가
+		if (!EquipmentInvenWidget)
+		{
+			if (!EquipmentInvenWidgetClass)
+			{
+				UE_LOG(LogTemp, Error, TEXT("EquipmentInvenWidgetClass가 설정되지 않음!"));
+				return;
+			}
+
+			EquipmentInvenWidget = CreateWidget<UP4EquipmentInvenWidget>(this, EquipmentInvenWidgetClass);
+			if (!EquipmentInvenWidget)
+			{
+				UE_LOG(LogTemp, Error, TEXT("장비창 위젯 생성 실패!"));
+				return;
+			}
+
+			EquipmentInvenWidget->AddToViewport(0);
+			EquipmentInvenWidget->SetVisibility(ESlateVisibility::Hidden);
+
+			// 인벤토리 위젯 참조 설정
+			if (InventoryWidget)
+			{
+				EquipmentInvenWidget->SetInventoryWidget(InventoryWidget);
+			}
+		}
+
+		// 장비창 바인딩 (필요하면)
+		// EquipmentInvenWidget->BindEquipmentInven(CharacterPlayer->GetEquipmentInvenComponent());
 	}
 }
 
@@ -240,6 +279,9 @@ void AP4PlayerController::SetupInputComponent()
 
 		// -작성: 노현기 -일시: 2025.11.17
 		EIC->BindAction(DrawKatanaAction, ETriggerEvent::Started, this, &AP4PlayerController::ToggleDrawSheath);
+
+		// -작성: 노현기 -일시: 2025.11.18
+		EIC->BindAction(EquipmentInvenAction, ETriggerEvent::Started, this, &AP4PlayerController::ToggleEquipmentInven);
 	}
 }
 
@@ -354,6 +396,36 @@ void AP4PlayerController::ToggleDrawSheath()
 	}
 }
 
+void AP4PlayerController::UpdateInputMode()
+{
+	// UI가 하나라도 열려있는지 확인
+	bool bAnyUIVisible = bIsInventoryVisible || bIsEquipmentInvenVisible;
+
+	if (bAnyUIVisible)
+	{
+		// UI 모드
+		bShowMouseCursor = true;
+
+		FInputModeGameAndUI InputMode;
+		InputMode.SetHideCursorDuringCapture(false);
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		SetInputMode(InputMode);
+
+		UE_LOG(LogTemp, Log, TEXT("UI 모드 활성화 (인벤토리: %d, 장비창: %d)"),
+			bIsInventoryVisible, bIsEquipmentInvenVisible);
+	}
+	else
+	{
+		// 게임 전용 모드
+		bShowMouseCursor = false;
+
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+
+		UE_LOG(LogTemp, Log, TEXT("게임 모드 활성화"));
+	}
+}
+
 //작성 - 한승헌 2025-11-10
 //임시
 void AP4PlayerController::DebugDamage(float Amount)
@@ -371,6 +443,7 @@ void AP4PlayerController::DebugDamage(float Amount)
 // -작성: 노현기 -일시: 2025.11.10
 void AP4PlayerController::ToggleInventory()
 {
+
 	if (!InventoryWidget)
 	{
 		UE_LOG(LogTemp, Error, TEXT("InventoryWidget이 nullptr!"));
@@ -383,26 +456,44 @@ void AP4PlayerController::ToggleInventory()
 	if (bIsInventoryVisible)
 	{
 		// 인벤토리 열기
-		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-		bShowMouseCursor = true;
-
-		FInputModeGameAndUI InputMode;
-		// SetWidgetToFocus()는 키보드 입력이 필요한 UI(텍스트 입력 등)에서만 필요합니다
-		//InputMode.SetWidgetToFocus(InventoryWidget->TakeWidget());
-		InputMode.SetHideCursorDuringCapture(false);
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		SetInputMode(InputMode);
-
-		// 마우스 이벤트가 UI를 먼저 거치도록 설정
-		bShowMouseCursor = true;
+		//InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		InventoryWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 	else
 	{
 		// 인벤토리 닫기
 		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-		bShowMouseCursor = false;
-
-		FInputModeGameOnly InputMode;
-		SetInputMode(InputMode);
 	}
+
+	// UI가 하나라도 열려있으면 UI 모드, 모두 닫혀있으면 게임 모드
+	UpdateInputMode();
+}
+
+// -작성: 노현기 -일시: 2025.11.18
+void AP4PlayerController::ToggleEquipmentInven()
+{
+
+	if (!EquipmentInvenWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("EquipmentInvenWidget이 nullptr!"));
+		return;
+	}
+
+	// 상태 토글
+	bIsEquipmentInvenVisible = !bIsEquipmentInvenVisible;
+
+	if (bIsEquipmentInvenVisible)
+	{
+		// 장비창 열기
+		//EquipmentInvenWidget->SetVisibility(ESlateVisibility::Visible);
+		EquipmentInvenWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else
+	{
+		// 장비창 닫기
+		EquipmentInvenWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	// UI가 하나라도 열려있으면 UI 모드, 모두 닫혀있으면 게임 모드
+	UpdateInputMode();
 }
