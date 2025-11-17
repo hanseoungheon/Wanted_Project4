@@ -280,18 +280,14 @@ void AP4CharacterBase::BeginPlay()
 		if (TestSword)
 		{
 			InventoryComp->AddItem(TestSword, 1);
-			UE_LOG(LogTemp, Warning, TEXT("검 추가됨!"));
 			InventoryComp->AddItem(TestSword, 1);
-			UE_LOG(LogTemp, Warning, TEXT("검 1개 더 추가됨!"));
 			InventoryComp->AddItem(TestShield, 1);
 		}
 
 		if (TestPotion)
 		{
 			InventoryComp->AddItem(TestPotion, 10);
-			UE_LOG(LogTemp, Warning, TEXT("포션 10개 추가됨!"));
 			InventoryComp->AddItem(TestPotion, 5);
-			UE_LOG(LogTemp, Warning, TEXT("포션 5개 더 추가됨!"));
 			InventoryComp->AddItem(TestPotion, 99);
 			InventoryComp->AddItem(TestPotion, 90);
 			InventoryComp->AddItem(TestPotion2, 50);

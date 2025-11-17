@@ -4,6 +4,7 @@
 #include "Character/GA/P4GA_Jump.h"
 #include "GameFramework/Character.h"
 #include "AT/P4AT_JumpAndWaitForLanding.h"
+#include "GameplayAbilities/Public/AbilitySystemComponent.h"
 
 UP4GA_Jump::UP4GA_Jump()
 {
@@ -17,6 +18,7 @@ bool UP4GA_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	{
 		return false;
 	}
+
 
 	const ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());
 	return (Character && Character->CanJump());

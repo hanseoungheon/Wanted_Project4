@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "P4GA_Jump.h"
 //#include "Character/ABComboActionData.h"
+#include "GameplayAbilities/Public/AbilitySystemComponent.h"
 
 UP4GA_Attack::UP4GA_Attack()
 {
