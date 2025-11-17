@@ -142,23 +142,20 @@ void AP4BossMonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, co
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		// @MobTodo: 몽타주 재생 확인용 로그
-		UE_LOG(LogTemp, Log, TEXT("Monster Has AnimInstance"));
-
-		// 입력받은 섹션으로 몽타주 섹션 변경
-		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
-
+		// 섹션을 변경하고 몽타주를 실행했더니 맨 처음 섹션만 재생되는 버그 발생
+		// Montage_Play 의 경우 재생위치를 0으로 덮어쓰기 때문에 발생하는 거였음
+		// 몽타주 실행ㅎ 후 섹션을 변경하도록 수정
 		// 몽타주 실행 
 		AnimInstance->Montage_Play(AttackActionMontage, AttackSpeed);
-
+		
+		// 입력받은 섹션으로 몽타주 섹션 변경
+		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
+		
 		AAIController* AIController = Cast<AAIController>(GetController());
 		if (AIController)
 		{
 			IsPatternActive = true;
 			AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsPatternActive"), true);
-
-			// @MobTodo: 몽타주 재생 확인용 로그
-			UE_LOG(LogTemp, Log, TEXT("Monster Has AIController"));
 		}
 
 		// 몽타주 재생이 끝날 때 실행될 함수 바인딩

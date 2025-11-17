@@ -50,15 +50,15 @@ void AP4BossMonsterNemielle::BeginPlay()
 
 	// Nemielle 몬스터 패턴 설정
 	TArray<FPatternData> Patterns;
-	Patterns.Add({"LeftWingStomp", 10.f, 0.f, 1000.f, 1.f});
-	Patterns.Add({"Howling", 8.f, 0.f, 600.f, 1.f});
-	Patterns.Add({"EnergyBomb", 10.f, 0.f, 300.f, 1.f});
+	Patterns.Add({"LeftWingStomp", 30.f, 0.f, 1000.f, 1.f});
+	Patterns.Add({"Howling", 30.f, 0.f, 600.f, 1.f});
+	Patterns.Add({"EnergyBomb", 30.f, 0.f, 300.f, 1.f});
 
 	// 설정한 패턴으로 패턴 컴포넌트의 패턴 초기화
 	PatternComponent->InitializePatterns(Patterns);
 
 	
-	// @MobTODO: 몬스터 스킬 어빌리티 태그 설정
+	// 몬스터 스킬 어빌리티 태그 설정
 	FGameplayAbilitySpec Spec1(UP4GA_LeftWingStomp::StaticClass());
 	Spec1.GetDynamicSpecSourceTags().AddTag(
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.LeftWingStomp"))
@@ -70,7 +70,6 @@ void AP4BossMonsterNemielle::BeginPlay()
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.Howling"))
 	);
 	ASC->GiveAbility(Spec2);
-
 	
 	FGameplayAbilitySpec Spec3(UP4GA_EnergyBomb::StaticClass());
 	Spec3.GetDynamicSpecSourceTags().AddTag(
@@ -81,7 +80,7 @@ void AP4BossMonsterNemielle::BeginPlay()
 
 void AP4BossMonsterNemielle::SetupAttackDelegate()
 {
-	// @Todo: 보스 몬스터 패턴 생기면 Delegate 생성 후 넘겨주기
+	//보스 몬스터 패턴 Delegate 생성 후 넘겨주기
 	Super::SetupAttackDelegate();
 
 	// 몽타주 섹션에 맞게 섹션 이름들 설정
