@@ -7,6 +7,17 @@
 #include "InputActionValue.h"
 #include "P4PlayerController.generated.h"
 
+UENUM(BlueprintType)
+enum class GASInputID : uint8
+{
+    E_JumpAction = 0,
+    E_AttackAction,
+    E_InteractionAction,
+    E_DrawKatanaAction,
+    E_SheathKatanaAction,
+
+};
+
 /**
  * 
  */
@@ -37,7 +48,7 @@ protected:
    
     // -작성: 노현기 -일시: 2025.11.14
     // 캐릭터 무기 장착 토글 함수
-    void ToggleHandOnWeapon();
+    //void ToggleHandOnWeapon();
     
 
 public:
@@ -93,6 +104,9 @@ private:
     void HandleLook(const FInputActionValue& Value);
     void HandleSuicide(const FInputActionValue& Value);
 
+    // -작성: 노현기 -일시: 2025.11.17
+    // 발도/납도 토글 처리
+    void ToggleDrawSheath();
 
 //HUD 생성 -작성: 한승헌 -일시: 2025.11.07
 protected:
@@ -126,7 +140,7 @@ private:
     // 인벤토리 창 띄우기 = false
     bool bIsInventoryVisible = false;
 
-    // -작성: 노현기 -일시: 2025.11.14
-    // 캐릭터 무기 들고있는 상태 토글
-    bool bIsEquip = false;
+    //// -작성: 노현기 -일시: 2025.11.14
+    //// 캐릭터 무기 들고있는 상태 토글
+    //bool bIsEquip = false;
 };
