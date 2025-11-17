@@ -4,12 +4,18 @@
 #include "NPC/P4NPCBase.h"
 #include "AbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
+
 #include "Character/P4CharacterPlayer.h"
+
 #include "Quest/P4QuestInfo.h"
 #include "Quest/P4StageDetails.h"
 #include "Quest/P4ObjectiveDetails.h"
+
 #include "Animation/AnimMontage.h"
+
 #include "UI/P4QuestWidget.h"
+#include "UI/P4EnchantWidget.h"
+
 // Sets default values
 AP4NPCBase::AP4NPCBase()
 {
@@ -38,6 +44,13 @@ AP4NPCBase::AP4NPCBase()
 	if (QuestWidgetClassRef.Succeeded() == true)
 	{
 		QuestWidgetClass = QuestWidgetClassRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UP4EnchantWidget> EnchantWidgetClassRef(TEXT("/Game/UI/WBP_Enchant.WBP_Enchant_C"));
+
+	if (EnchantWidgetClassRef.Succeeded() == true)
+	{
+		EnchantWidgetClass = EnchantWidgetClassRef.Class;
 	}
 }
 
@@ -98,6 +111,43 @@ void AP4NPCBase::ShowQuestUI(int32 QuestCode)
 	}
 }
 
+void AP4NPCBase::ShowEnchantUI()
+{
+	APlayerController* PlayerController
+		= Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (EnchantWidgetClass == nullptr ||PlayerController == nullptr)
+	{
+		return;
+	}
+
+	//EnchantWidgetInstance가 nullptr일경우 즉각할당.
+	if (EnchantWidgetInstance == nullptr)
+	{
+		EnchantWidgetInstance 
+			= CreateWidget<UP4EnchantWidget>(PlayerController, EnchantWidgetClass);
+
+		if (EnchantWidgetInstance != nullptr)
+		{
+			TScriptInterface<IP4NPCEnchantWeaponInterface> SelfInterface;
+			SelfInterface.SetObject(this);
+			SelfInterface.SetInterface(Cast<IP4NPCEnchantWeaponInterface>(this));
+
+			EnchantWidgetInstance->SetEnchantNPC(SelfInterface);
+		}
+	}
+
+	if (EnchantWidgetInstance != nullptr)
+	{
+		EnchantWidgetInstance->AddToViewport(9);
+
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(EnchantWidgetInstance->TakeWidget());
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
+	}
+}
+
 
 void AP4NPCBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -106,13 +156,17 @@ void AP4NPCBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		return;
 	}
 
+
 	AP4CharacterPlayer* PlayerCharacter = Cast<AP4CharacterPlayer>(OtherActor);
+	OverlapedActor = PlayerCharacter;
 	//UE_LOG(LogTemp, Display, TEXT("IsOverlapped"));
 
 	if (PlayerCharacter == nullptr)
 	{
+		OverlapedActor = nullptr;
 		return; //플레이어가 아니면 바로 리턴시키기.
 	}
+
 
 	//UE_LOG(LogTemp, Display, TEXT("IsOverlapped"));
 	IAbilitySystemInterface* GASInterface = Cast<IAbilitySystemInterface>(PlayerCharacter);
@@ -140,8 +194,11 @@ void AP4NPCBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 	if (PlayerCharacter == nullptr)
 	{
+		OverlapedActor = nullptr;
 		return;
 	}
+
+	OverlapedActor = nullptr;
 
 	//UE_LOG(LogTemp, Display, TEXT("IsEndOverlapped"));
 	IAbilitySystemInterface* GASInterface = Cast<IAbilitySystemInterface>(PlayerCharacter);
@@ -155,6 +212,7 @@ void AP4NPCBase::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 	PlayerCharacter->CurrentInteractActor = nullptr;
 }
+
 
 UAbilitySystemComponent* AP4NPCBase::GetAbilitySystemComponent() const
 {

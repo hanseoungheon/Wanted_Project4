@@ -6,6 +6,8 @@
 #include "Character/P4CharacterBase.h"
 #include "InputActionValue.h"
 #include "Interface/P4CharacterHUDInterface.h"
+#include "GameplayEffectTypes.h"
+#include "GameplayTagContainer.h"
 #include "P4CharacterPlayer.generated.h"
 
 /**
@@ -31,6 +33,12 @@ public:
 	void HandleLook(const FInputActionValue& Value);
 	void HandleSuicide(const FInputActionValue& Value);
 
+
+	//작성 한승헌
+	//일시- 2025.11.17
+	//무기강화를 위한 함수. -강화당하기.
+	UFUNCTION(BlueprintCallable, Category = Enchant)
+	void ApplyEnchantWeapon(float InBonusAttackRate, float InBonusMaxHealth);
 
 	//작성- 한승헌 
 	//일시- 2025.11.14 
@@ -84,6 +92,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap<int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
+	// 강화에 사용할 GE 클래스 (P4GE_EnchantWeapon BP 지정)
+	UPROPERTY(EditDefaultsOnly, Category = Enchant)
+	TSubclassOf<class UGameplayEffect> EnchantEffectClass;
+
+	// 현재 적용 중인 강화 GE 핸들 (중복 적용 막고 갱신용)
+	FActiveGameplayEffectHandle CurrentEnchantEffectHandle;
+
 private:
 	//UPROPERTY(EditAnywhere, Category = Weapon)
 	//TObjectPtr<class USkeletalMesh> WeaponMesh;
@@ -92,4 +107,4 @@ private:
 //HUD/UI 섹션
 protected:
 	//virtual void SetupHUDWidget(class UP4HUDWidget* InHudWidtet) override;
-};
+};	

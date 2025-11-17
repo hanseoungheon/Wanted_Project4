@@ -12,6 +12,7 @@
 #include "PaperSprite.h"
 #include "Engine/Texture2D.h"
 #include "Animation/AnimMontage.h"
+#include "GameplayEffect.h"
 
 AP4CharacterPlayer::AP4CharacterPlayer()
 {
@@ -95,6 +96,16 @@ AP4CharacterPlayer::AP4CharacterPlayer()
 	//일시- 2025.11.14
 	//현재 인터렉스하고 있는 액터 포인터 초기화.
 	CurrentInteractActor = nullptr;
+
+	//작성-한승헌
+	//일시 - 2025.11.14
+	//무기강화 GE 경로지정.
+	static ConstructorHelpers::FClassFinder<UGameplayEffect> EnchantEffectClassRef(TEXT("/Game/NPC/GE/BPGE_EnchantWeapon.BPGE_EnchantWeapon_C"));
+
+	if (EnchantEffectClassRef.Succeeded() == true)
+	{
+		EnchantEffectClass = EnchantEffectClassRef.Class;
+	}
 
 	// -작성: 노현기 -일시: 2025.11.14
 	// 발도 몽타주 로드
@@ -219,6 +230,53 @@ void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value)
 	}
 }
 
+void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBonusMaxHealth)
+{
+	if (ASC == nullptr || EnchantEffectClass == nullptr)
+	{
+		return;
+	}
+
+	//// 2) 기존 강화 효과 제거(있으면)
+	//if (CurrentEnchantEffectHandle.IsValid())
+	//{
+	//	ASC->RemoveActiveGameplayEffect(CurrentEnchantEffectHandle);
+	//	CurrentEnchantEffectHandle.Invalidate();
+	//}
+
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	Context.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle SpecHandle 
+		= ASC->MakeOutgoingSpec(EnchantEffectClass, 1.0f, Context);
+
+	if (SpecHandle.IsValid() == true)
+	{
+		FGameplayEffectSpec* Spec = SpecHandle.Data.Get();
+
+		if (Spec == nullptr)
+		{
+			return;
+		}
+
+		//static FGameplayTag TAG_Data_Weapon_Attack =
+		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack"));      // 너가 쓴 이름대로
+
+		//static FGameplayTag TAG_Data_Weapon_MaxHealth =
+		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
+
+		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack")), InBonusAttackRate);
+		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth")), InBonusMaxHealth);
+
+		//자기자신에게 적용
+		CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);
+
+		UE_LOG(LogTemp, Log, TEXT("Enchant applied: +Attack %f, +MaxHealth %f to %s"),
+			InBonusAttackRate, InBonusMaxHealth, *GetName());
+
+	}
+}
 
 //void AP4CharacterPlayer::SetupHUDWidget(UP4HUDWidget* InHudWidtet)
 //{

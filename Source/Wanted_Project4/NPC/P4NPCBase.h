@@ -36,7 +36,12 @@ public:
 
 	virtual void Interaction(ACharacter* Character);
 
+	//퀘스트 UI 보여주기.
 	void ShowQuestUI(int32 QuestCode);
+
+	//무기강화 UI보여주기.
+	UFUNCTION()
+	virtual void ShowEnchantUI();
 
 	FORCEINLINE int32 GetNPCQuestCode() const
 	{
@@ -55,7 +60,6 @@ protected:
 
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 	//GAS 섹션.
 public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -73,15 +77,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USphereComponent> InteractionSphere; //인터렉션 범위
 
+	//퀘스트 식별 코드.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Quest)
 	int32 NPCQuestCode;
 
+	//퀘스트 위젯 클래스.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
 	TSubclassOf<class UP4QuestWidget> QuestWidgetClass;
 
+	//퀘스트 위젯 컴포넌트.
 	UPROPERTY()
 	TObjectPtr<UP4QuestWidget> QuestWidgetInstance;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
+	TSubclassOf<class UP4EnchantWidget> EnchantWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UP4EnchantWidget> EnchantWidgetInstance;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Quest)
 	FString ReportObjectiveID;
+
+	//플레이어를 담는 변수
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<AActor> OverlapedActor;
 };
