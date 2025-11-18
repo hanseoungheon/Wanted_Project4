@@ -177,7 +177,7 @@ void AP4StagePartBase::SpawnNPCs()
 	if (NPCClass1 != nullptr)
 	{
 		const FVector SpawnLoc = GetActorLocation() + NPC1SpawnOffset;
-		const FRotator SpawnRot = GetActorRotation();
+		const FRotator SpawnRot = GetActorRotation() + NPC1SpawnRotation;
 
 		AP4NPCBase* NPC1 = world->SpawnActor<AP4NPCBase>(NPCClass1, SpawnLoc, SpawnRot, Params);
 
@@ -191,7 +191,7 @@ void AP4StagePartBase::SpawnNPCs()
 	if (NPCClass2 != nullptr)
 	{
 		const FVector SpawnLoc = GetActorLocation() + NPC2SpawnOffset;
-		const FRotator SpawnRot = GetActorRotation();
+		const FRotator SpawnRot = GetActorRotation() + NPC2SpawnRotation;
 
 		AP4NPCBase* NPC2 = world->SpawnActor<AP4NPCBase>(NPCClass2, SpawnLoc, SpawnRot, Params);
 		if (NPC2 != nullptr)
