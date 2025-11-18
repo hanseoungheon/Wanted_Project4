@@ -92,6 +92,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	FVector NPC2SpawnOffset = FVector::ZeroVector;
 
+	//각 NPC회전정도.
+	FRotator NPC1SpawnRotation = FRotator::ZeroRotator;
+	FRotator NPC2SpawnRotation = FRotator::ZeroRotator;
+
 
 
 
