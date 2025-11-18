@@ -261,26 +261,25 @@ void AP4CharacterPlayer::ApplyEnchantWeapon(float InRate, EP4UpgradeType Upgrade
 			return;
 		}
 
-		//static FGameplayTag TAG_Data_Weapon_Attack =
-		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack"));      // 너가 쓴 이름대로
+		FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack"));
+		FGameplayTag MaxHpTag = FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
 
-		//static FGameplayTag TAG_Data_Weapon_MaxHealth =
-		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
+		float AttackValue = 0.f;
+		float MaxHpValue = 0.f;
 
 		if (UpgradeType == EP4UpgradeType::Attack)
 		{
-			//공격력 업그레이드.
-			Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack")), InRate);
-			CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);		//자기자신에게 적용
-
+			AttackValue = InRate;
 		}
 		else if (UpgradeType == EP4UpgradeType::MaxHealth)
 		{
-			Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth")), InRate);
-			CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);		//자기자신에게 적용
+			MaxHpValue = InRate;
 		}
-		//UE_LOG(LogTemp, Log, TEXT("Enchant applied: +Attack %f, +MaxHealth %f to %s"),
-		//	InBonusAttackRate, InBonusMaxHealth, *GetName());
+
+		Spec->SetSetByCallerMagnitude(AttackTag, AttackValue);
+		Spec->SetSetByCallerMagnitude(MaxHpTag, MaxHpValue);
+
+		CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);
 
 	}
 }

@@ -8,6 +8,7 @@
 #include "UI/P4InventoryWidget.h"
 #include "UI/P4EnchantSlotWidget.h"
 #include "Character/P4CharacterPlayer.h"
+#include "Player/P4PlayerController.h"
 
 void UP4EnchantWidget::NativeConstruct()
 {
@@ -47,7 +48,8 @@ void UP4EnchantWidget::OnAcceptClicked()
 	const FInventoryItem& WeaponItem = WeaponSlot->GetStoredItem();
 	const FInventoryItem& StoneItem = StoneSlot->GetStoredItem();
 
-
+	StoneUpgradeType = StoneSlot->UpgradeType;
+	
 	if (EnchantNPC)
 	{
 		EnchantNPC->HandleEnchantWeapon();
@@ -64,7 +66,7 @@ void UP4EnchantWidget::OnAcceptClicked()
 	if (UP4InventoryComponent* InvComp = Player->FindComponentByClass<UP4InventoryComponent>())
 	{
 		// 무기/강화석 하나씩 제거 (SlotIndex 사용)
-		InvComp->RemoveItem(WeaponItem.ItemData, 1, WeaponItem.SlotIndex);
+		//InvComp->RemoveItem(WeaponItem.ItemData, 1, WeaponItem.SlotIndex);
 		InvComp->RemoveItem(StoneItem.ItemData, 1, StoneItem.SlotIndex);
 	}
 
@@ -74,13 +76,13 @@ void UP4EnchantWidget::OnAcceptClicked()
 
 
 	//입력 모드 되돌리기.
-	APlayerController* PlayerController
-		= GetWorld()->GetFirstPlayerController<APlayerController>();
+	AP4PlayerController* PlayerController
+		= GetWorld()->GetFirstPlayerController<AP4PlayerController>();
 
 	if (PlayerController != nullptr)
 	{
 		FInputModeGameOnly GameOnly;
-
+		PlayerController->Test();
 		PlayerController->SetInputMode(GameOnly);
 		PlayerController->bShowMouseCursor = false;
 	}
@@ -90,18 +92,33 @@ void UP4EnchantWidget::OnAcceptClicked()
 
 void UP4EnchantWidget::OnDeclinClicked()
 {
-	APlayerController* PlayerController
-		= GetWorld()->GetFirstPlayerController<APlayerController>();
+	if (WeaponSlot != nullptr)
+	{
+		WeaponSlot->ClearItem();
+	}
+
+	if (StoneSlot != nullptr)
+	{
+		StoneSlot->ClearItem();
+	}
+	
+	AP4PlayerController* PlayerController
+		= GetWorld()->GetFirstPlayerController<AP4PlayerController>();
 
 	if (PlayerController != nullptr)
 	{
 		FInputModeGameOnly GameOnly;
-
+		PlayerController->Test();
 		PlayerController->SetInputMode(GameOnly);
 		PlayerController->bShowMouseCursor = false;
 	}
 	//거절 버튼 눌렀을 때 작동
 	RemoveFromParent();
+}
+
+EP4UpgradeType UP4EnchantWidget::GetUpgradeType() const
+{
+	return StoneUpgradeType;
 }
 
 //void UP4EnchantWidget::TryEnchant()

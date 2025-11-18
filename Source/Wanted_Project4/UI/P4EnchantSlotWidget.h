@@ -5,7 +5,17 @@
 #include "CoreMinimal.h"
 #include "UI/P4CustomWidget.h"
 #include "Inventory/P4InventoryComponent.h"
+#include "Game/P4UpgradeType.h"
 #include "P4EnchantSlotWidget.generated.h"
+
+
+UENUM()
+enum class EItemState
+{
+    Upgrade UMETA(DisplayName = "Upgrade"),
+    Weapon  UMETA(DisplayName = "Weapon"),
+    None    UMETA(DisplayName = "None")
+};
 
 UCLASS()
 class WANTED_PROJECT4_API UP4EnchantSlotWidget : public UP4CustomWidget
@@ -30,7 +40,7 @@ public:
     void CleatItem() { ClearItem(); }
 
     // 아이템이 들어있는지?
-    UFUNCTION(BlueprintPure, Category = "Enchant")
+    UFUNCTION(BlueprintPure, Category = Enchant)
     bool HasItem() const { return StoredItem.ItemData != nullptr; }
 
     // 저장된 FInventoryItem 가져오기
@@ -42,6 +52,8 @@ public:
         const FDragDropEvent& InDragDropEvent,
         UDragDropOperation* InOperation) override;
 
+
+
 public:
     // 인벤토리에서 가져온 아이템
     FInventoryItem StoredItem;
@@ -51,4 +63,10 @@ public:
 
     UPROPERTY()
     TObjectPtr<class UP4ItemIconLoader> IconLoader;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Enchant)
+    EItemState ItemState = EItemState::None;
+
+
+    EP4UpgradeType UpgradeType = EP4UpgradeType::None;
 };
