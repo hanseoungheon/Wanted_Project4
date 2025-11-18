@@ -24,7 +24,7 @@
 AP4CharacterBase::AP4CharacterBase()
 {
 	//PrimaryActorTick.bCanEverTick = true;
-
+	// 
 	// GAS 초기화
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<UP4PlayerAttributeSet>(TEXT("AttributeSet"));
@@ -53,7 +53,7 @@ AP4CharacterBase::AP4CharacterBase()
 	// Movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 500.0f;
+	GetCharacterMovement()->JumpZVelocity = 700.0f;
 	//GetCharacterMovement()->AirControl = 0.35f;
 	//GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	//GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -174,6 +174,21 @@ void AP4CharacterBase::GiveDamage(AActor* TargetActor, const float DamageAmount)
 	// GA로 처리함.
 }
 
+void AP4CharacterBase::HandleRespawn()
+{
+	if (!ASC) return; // 죽음 태그 제거 
+	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
+	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
+	// 체력 회복 
+	ASC->SetNumericAttributeBase(AttributeSet->GetHealthAttribute(), AttributeSet->GetMaxHealth());
+	// 콜리전 복구 
+	SetActorEnableCollision(true); 
+	// 이동 가능 
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking); 
+	// 위치 초기화 (원하는 리스폰 포인트) 
+	SetActorTransform(RespawnTransform);
+}
+
 void AP4CharacterBase::DamagedActionBegin()
 {
 	// Damaged 몽타주 실행
@@ -218,14 +233,22 @@ void AP4CharacterBase::PostInitializeComponents()
 
 void AP4CharacterBase::SetDead()
 {
+	//todo: 무기 가지고 죽으면 인벤토리에 넣고 일반상태로 변경
 	if (ASC)
 	{
+		// 모든 Tag 해제
+		//ASC->RemoveLooseGameplayTags(ASC->GetOwnedGameplayTags());
 		// Dead Tag 부착
-		ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
+		//ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
 
+		// ASC가진 액터에 태그 부착(Character.State.IsDead) 해서 이 태그가 트리거 태그로 지정된 BPGA_Death 실행.
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->StopAllMontages(0.f);
+		}
+		
 		FGameplayEventData PayloadData;
-		UE_LOG(LogTemp, Log, TEXT("LETSGOOOOOOOOOOOOO"))
-		 // ASC가진 액터에 태그 부착(Character.State.IsDead) 해서 이 태그가 트리거 태그로 지정된 BPGA_AttackHitCheck 실행.
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, P4TAG_CHARACTER_ISDEAD, PayloadData);
 	}	
 

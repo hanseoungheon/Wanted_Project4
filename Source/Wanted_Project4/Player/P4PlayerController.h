@@ -100,6 +100,9 @@ private:
     //디버그용 데미지 주기.
     UFUNCTION(Exec)
     void DebugDamage(float Amount = 20.f);
+
+    UFUNCTION()
+    void HandleRespawnRequest();
 private:
     // GAS
     void HandleAbilityPressed(int32 InputID);
@@ -160,4 +163,11 @@ private:
 
     // UI 상태에 따라 입력 모드 업데이트
     void UpdateInputMode();
+
+public:
+    UPROPERTY()
+    TSubclassOf<class UP4RespawnWidget> RespawnWidgetClass;
+
+    TObjectPtr<UP4RespawnWidget> RespawnWidget;
+
 };
