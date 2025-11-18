@@ -3,16 +3,20 @@
 
 #include "Monster/Mob/P4BossMonsterNemielle.h"
 
+#include "P4MonsterProjectile.h"
 #include "Character/P4CharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/OverlapResult.h"
 #include "Monster/P4MonsterBase.h"
 #include "Monster/AI/P4MonsterAIController.h"
 #include "Monster/GA/P4GA_DashAttack.h"
+#include "Monster/GA/P4GA_DoubleWaterBomb.h"
 #include "Monster/GA/P4GA_EnergyBomb.h"
 #include "Monster/GA/P4GA_Howling.h"
 #include "Monster/GA/P4GA_LeftWingStomp.h"
 #include "Player/P4PlayerController.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 {
@@ -87,10 +91,6 @@ void AP4BossMonsterNemielle::BeginPlay()
 		Patterns.Add(*Row);
 	}
 
-	//Patterns.Add({"LeftWingStomp", 5.f, 0.f, 1000.f, 0.f, 0.f, 1.f});
-	//Patterns.Add({"Howling", 30.f, 0.f, 600.f, 0.f, 0.f, 1.f});
-	//Patterns.Add({"EnergyBomb", 30.f, 0.f, 300.f, 0.f, 0.f, 1.f});
-
 	// 설정한 패턴으로 패턴 컴포넌트의 패턴 초기화
 	PatternComponent->InitializePatterns(Patterns);
 
@@ -119,6 +119,12 @@ void AP4BossMonsterNemielle::BeginPlay()
 		FGameplayTag::RequestGameplayTag(FName("Monster.Action.DashAttack"))
 	);
 	ASC->GiveAbility(Spec4);
+	
+	FGameplayAbilitySpec Spec5(UP4GA_DoubleWaterBomb::StaticClass());
+	Spec5.GetDynamicSpecSourceTags().AddTag(
+		FGameplayTag::RequestGameplayTag(FName("Monster.Action.DoubleWaterBomb"))
+	);
+	ASC->GiveAbility(Spec5);
 }
 
 void AP4BossMonsterNemielle::SetupAttackDelegate()
@@ -127,7 +133,7 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 	Super::SetupAttackDelegate();
 
 	// 몽타주 섹션에 맞게 섹션 이름들 설정
-	AttackSectionNames = {"LeftWingStomp", "Howling", "EnergyBomb", "DashAttack"};
+	AttackSectionNames = {"LeftWingStomp", "Howling", "EnergyBomb", "DashAttack", "DoubleWaterBomb"};
 
 	// 각 섹션에 맞는 공격함수 델리게이트로 바인드
 	FMonsterAttackDelegate Pattern1;
@@ -141,9 +147,12 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 
 	FMonsterAttackDelegate Pattern4;
 	Pattern4.BindUObject(this, &AP4BossMonsterNemielle::DashAttack);
+	
+	FMonsterAttackDelegate Pattern5;
+	Pattern5.BindUObject(this, &AP4BossMonsterNemielle::DoubleWaterBomb);
 
 	// 바인딩한 델리게이트로 AttackDelegates 배열 설정
-	AttackDelegates = {Pattern1, Pattern2, Pattern3, Pattern4};
+	AttackDelegates = {Pattern1, Pattern2, Pattern3, Pattern4, Pattern5};
 }
 
 void AP4BossMonsterNemielle::LeftWingStomp()
@@ -281,5 +290,39 @@ void AP4BossMonsterNemielle::EnergyBomb()
 
 void AP4BossMonsterNemielle::DashAttack()
 {
-	// 
+	// Dash Start 노티파이, MonsterDashCheck 노티파이 State에서 처리
+}
+
+void AP4BossMonsterNemielle::DoubleWaterBomb()
+{
+	UE_LOG(LogTemp, Log, TEXT("Call DoubleWaterBomb func"));
+
+	// 투사체 생성 위치
+	FVector ProjectileStartLocation = GetMesh()->GetSocketLocation(FName("BreathPos"));
+	
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (PlayerPawn)
+	{
+		FVector TargetPos = PlayerPawn->GetActorLocation();
+		
+		// 플레이어로 향하는 방향 벡터
+		FVector Direction = TargetPos - ProjectileStartLocation;
+		Direction.Normalize();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+		
+		FTransform Transform;
+		Transform.SetLocation(ProjectileStartLocation);
+		Transform.SetRotation(Direction.ToOrientationQuat());
+
+		UE_LOG(LogTemp, Log, TEXT("SetProjectile"));
+		AP4MonsterProjectile* Projectile = GetWorld()->SpawnActor<AP4MonsterProjectile>(WaterProjectileClass, Transform, SpawnParams);
+		if (Projectile)
+		{
+			UE_LOG(LogTemp, Log, TEXT("SpawnProjectile"));
+			Projectile->FireInDirection(Transform.Rotator().Vector());
+		}
+	}
 }
