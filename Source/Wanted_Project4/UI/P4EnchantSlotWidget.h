@@ -58,6 +58,10 @@ public:
     // 인벤토리에서 가져온 아이템
     FInventoryItem StoredItem;
 
+    //블랭크 이미지.(기본 비어있는 이미지)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TObjectPtr<class UTexture2D> OriginalTexture;
+
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<class UImage> ItemIcon;
 

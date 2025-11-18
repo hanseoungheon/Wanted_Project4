@@ -11,6 +11,12 @@
 
 UP4EnchantSlotWidget::UP4EnchantSlotWidget()
 {
+    static ConstructorHelpers::FObjectFinder<UTexture2D> OriginalTextureRef(TEXT("/Game/UI/Image/Blanck.Blanck"));
+
+    if (OriginalTextureRef.Succeeded() == true)
+    {
+        OriginalTexture = OriginalTextureRef.Object;
+    }
 }
 
 void UP4EnchantSlotWidget::NativeConstruct()
@@ -21,6 +27,8 @@ void UP4EnchantSlotWidget::NativeConstruct()
 	{
 		IconLoader = NewObject<UP4ItemIconLoader>(this);
 	}
+
+    ItemIcon->SetBrushFromTexture(OriginalTexture);
 }
 
 void UP4EnchantSlotWidget::SetItem(const FInventoryItem& InItem)
@@ -33,6 +41,8 @@ void UP4EnchantSlotWidget::SetItem(const FInventoryItem& InItem)
 void UP4EnchantSlotWidget::ClearItem()
 {
 	StoredItem = FInventoryItem();
+    //클리어할때마다 빈 이미지로 초기화해서 하얀 화면 나오는거 방지하기.
+    ItemIcon->SetBrushFromTexture(OriginalTexture);
 	RefreshItem();
 }
 

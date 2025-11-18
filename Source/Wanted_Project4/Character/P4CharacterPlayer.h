@@ -107,4 +107,10 @@ private:
 //HUD/UI 섹션
 protected:
 	//virtual void SetupHUDWidget(class UP4HUDWidget* InHudWidtet) override;
+
+	//작성-한승헌
+	//일시- 2025.11.18
+	//내용 - nav메시 동적 생성.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
+	TObjectPtr<class UNavigationInvokerComponent> NavInvoker;
 };	

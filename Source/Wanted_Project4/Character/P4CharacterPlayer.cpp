@@ -14,6 +14,7 @@
 #include "Animation/AnimMontage.h"
 #include "GameplayEffect.h"
 #include "Game/P4UpgradeType.h"
+#include "NavigationInvokerComponent.h"
 
 AP4CharacterPlayer::AP4CharacterPlayer()
 {
@@ -124,6 +125,17 @@ AP4CharacterPlayer::AP4CharacterPlayer()
 	if (SheathKatanaRef.Succeeded())
 	{
 		SheathKatanaMontage = SheathKatanaRef.Object;
+	}
+
+
+	//작성 - 한승헌
+	//일시 - 2025.11.18
+	//내용 - 플레이어 위치에 따라 NavMesh 동적 생성.
+	NavInvoker = CreateDefaultSubobject<UNavigationInvokerComponent>(TEXT("NavInvoker"));
+	
+	if(NavInvoker != nullptr)
+	{
+		NavInvoker->SetGenerationRadii(10000.f, 20000.f);
 	}
 }
 
