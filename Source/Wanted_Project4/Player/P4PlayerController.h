@@ -13,6 +13,7 @@ enum class GASInputID : uint8
     E_InteractionAction,
     E_DrawKatanaAction,
     E_SheathKatanaAction,
+    E_RunAction,
 
 };
 
@@ -98,6 +99,10 @@ private:
     // 장비창 토글을 위한 키 추가 ('U')
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> EquipmentInvenAction;
+
+    // 달리기 토글 'L-Shift'
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UInputAction> RunAction;    
 
     //작성 - 한승헌 2025-11-10
     //디버그용 데미지 주기.

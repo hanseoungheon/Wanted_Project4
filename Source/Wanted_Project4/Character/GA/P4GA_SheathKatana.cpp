@@ -41,7 +41,7 @@ bool UP4GA_SheathKatana::CanActivateAbility(
     }
 
     // 무기가 장착되어 있는지 확인
-    if (!AnimInst->bIsEquipped)
+    if (!AnimInst->CharacterState.bIsEquipped)
     {
         UE_LOG(LogTemp, Warning, TEXT("[GA_SheathKatana] 무기가 장착되지 않았습니다!"));
         return false;

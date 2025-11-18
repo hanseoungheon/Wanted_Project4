@@ -91,6 +91,13 @@ AP4PlayerController::AP4PlayerController()
 		EquipmentInvenAction = EquipmentInvenActionRef.Object;
 	}
 
+	//작성- 노현기 일시- 2025.11.18
+	static ConstructorHelpers::FObjectFinder<UInputAction> RunActionRef(TEXT("/Game/Character/Input/Action/IA_Run.IA_Run"));
+	if (EquipmentInvenActionRef.Succeeded())
+	{
+		RunAction = RunActionRef.Object;
+	}
+
 	//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
 	static ConstructorHelpers::FClassFinder<UP4HUDWidget> P4HUDWidgetRef(TEXT("/Game/UI/WBP_HUD.WBP_HUD_C"));
 
@@ -357,6 +364,9 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 		//EIC->BindAction(DrawKatanaAction, ETriggerEvent::Started, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_DrawKatanaAction);
 		//// 납도 = 4
 		//EIC->BindAction(DrawKatanaAction, ETriggerEvent::Started, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_SheathKatanaAction);
+
+		EIC->BindAction(RunAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_RunAction);
+		EIC->BindAction(RunAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_RunAction);
 	}
 }
 

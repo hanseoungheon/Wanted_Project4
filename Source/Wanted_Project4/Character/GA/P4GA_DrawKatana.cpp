@@ -35,14 +35,14 @@ bool UP4GA_DrawKatana::CanActivateAbility(
 
     USkeletalMeshComponent* MeshComp = Player->GetMesh();
     const UP4PlayerAnimInstance* AnimInst = MeshComp ? Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()) : nullptr;
-
+    
     if (!AnimInst)
     {
         return false;
     }
 
     // 무기가 장착되어 있는지 확인
-    if (!AnimInst->bIsEquipped)
+    if (!AnimInst->CharacterState.bIsEquipped)
     {
         UE_LOG(LogTemp, Warning, TEXT("[GA_Draw] 무기가 장착되지 않았습니다!"));
         return false;

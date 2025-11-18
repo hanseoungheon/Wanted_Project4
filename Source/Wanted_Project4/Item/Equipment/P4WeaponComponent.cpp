@@ -53,7 +53,8 @@ bool UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
 	{
 		if (UP4PlayerAnimInstance* P4PlayerAnimInstance = Cast<UP4PlayerAnimInstance>(Player->GetMesh()->GetAnimInstance()))
 		{
-			P4PlayerAnimInstance->bIsEquipped = true;
+			// todo: 자동 테스트
+			P4PlayerAnimInstance->CharacterState.bIsEquipped = true;
 		}
 	}
 

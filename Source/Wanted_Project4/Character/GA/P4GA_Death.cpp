@@ -42,11 +42,6 @@ void UP4GA_Death::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
     HandleDeathNow(Character);
 }
 
-void UP4GA_Death::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
-{
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
 void UP4GA_Death::OnJumpFinished()
 {
     AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetAvatarActorFromActorInfo());

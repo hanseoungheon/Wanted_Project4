@@ -416,7 +416,8 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
             {
                 if (UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()))
                 {
-                    AnimInst->bIsEquipped = true;
+                    // todo: 자동으로 되는지 바인딩하고 테스트
+                    AnimInst->CharacterState.bIsEquipped = true;
                     UE_LOG(LogTemp, Log, TEXT("bIsEquipped = true (등에 무기 장착)"));
                 }
             }
@@ -481,7 +482,8 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData, int32 SlotIndex
             {
                 if (UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()))
                 {
-                    AnimInst->bIsEquipped = false;
+                    // todo: 자동 테스트
+                    AnimInst->CharacterState.bIsEquipped = false;
                     //AnimInst->bIsKatanaOnHand = false;  // 손에도 없어야 함
                     // 태그 제거
                     if (ASC)

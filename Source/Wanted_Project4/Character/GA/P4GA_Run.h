@@ -4,31 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "P4GA_Death.generated.h"
+#include "P4GA_Run.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WANTED_PROJECT4_API UP4GA_Death : public UGameplayAbility
+class WANTED_PROJECT4_API UP4GA_Run : public UGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UP4GA_Death();
-
-protected:
+	UP4GA_Run();
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	
-	UFUNCTION()
-	void OnJumpFinished();
-
-	void HandleDeathNow(class AP4CharacterBase* Character);
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 private:
-	//UPROPERTY()
-	//TSubclassOf<class UP4RespawnWidget> RespawnWidgetClass;
+	const float RunSpeed = 1000.f;
+	const float WalkSpeed = 300.f;
 
-	//TObjectPtr<UP4RespawnWidget> RespawnWidget;
-	//DeathWidgetClass
 };
