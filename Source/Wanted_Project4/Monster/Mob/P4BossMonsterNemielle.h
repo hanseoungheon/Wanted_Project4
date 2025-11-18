@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "P4MonsterProjectile.h"
 #include "Monster/P4BossMonsterBase.h"
 #include "P4BossMonsterNemielle.generated.h"
 
@@ -22,10 +23,14 @@ public:
 	virtual void SetupAttackDelegate() override;
 
 protected:
+	// DoubleWaterBomb 의 투사체 Class
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	TSubclassOf<AP4MonsterProjectile> WaterProjectileClass;
 	
 protected:
 	void LeftWingStomp();
 	void Howling();
 	void EnergyBomb();
 	void DashAttack();
+	void DoubleWaterBomb();
 };

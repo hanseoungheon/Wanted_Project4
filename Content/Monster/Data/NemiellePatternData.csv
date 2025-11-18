@@ -2,4 +2,5 @@ PatternID,PatternName,Cooldown,MinDistance,MaxDistance,AttackRange,AttackRadius,
 """LeftWingStomp""",LeftWingStomp,25,0,700,400,500,1
 """Howling""",Howling,40,0,500,0,500,1
 """EnergyBomb""",EnergyBomb,40,0,750,0,750,1
-"""DashAttack""",DashAttack,60,500,1000,400,500,1
+"""DashAttack""",DashAttack,60,500,1000,300,300,1
+"""DoubleWaterBomb""",DoubleWaterBomb,40,1000,2000,2500,400,1

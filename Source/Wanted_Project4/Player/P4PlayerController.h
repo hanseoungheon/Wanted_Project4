@@ -31,6 +31,8 @@ class WANTED_PROJECT4_API AP4PlayerController : public APlayerController
 public:
     AP4PlayerController();
 
+    void Test();
+
 protected:
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
@@ -101,6 +103,9 @@ private:
     //디버그용 데미지 주기.
     UFUNCTION(Exec)
     void DebugDamage(float Amount = 20.f);
+
+    UFUNCTION()
+    void HandleRespawnRequest();
 private:
     // GAS
     void HandleAbilityPressed(int32 InputID);
@@ -169,4 +174,11 @@ private:
     // 고정된 ZOrder 범위 사용
     static constexpr int32 UI_BASE_ZORDER = 0;
     static constexpr int32 UI_TOP_ZORDER = 1;
+
+public:
+    UPROPERTY()
+    TSubclassOf<class UP4RespawnWidget> RespawnWidgetClass;
+
+    TObjectPtr<UP4RespawnWidget> RespawnWidget;
+
 };

@@ -18,6 +18,6 @@ public:
 	AP4GameMode();
 
 protected:
-
+	virtual void BeginPlay() override;
 	
 };

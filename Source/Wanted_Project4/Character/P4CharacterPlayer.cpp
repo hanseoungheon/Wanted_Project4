@@ -13,6 +13,10 @@
 #include "Engine/Texture2D.h"
 #include "Animation/AnimMontage.h"
 #include "GameplayEffect.h"
+#include "Game/P4UpgradeType.h"
+#include "NavigationInvokerComponent.h"
+#include "Attribute/P4PlayerAttributeSet.h"
+#include "Tag/P4GameplayTag.h"
 
 AP4CharacterPlayer::AP4CharacterPlayer()
 {
@@ -124,6 +128,17 @@ AP4CharacterPlayer::AP4CharacterPlayer()
 	{
 		SheathKatanaMontage = SheathKatanaRef.Object;
 	}
+
+
+	//작성 - 한승헌
+	//일시 - 2025.11.18
+	//내용 - 플레이어 위치에 따라 NavMesh 동적 생성.
+	NavInvoker = CreateDefaultSubobject<UNavigationInvokerComponent>(TEXT("NavInvoker"));
+	
+	if(NavInvoker != nullptr)
+	{
+		NavInvoker->SetGenerationRadii(10000.f, 20000.f);
+	}
 }
 
 void AP4CharacterPlayer::GASInputPressed(int32 InputId)
@@ -203,10 +218,19 @@ void AP4CharacterPlayer::HandleLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookValue.Y);
 }
 
-void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value)
+void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value = FInputActionValue::Axis1D())
 {
-	if (!ASC) return;
+	if (!ASC)
+	{
+		return;
+	}
+	
 
+	// 중복 실행 차단
+	if (GetAttributeSet()->GetHealth() <= 0)
+	{
+		return;
+	}
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	// todo: 밑의 코드는 자기 자신만 사용하는거라 필요없다??
 	//Context.AddSourceObject(this);
@@ -230,7 +254,7 @@ void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value)
 	}
 }
 
-void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBonusMaxHealth)
+void AP4CharacterPlayer::ApplyEnchantWeapon(float InRate, EP4UpgradeType UpgradeType)
 {
 	if (ASC == nullptr || EnchantEffectClass == nullptr)
 	{
@@ -260,20 +284,25 @@ void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBon
 			return;
 		}
 
-		//static FGameplayTag TAG_Data_Weapon_Attack =
-		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack"));      // 너가 쓴 이름대로
+		FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack"));
+		FGameplayTag MaxHpTag = FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
 
-		//static FGameplayTag TAG_Data_Weapon_MaxHealth =
-		//	FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth"));
+		float AttackValue = 0.f;
+		float MaxHpValue = 0.f;
 
-		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.Attack")), InBonusAttackRate);
-		Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Weapon.MaxHealth")), InBonusMaxHealth);
+		if (UpgradeType == EP4UpgradeType::Attack)
+		{
+			AttackValue = InRate;
+		}
+		else if (UpgradeType == EP4UpgradeType::MaxHealth)
+		{
+			MaxHpValue = InRate;
+		}
 
-		//자기자신에게 적용
+		Spec->SetSetByCallerMagnitude(AttackTag, AttackValue);
+		Spec->SetSetByCallerMagnitude(MaxHpTag, MaxHpValue);
+
 		CurrentEnchantEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*Spec);
-
-		UE_LOG(LogTemp, Log, TEXT("Enchant applied: +Attack %f, +MaxHealth %f to %s"),
-			InBonusAttackRate, InBonusMaxHealth, *GetName());
 
 	}
 }
@@ -293,3 +322,12 @@ void AP4CharacterPlayer::ApplyEnchantWeapon(float InBonusAttackRate, float InBon
 //		ASC->TryActivateAbilityByClass(UBasicAttackAbility::StaticClass());
 //	}
 //}
+
+void AP4CharacterPlayer::FellOutOfWorld(const UDamageType& dmgType)
+{
+	//Super::FellOutOfWorld(dmgType);
+
+	// 여기서 바로 죽음 처리
+	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISJUMPING);
+	HandleSuicide();   // 네가 만든 것
+}

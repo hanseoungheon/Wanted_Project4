@@ -5,6 +5,7 @@
 
 #define P4TAG_CHARACTER_ISDAMAGED FGameplayTag::RequestGameplayTag(FName("Character.State.IsDamaged"))
 #define P4TAG_CHARACTER_ISDEAD FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
+#define P4TAG_CHARACTER_ISJUMPING FGameplayTag::RequestGameplayTag(FName("Character.State.IsJumping"))
 // #define P4TAG_CHARACTER_INVINSIBLE FGameplayTag::RequestGameplayTag(FName("Character.State.Invinsible"))
 
 // #define P4TAG_GAMEPLAYCUE_CHARACTER_ATTACKHIT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.AttackHit"))

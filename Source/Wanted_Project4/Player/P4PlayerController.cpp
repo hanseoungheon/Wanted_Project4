@@ -16,6 +16,7 @@
 #include "Inventory/P4EquipmentInvenComponent.h"
 #include "UI/P4EquipmentInvenWidget.h"
 #include "Components/Border.h"
+#include "UI/P4RespawnWidget.h"
 
 AP4PlayerController::AP4PlayerController()
 {
@@ -97,6 +98,19 @@ AP4PlayerController::AP4PlayerController()
 	{
 		P4HUDWidgetClass = P4HUDWidgetRef.Class;
 	}
+
+
+	static ConstructorHelpers::FClassFinder<UP4RespawnWidget> P4RespawnWidgetRef(TEXT("/Game/UI/WBP_RespawnWidget.WBP_RespawnWidget_C"));
+
+	if (P4RespawnWidgetRef.Succeeded() == true)
+	{
+		RespawnWidgetClass = P4RespawnWidgetRef.Class;
+	}
+}
+
+void AP4PlayerController::Test()
+{
+	ToggleInventory();
 }
 
 void AP4PlayerController::BeginPlay()
@@ -129,6 +143,7 @@ void AP4PlayerController::BeginPlay()
 
 
 	//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
+	//todo: OnPossess로 옮기는게?
 	P4HUDWidget = CreateWidget<UP4HUDWidget>(this, P4HUDWidgetClass);
 
 	if (P4HUDWidget != nullptr)
@@ -146,6 +161,28 @@ void AP4PlayerController::BeginPlay()
 			}
 		}
 	}
+
+	// 리스폰 위젯
+	if (RespawnWidgetClass)
+	{
+		RespawnWidget = CreateWidget<UP4RespawnWidget>(this, RespawnWidgetClass);
+
+		if (RespawnWidget)
+		{
+			RespawnWidget->AddToViewport();
+			RespawnWidget->SetVisibility(ESlateVisibility::Hidden);
+
+			RespawnWidget->OnRespawnClicked.AddDynamic(this, &AP4PlayerController::HandleRespawnRequest);
+
+			// Player 캐릭터의 ASC를 위젯에 연결
+			APawn* playerpawn = GetPawn();
+			if (playerpawn)
+			{
+				RespawnWidget->SetOwningPawn(playerpawn);
+				RespawnWidget->SetAbilitySystemComponent(playerpawn);
+			}
+		}
+	}
 	
 }
 //
@@ -156,6 +193,8 @@ void AP4PlayerController::OnPossess(APawn* InPawn)
 
 	if (AP4CharacterPlayer* CharacterPlayer = Cast<AP4CharacterPlayer>(InPawn))
 	{
+		CharacterPlayer->RespawnTransform = CharacterPlayer->GetTransform();
+
 		if (UAbilitySystemComponent* ASC = CharacterPlayer->GetAbilitySystemComponent())
 		{
 			// 캐릭터의 AbilityMap 읽기
@@ -567,4 +606,23 @@ void AP4PlayerController::BringUIToFront(UUserWidget* Widget)
 	Widget->AddToViewport(UI_TOP_ZORDER);  // 위 ZOrder
 
 	UE_LOG(LogTemp, Log, TEXT("UI를 최상위로 가져옴"));
+}
+void AP4PlayerController::HandleRespawnRequest()
+{
+	//if (AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetPawn()))
+	//{
+	//	// Respawn Event 태그 발동
+	//	FGameplayEventData Payload;
+	//	//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Character, TAG_Event_Respawn, Payload);
+	//}
+	AP4CharacterBase* P4Character = Cast<AP4CharacterBase>(GetPawn());
+	if (!P4Character) return;
+
+	P4Character->HandleRespawn();
+
+	// UI 숨기기
+	if (RespawnWidget)
+	{
+		RespawnWidget->HideRespawnUI();
+	}
 }

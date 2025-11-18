@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/P4CustomWidget.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-//ÀÛ¼º ÇÑ½ÂÇå
+//ìž‘ì„± í•œìŠ¹í—Œ
 void UP4CustomWidget::SetAbilitySystemComponent(AActor* InOwner)
 {
     if (IsValid(InOwner) == true)
@@ -13,7 +13,7 @@ void UP4CustomWidget::SetAbilitySystemComponent(AActor* InOwner)
     }
 }
 
-//ÀÛ¼º ÇÑ½ÂÇå
+//ìž‘ì„± í•œìŠ¹í—Œ
 UAbilitySystemComponent* UP4CustomWidget::GetAbilitySystemComponent() const
 {
     return ASC;

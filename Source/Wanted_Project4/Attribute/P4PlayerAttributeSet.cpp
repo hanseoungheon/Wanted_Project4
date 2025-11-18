@@ -87,11 +87,14 @@ void UP4PlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	//==================================================
 
 
-	if ((GetHealth() <= 0.0f) && !bOutOfHealth)
+	if ((GetHealth() <= 0.0f))
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("HP 00000000"));
 		Data.Target.AddLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
 		OnHpZero.Broadcast();
 	}
 
-	bOutOfHealth = (GetHealth() <= 0.0f);
+	// bOutOfHealth 제거
+	//bOutOfHealth = (GetHealth() <= 0.0f);
+	//UE_LOG(LogTemp, Warning, TEXT("%d"), bOutOfHealth);
 }

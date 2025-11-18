@@ -8,8 +8,8 @@
 #include "Interface/P4CharacterHUDInterface.h"
 #include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
+#include "Game/P4UpgradeType.h"
 #include "P4CharacterPlayer.generated.h"
-
 /**
  * 
  */
@@ -33,12 +33,13 @@ public:
 	void HandleLook(const FInputActionValue& Value);
 	void HandleSuicide(const FInputActionValue& Value);
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
 	//작성 한승헌
 	//일시- 2025.11.17
 	//무기강화를 위한 함수. -강화당하기.
 	UFUNCTION(BlueprintCallable, Category = Enchant)
-	void ApplyEnchantWeapon(float InBonusAttackRate, float InBonusMaxHealth);
+	void ApplyEnchantWeapon(float InRate, EP4UpgradeType UpgradeType);
 
 	//작성- 한승헌 
 	//일시- 2025.11.14 
@@ -107,4 +108,10 @@ private:
 //HUD/UI 섹션
 protected:
 	//virtual void SetupHUDWidget(class UP4HUDWidget* InHudWidtet) override;
+
+	//작성-한승헌
+	//일시- 2025.11.18
+	//내용 - nav메시 동적 생성.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
+	TObjectPtr<class UNavigationInvokerComponent> NavInvoker;
 };	
