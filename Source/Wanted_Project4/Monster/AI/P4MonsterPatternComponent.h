@@ -17,7 +17,10 @@ struct FPatternData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	FPatternData() {}
+	FPatternData()
+	{
+	}
+
 	FPatternData(
 		FName InPatternName,
 		float InCooldown,
@@ -75,6 +78,22 @@ public:
 
 	// 패턴 선택 및 실행
 	void TryExecutePattern(AActor* Target);
+
+	// Getter
+	FORCEINLINE TArray<FPatternData> GetAllPatterns() const { return PatternPool; }
+	FORCEINLINE FPatternData GetPatterns(const FName& InPatternName) const
+	{
+		for (int i = 0; i < PatternPool.Num(); i++)
+		{
+			if (PatternPool[i].PatternName == InPatternName)
+			{
+				return PatternPool[i];
+			}
+		}
+
+		FPatternData TempData = FPatternData();
+		return TempData;
+	}
 
 private:
 	// 패턴 목록 (패턴 데이터 배열)

@@ -135,6 +135,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat)
 	bool bIsAgressive;
 
+public:
+	// Getter
+	FORCEINLINE UP4MonsterAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
 	// 애니메이션 섹션
 protected:
 	// 공격 애님 몽타주
@@ -158,7 +162,7 @@ protected:
 	// 몬스터 패턴 정보를 들고올 DataTable
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat)
 	TObjectPtr<UDataTable> MonsterPatternData;
-	
+
 	// 패턴 관리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UP4MonsterPatternComponent> PatternComponent;
@@ -180,6 +184,9 @@ protected:
 public:
 	virtual void ExecuteAttackSection(const FName& SectionName) override;
 	FORCEINLINE void SetIsPatternActive(bool InIsPatternActive) { IsPatternActive = InIsPatternActive; }
+
+	// Getter
+	FORCEINLINE UP4MonsterPatternComponent* GetPatternComponent() const { return PatternComponent; }
 
 private:
 	FTimerHandle PatternCheckTimerHandle;

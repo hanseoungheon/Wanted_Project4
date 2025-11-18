@@ -42,7 +42,7 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	// 보스 몬스터 패턴 데이터테이블 불러오기
 	static ConstructorHelpers::FObjectFinder<UDataTable> PatternDataRef(
 		TEXT("/Game/Monster/Data/NemiellePatternData.NemiellePatternData")
-		);
+	);
 	if (PatternDataRef.Succeeded())
 	{
 		MonsterPatternData = PatternDataRef.Object;
@@ -56,8 +56,6 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	{
 		AttackActionMontage = AttackActionMontageRef.Object;
 	}
-
-	
 }
 
 void AP4BossMonsterNemielle::BeginPlay()
@@ -70,7 +68,7 @@ void AP4BossMonsterNemielle::BeginPlay()
 	// 데이터 테이블로 패턴 데이터 초기화 진행
 	TArray<FPatternData*> AllRows;
 	MonsterPatternData->GetAllRows(TEXT("Pattern Initialization"), AllRows);
-	
+
 	for (auto Row : AllRows)
 	{
 		if (!Row)
@@ -80,7 +78,7 @@ void AP4BossMonsterNemielle::BeginPlay()
 
 		Patterns.Add(*Row);
 	}
-	
+
 	//Patterns.Add({"LeftWingStomp", 5.f, 0.f, 1000.f, 0.f, 0.f, 1.f});
 	//Patterns.Add({"Howling", 30.f, 0.f, 600.f, 0.f, 0.f, 1.f});
 	//Patterns.Add({"EnergyBomb", 30.f, 0.f, 300.f, 0.f, 0.f, 1.f});
@@ -132,7 +130,7 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 
 	FMonsterAttackDelegate Pattern3;
 	Pattern3.BindUObject(this, &AP4BossMonsterNemielle::EnergyBomb);
-	
+
 	FMonsterAttackDelegate Pattern4;
 	Pattern4.BindUObject(this, &AP4BossMonsterNemielle::DashAttack);
 
@@ -143,15 +141,17 @@ void AP4BossMonsterNemielle::SetupAttackDelegate()
 void AP4BossMonsterNemielle::LeftWingStomp()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call LeftWingStomp func"));
-	// @Todo: 나중에 변수 값으로 변경하기
-	const float AttackRange = 400.f;
+	// 패턴 데이터 불러오기
+	FPatternData Pattern = PatternComponent->GetPatterns("LeftWingStomp");
+
+	const float AttackRange = Pattern.AttackRange;
 
 	FVector Start =
 		GetActorLocation() +
 		GetActorForwardVector() *
 		AttackRange;
 
-	const float AttackRadius = 500.f;
+	const float AttackRadius = Pattern.AttackRadius;
 
 	// 자신은 판정 제외
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
@@ -210,9 +210,68 @@ void AP4BossMonsterNemielle::Howling()
 void AP4BossMonsterNemielle::EnergyBomb()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call EnergyBomb func"));
+	// 패턴 데이터 불러오기
+	FPatternData Pattern = PatternComponent->GetPatterns("EnergyBomb");
+	const float AttackRange = Pattern.AttackRange;
+
+	FVector Start =
+		GetActorLocation() +
+		GetActorForwardVector() *
+		AttackRange;
+
+	const float AttackRadius = Pattern.AttackRadius;
+
+	// 자신은 판정 제외
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	TArray<FOverlapResult> OutHitResults;
+	bool HitDetected = GetWorld()->OverlapMultiByChannel(
+		OutHitResults,
+		Start,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params
+	);
+
+	// 몬스터 공격 범위 디버그 표시
+#if ENABLE_DRAW_DEBUG
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugSphere(
+		GetWorld(),
+		Start,
+		AttackRadius,
+		16,
+		DrawColor,
+		false,
+		5.f
+	);
+#endif
+
+	if (HitDetected)
+	{
+		for (auto& OutHitResult : OutHitResults)
+		{
+			AP4CharacterBase* Player = Cast<AP4CharacterBase>(OutHitResult.GetActor());
+			if (Player)
+			{
+				// @MobTODO: 몬스터 충돌 판정 확인용
+				UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트: %s"), *OutHitResult.GetActor()->GetName());
+
+				// 다른 액터가 공격 당했을 시 처리
+				GiveDamage(OutHitResult.GetActor(), AttributeSet->GetAttack());
+			}
+		}
+	}
+	else
+	{
+		// @MobTODO: 몬스터 충돌 판정 확인용
+		UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트가 없습니다."));
+	}
 }
 
 void AP4BossMonsterNemielle::DashAttack()
 {
-	
+	// 
 }
