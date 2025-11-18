@@ -15,6 +15,8 @@
 //#include "GameplayTagContainer.h"	HandleGameplayCue()
 //#include "GameplayEffectTypes.h"	HandleGameplayCue()
 #include "Game/P4GameInstance.h"
+#include "Inventory/P4InventoryComponent.h"
+#include "Item/ItemDataBase.h"   
 
 class UP4PlayerAttributeSet;
 // Sets default values
@@ -301,6 +303,10 @@ void AP4MonsterBase::SetDead()
 		P4MonsterAIController->StopAI();
 	}
 
+	// -작성: 노현기 -일시: 2025.11.19
+	// 랜덤 아이템 드롭
+	DropRandomItems();
+
 	// DeadEventDelayTime 후 액터 삭제
 	FTimerHandle DeadTimerHandle;
 	float DeadEventDelayTime = 5.f;
@@ -313,6 +319,64 @@ void AP4MonsterBase::SetDead()
 		DeadEventDelayTime,
 		false
 	);
+}
+
+// -작성: 노현기 -일시: 2025.11.19
+void AP4MonsterBase::DropRandomItems()
+{
+	// 드롭 아이템 목록이 비어있으면 리턴
+	if (DropItemPool.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] 드롭 아이템 목록이 비어있습니다."), *GetName());
+		return;
+	}
+
+	// 플레이어의 InventoryComponent 찾기
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] PlayerController를 찾을 수 없습니다."), *GetName());
+		return;
+	}
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] PlayerPawn을 찾을 수 없습니다."), *GetName());
+		return;
+	}
+
+	UP4InventoryComponent* InvComp = PlayerPawn->FindComponentByClass<UP4InventoryComponent>();
+	if (!InvComp)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] InventoryComponent를 찾을 수 없습니다."), *GetName());
+		return;
+	}
+
+	// 랜덤 아이템 선택
+	int32 RandomIndex = FMath::RandRange(0, DropItemPool.Num() - 1);
+	UItemDataBase* SelectedItem = DropItemPool[RandomIndex];
+
+	if (!SelectedItem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] 선택된 아이템이 nullptr입니다."), *GetName());
+		return;
+	}
+
+	// 랜덤 개수 결정
+	int32 DropCount = FMath::RandRange(MinDropQuantity, MaxDropQuantity);
+
+	// 인벤토리에 아이템 추가
+	bool bSuccess = InvComp->AddItem(SelectedItem, DropCount);
+
+	if (bSuccess)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[%s] 아이템 드롭 성공: %s x%d"),*GetName(),*SelectedItem->GetItemName().ToString(),DropCount);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] 아이템 드롭 실패: 인벤토리 공간 부족"), *GetName());
+	}
 }
 
 void AP4MonsterBase::SetupAttackDelegate()
