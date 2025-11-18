@@ -21,6 +21,9 @@ public:
 	
 	virtual void NativeConstruct() override;
 
+	// 소멸자에서 델리게이트 해제
+	virtual void BeginDestroy() override;
+
 	// 인벤토리 컴포넌트랑 바인드
 	void BindInventory(class UP4InventoryComponent* InInventoryComp);
 
@@ -41,8 +44,8 @@ public:
 	// 마우스 버튼 뗌 감지
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
-	// 마우스가 인벤토리 영역 위에 있는지 체크
-	bool IsMouseOverInventory() const;
+	//// 마우스가 인벤토리 영역 위에 있는지 체크
+	//bool IsMouseOverInventory() const;
 
 public:
 	// 인벤토리 컴포넌트로 인벤토리 데이터 참조

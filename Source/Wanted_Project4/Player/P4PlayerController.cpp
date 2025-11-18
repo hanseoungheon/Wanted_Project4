@@ -15,6 +15,7 @@
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "Inventory/P4EquipmentInvenComponent.h"
 #include "UI/P4EquipmentInvenWidget.h"
+#include "Components/Border.h"
 #include "UI/P4RespawnWidget.h"
 
 AP4PlayerController::AP4PlayerController()
@@ -259,8 +260,9 @@ void AP4PlayerController::OnPossess(APawn* InPawn)
 				return;
 			}
 
-			InventoryWidget->AddToViewport(1);
+			InventoryWidget->AddToViewport(UI_TOP_ZORDER);
 			InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+
 		}
 
 		// 인벤토리 바인딩
@@ -283,18 +285,26 @@ void AP4PlayerController::OnPossess(APawn* InPawn)
 				return;
 			}
 
-			EquipmentInvenWidget->AddToViewport(0);
+			EquipmentInvenWidget->AddToViewport(UI_BASE_ZORDER);
 			EquipmentInvenWidget->SetVisibility(ESlateVisibility::Hidden);
 
-			// 인벤토리 위젯 참조 설정
-			if (InventoryWidget)
-			{
-				EquipmentInvenWidget->SetInventoryWidget(InventoryWidget);
-			}
+			//// 인벤토리 위젯 참조 설정
+			//if (InventoryWidget)
+			//{
+			//	EquipmentInvenWidget->SetInventoryWidget(InventoryWidget);
+			//}
 		}
 
-		// 장비창 바인딩 (필요하면)
-		// EquipmentInvenWidget->BindEquipmentInven(CharacterPlayer->GetEquipmentInvenComponent());
+		// 장비창 바인딩
+		if (UP4EquipmentInvenComponent* EquipInvenComp =
+			CharacterPlayer->FindComponentByClass<UP4EquipmentInvenComponent>())
+		{
+			EquipmentInvenWidget->BindEquipInven(EquipInvenComp);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("EquipmentInvenComponent를 찾을 수 없음!"));
+		}
 	}
 }
 
@@ -352,17 +362,17 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 
 void AP4PlayerController::HandleAbilityPressed(int32 InputID)
 {
-	// -작성: 노현기 -일시: 2025.11.12
-    // 공격 입력(1번)이고, 인벤토리가 열려있으면
-	if (InputID == (int)GASInputID::E_AttackAction && bIsInventoryVisible && InventoryWidget)
-	{
-		// 인벤토리 위젯에게 마우스가 위에 있는지 물어봄
-		// 있으면 공격 차단
-		if (InventoryWidget->IsMouseOverInventory())
-		{
-			return; // 공격 차단
-		}
-	}
+	//// -작성: 노현기 -일시: 2025.11.12
+ //   // 공격 입력(1번)이고, 인벤토리가 열려있으면
+	//if (InputID == (int)GASInputID::E_AttackAction && bIsInventoryVisible && InventoryWidget)
+	//{
+	//	// 인벤토리 위젯에게 마우스가 위에 있는지 물어봄
+	//	// 있으면 공격 차단
+	//	if (InventoryWidget->IsMouseOverInventory())
+	//	{
+	//		return; // 공격 차단
+	//	}
+	//}
 
 	if (AP4CharacterPlayer* CharacterPlayer = Cast<AP4CharacterPlayer>(GetPawn()))
 	{
@@ -413,28 +423,55 @@ void AP4PlayerController::ToggleDrawSheath()
 		return;
 	}
 
-	USkeletalMeshComponent* MeshComp = P4Player->GetMesh();
-	UP4PlayerAnimInstance* AnimInst = MeshComp ? Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()) : nullptr;
-
-	if (!AnimInst)
+	// ASC 가져오기
+	UAbilitySystemComponent* ASC = P4Player->GetAbilitySystemComponent();
+	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error, TEXT("[Controller] AnimInstance를 찾을 수 없습니다!"));
+		UE_LOG(LogTemp, Error, TEXT("[Controller] ASC를 찾을 수 없습니다!"));
 		return;
 	}
 
-	// 현재 상태에 따라 발도(3) 또는 납도(4) 어빌리티 발동
-	if (AnimInst->bIsKatanaOnHand)
+	FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+	bool bIsDrawn = ASC->HasMatchingGameplayTag(DrawnTag);
+
+	if (bIsDrawn)
 	{
-		// 손에 쥐고 있음 -> 납도 (InputID: 4)
+		// 손에 쥐고 있음 -> 납도
+		UE_LOG(LogTemp, Warning, TEXT("납도 어빌리티 발동 시도"));
 		HandleAbilityPressed((int)GASInputID::E_SheathKatanaAction);
 	}
 	else
 	{
-		// 등에 있음 -> 발도 (InputID: 3)
+		// 등에 있음 -> 발도
+		UE_LOG(LogTemp, Warning, TEXT("발도 어빌리티 발동 시도"));
 		HandleAbilityPressed((int)GASInputID::E_DrawKatanaAction);
 	}
+
+	//USkeletalMeshComponent* MeshComp = P4Player->GetMesh();
+	//UP4PlayerAnimInstance* AnimInst = MeshComp ? Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance()) : nullptr;
+
+	//if (!AnimInst)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("[Controller] AnimInstance를 찾을 수 없습니다!"));
+	//	return;
+	//}
+
+	//// 현재 상태에 따라 발도(3) 또는 납도(4) 어빌리티 발동
+	//if (AnimInst->bIsKatanaOnHand)
+	//{
+	//	// 손에 쥐고 있음 -> 납도 (InputID: 4)
+	//	UE_LOG(LogTemp, Warning, TEXT(" 납도 어빌리티 발동 시도"));
+	//	HandleAbilityPressed((int)GASInputID::E_SheathKatanaAction);
+	//}
+	//else
+	//{
+	//	// 등에 있음 -> 발도 (InputID: 3)
+	//	UE_LOG(LogTemp, Warning, TEXT(" 발도 어빌리티 발동 시도"));
+	//	HandleAbilityPressed((int)GASInputID::E_DrawKatanaAction);
+	//}
 }
 
+// -작성: 노현기 -일시: 2025.11.18
 void AP4PlayerController::UpdateInputMode()
 {
 	// UI가 하나라도 열려있는지 확인
@@ -537,6 +574,39 @@ void AP4PlayerController::ToggleEquipmentInven()
 	UpdateInputMode();
 }
 
+void AP4PlayerController::BringUIToFront(UUserWidget* Widget)
+{
+	if (!Widget) return;
+
+	// 등록된 위젯들을 직접 참조해서 처리
+	TArray<UUserWidget*> AllUIWidgets;
+
+	if (InventoryWidget)
+	{
+		AllUIWidgets.Add(InventoryWidget);
+	}
+
+	if (EquipmentInvenWidget)
+	{
+		AllUIWidgets.Add(EquipmentInvenWidget);
+	}
+
+	// 클릭한 위젯을 제외한 나머지를 아래로
+	for (UUserWidget* UI : AllUIWidgets)
+	{
+		if (UI && UI != Widget && UI->GetVisibility() != ESlateVisibility::Hidden)
+		{
+			UI->RemoveFromParent();
+			UI->AddToViewport(UI_BASE_ZORDER);
+		}
+	}
+
+	// 클릭한 위젯을 위로
+	Widget->RemoveFromParent();
+	Widget->AddToViewport(UI_TOP_ZORDER);  // 위 ZOrder
+
+	UE_LOG(LogTemp, Log, TEXT("UI를 최상위로 가져옴"));
+}
 void AP4PlayerController::HandleRespawnRequest()
 {
 	//if (AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetPawn()))

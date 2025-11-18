@@ -59,4 +59,20 @@ void UP4PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 	}
 	
+	// -작성: 노현기 -일시: 2025.11.18
+	// 매 프레임 태그를 체크해서 변수 업데이트
+	APawn* Pawn = TryGetPawnOwner();
+	if (Pawn)
+	{
+		IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Pawn);
+		if (ASI)
+		{
+			UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
+			if (ASC)
+			{
+				FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+				bIsKatanaOnHand = ASC->HasMatchingGameplayTag(DrawnTag);
+			}
+		}
+	}
 }

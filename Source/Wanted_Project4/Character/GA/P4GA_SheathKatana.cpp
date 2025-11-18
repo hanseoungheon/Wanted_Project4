@@ -47,11 +47,23 @@ bool UP4GA_SheathKatana::CanActivateAbility(
         return false;
     }
 
-    // 손에 쥐고 있지 않으면 납도 불가
-    if (!AnimInst->bIsKatanaOnHand)
+    //// 손에 쥐고 있지 않으면 납도 불가
+    //if (!AnimInst->bIsKatanaOnHand)
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("[GA_SheathKatana] 이미 납도 상태입니다!"));
+    //    return false;
+    //}
+
+    // 손에 쥐고 있지 않으면 납도 불가 (태그로 체크)
+    UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
+    if (ASC)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[GA_SheathKatana] 이미 납도 상태입니다!"));
-        return false;
+        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        if (!ASC->HasMatchingGameplayTag(DrawnTag))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[GA_SheathKatana] 이미 납도 상태입니다!"));
+            return false;
+        }
     }
 
     return true;
@@ -83,8 +95,18 @@ void UP4GA_SheathKatana::ActivateAbility(
         return;
     }
 
-    // 납도 상태로 변경
-    AnimInst->bIsKatanaOnHand = false;
+    //// 납도 상태로 변경
+    //AnimInst->bIsKatanaOnHand = false;
+
+
+    // 납도 상태 태그 제거 (AnimNotify에서도 제거하지만 여기서도 제거)
+    UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
+    if (ASC)
+    {
+        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        ASC->RemoveLooseGameplayTag(DrawnTag);
+        UE_LOG(LogTemp, Log, TEXT("[GA_Sheath] Character.State.IsDrawn 태그 제거"));
+    }
 
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =
