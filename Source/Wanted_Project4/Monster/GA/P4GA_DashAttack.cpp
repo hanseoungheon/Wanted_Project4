@@ -31,7 +31,7 @@ void UP4GA_DashAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		
 		FName MontageSectionName = TEXT("DashAttack");
 		// 몽타주 재생
-		Monster->AttackActionBegin(MontageSectionName, 2.6f);
+		Monster->AttackActionBegin(MontageSectionName, 2.2f);
 	}
 
 

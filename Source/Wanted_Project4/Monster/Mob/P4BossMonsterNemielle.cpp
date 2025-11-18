@@ -56,6 +56,14 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	{
 		AttackActionMontage = AttackActionMontageRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(
+		TEXT("/Game/Monster/Model/Nemielle/AM_NemielleDead.AM_NemielleDead")
+	);
+	if (DeadMontageRef.Succeeded())
+	{
+		DeadMontage = DeadMontageRef.Object;
+	}
 }
 
 void AP4BossMonsterNemielle::BeginPlay()

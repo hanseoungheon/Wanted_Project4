@@ -27,7 +27,7 @@ void UP4GA_EnergyBomb::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	{
 		FName MontageSectionName = TEXT("EnergyBomb");
 		// 몽타주 재생
-		Monster->AttackActionBegin(MontageSectionName, 2.6f);
+		Monster->AttackActionBegin(MontageSectionName, 3.2f);
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

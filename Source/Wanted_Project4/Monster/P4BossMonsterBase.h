@@ -46,6 +46,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -113,6 +115,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UBehaviorTree> BTAsset;
 
+protected:
+	// 몬스터가 죽었을 시 실행 될 함수
+	virtual void SetDead();
+	
 	// ASC 섹션
 protected:
 	// ASC

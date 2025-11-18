@@ -99,6 +99,14 @@ void AP4BossMonsterBase::BeginPlay()
 	SetupAttackDelegate();
 }
 
+void AP4BossMonsterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// 몬스터 사망 시 발행될 델리게이트 함수 세팅
+	AttributeSet->OnHpZero.AddUObject(this, &AP4BossMonsterBase::SetDead);
+}
+
 // Called every frame
 void AP4BossMonsterBase::Tick(float DeltaTime)
 {
@@ -188,6 +196,43 @@ void AP4BossMonsterBase::AttackActionEnd(UAnimMontage* TargetMontage, bool Inter
 	NotifyActionEnd();
 }
 
+void AP4BossMonsterBase::SetDead()
+{
+	// 이동 못하게 막기
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+
+	// 사망 몽타주 재생
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->Montage_Play(DeadMontage, 3.f);
+	}
+
+	// 콜리전 끄기
+	SetActorEnableCollision(false);
+
+	// AI 재생 멈추기
+	AP4MonsterAIController* P4MonsterAIController = Cast<AP4MonsterAIController>(GetController());
+	if (P4MonsterAIController)
+	{
+		P4MonsterAIController->StopAI();
+	}
+
+	// DeadEventDelayTime 후 액터 삭제
+	FTimerHandle DeadTimerHandle;
+	float DeadEventDelayTime = 5.f;
+	GetWorld()->GetTimerManager().SetTimer(
+		DeadTimerHandle,
+		[&]()
+		{
+			Destroy();
+		},
+		DeadEventDelayTime,
+		false
+	);
+}
+
 void AP4BossMonsterBase::SetupAttackDelegate()
 {
 }
@@ -215,6 +260,11 @@ void AP4BossMonsterBase::ExecuteAttackSection(const FName& SectionName)
 
 void AP4BossMonsterBase::CheckPatternProbability()
 {
+	if (GetAttributeSet()->GetCurHP() <= 0.f)
+	{
+		return;
+	}
+	
 	// 만약 패턴이 실행 중이라면 반환
 	if (IsPatternActive)
 	{
@@ -240,6 +290,8 @@ void AP4BossMonsterBase::ApplyDamage(const float DamageAmount)
 	{
 		// Damaged 몽타주 실행
 		//DamagedActionBegin();
+
+		UE_LOG(LogTemp, Log, TEXT("보스몬스터 Apply Damage 적용"));
 
 		// 체력 감소 적용 부분
 		FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
