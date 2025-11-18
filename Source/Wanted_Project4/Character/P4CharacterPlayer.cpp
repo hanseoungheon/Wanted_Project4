@@ -14,6 +14,8 @@
 #include "Animation/AnimMontage.h"
 #include "GameplayEffect.h"
 #include "Game/P4UpgradeType.h"
+#include "Attribute/P4PlayerAttributeSet.h"
+#include "Tag/P4GameplayTag.h"
 
 AP4CharacterPlayer::AP4CharacterPlayer()
 {
@@ -204,10 +206,19 @@ void AP4CharacterPlayer::HandleLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookValue.Y);
 }
 
-void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value)
+void AP4CharacterPlayer::HandleSuicide(const FInputActionValue& Value = FInputActionValue::Axis1D())
 {
-	if (!ASC) return;
+	if (!ASC)
+	{
+		return;
+	}
+	
 
+	// 중복 실행 차단
+	if (GetAttributeSet()->GetHealth() <= 0)
+	{
+		return;
+	}
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	// todo: 밑의 코드는 자기 자신만 사용하는거라 필요없다??
 	//Context.AddSourceObject(this);
@@ -299,3 +310,12 @@ void AP4CharacterPlayer::ApplyEnchantWeapon(float InRate, EP4UpgradeType Upgrade
 //		ASC->TryActivateAbilityByClass(UBasicAttackAbility::StaticClass());
 //	}
 //}
+
+void AP4CharacterPlayer::FellOutOfWorld(const UDamageType& dmgType)
+{
+	//Super::FellOutOfWorld(dmgType);
+
+	// 여기서 바로 죽음 처리
+	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISJUMPING);
+	HandleSuicide();   // 네가 만든 것
+}

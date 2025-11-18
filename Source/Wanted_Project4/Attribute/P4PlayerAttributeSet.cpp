@@ -71,7 +71,6 @@ void UP4PlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	//작성 한승헌 - 2025-11-10
 	//작성 이선우 - 2025-11-14 DamageAmount로 수정
 	const float MinHealth = 0.0f;
-	UE_LOG(LogTemp, Warning, TEXT("EXE"));
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
@@ -90,12 +89,12 @@ void UP4PlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 
 	if ((GetHealth() <= 0.0f))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HP 00000000"));
+		//UE_LOG(LogTemp, Warning, TEXT("HP 00000000"));
 		Data.Target.AddLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
 		OnHpZero.Broadcast();
 	}
 
-	// todo: bOutOfHealth 제거
+	// bOutOfHealth 제거
 	//bOutOfHealth = (GetHealth() <= 0.0f);
 	//UE_LOG(LogTemp, Warning, TEXT("%d"), bOutOfHealth);
 }
