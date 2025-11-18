@@ -48,11 +48,23 @@ bool UP4GA_DrawKatana::CanActivateAbility(
         return false;
     }
 
-    // 이미 손에 쥐고 있으면 발도 불가
-    if (AnimInst->bIsKatanaOnHand)
+    //// 이미 손에 쥐고 있으면 발도 불가
+    //if (AnimInst->bIsKatanaOnHand)
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("[GA_Draw] 이미 발도 상태입니다!"));
+    //    return false;
+    //}
+
+    // 이미 손에 쥐고 있으면 발도 불가 (태그로 체크)
+    UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
+    if (ASC)
     {
-        UE_LOG(LogTemp, Warning, TEXT("[GA_Draw] 이미 발도 상태입니다!"));
-        return false;
+        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        if (ASC->HasMatchingGameplayTag(DrawnTag))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[GA_Draw] 이미 발도 상태입니다!"));
+            return false;
+        }
     }
 
     return true;
@@ -84,8 +96,18 @@ void UP4GA_DrawKatana::ActivateAbility(
         return;
     }
 
-    // 발도 상태로 변경
-    AnimInst->bIsKatanaOnHand = true;
+    //// 발도 상태로 변경
+    //AnimInst->bIsKatanaOnHand = true;
+    
+    // 발도 상태 태그 추가 (AnimNotify에서도 추가하지만 여기서도 추가)
+    UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
+    if (ASC)
+    {
+        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        ASC->AddLooseGameplayTag(DrawnTag);
+        UE_LOG(LogTemp, Log, TEXT("[GA_Draw] Character.State.IsDrawn 태그 추가"));
+    }
+
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(

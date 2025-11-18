@@ -11,7 +11,8 @@ public class Wanted_Project4 : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 			{
 				"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-				"GameplayAbilities", "GameplayTags", "GameplayTasks", "NavigationSystem", "Paper2D"
+				"GameplayAbilities", "GameplayTags", "GameplayTasks", "NavigationSystem", "Paper2D",
+                "Slate", "SlateCore", "UMG", "ApplicationCore"
 			}
 		);
 

@@ -8,7 +8,7 @@
 #include "Item/Equipment/P4WeaponComponent.h"
 #include "Character/P4CharacterPlayer.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
-
+#include "GameplayAbilities/Public/AbilitySystemComponent.h"
 
 UAnimNotify_ReleaseKatana::UAnimNotify_ReleaseKatana()
 {
@@ -44,16 +44,29 @@ void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 
     UE_LOG(LogTemp, Warning, TEXT("WeaponComponent 찾음"));
 
-    // ⭐ 무기를 손으로 이동
+    //  무기를 손으로 이동
     WeaponComp->SheathWeapon();
 
-    // ⭐ 애님 인스턴스의 bIsKatanaOnHand를 false로 설정
-    UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance());
-    if (AnimInst)
+    // ASC 가져오기
+    UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
+    if (!ASC)
     {
-        AnimInst->bIsKatanaOnHand = false;
-        UE_LOG(LogTemp, Log, TEXT("ReleaseKatana 노티파이: bIsKatanaOnHand = false"));
+        UE_LOG(LogTemp, Error, TEXT("ASC를 찾을 수 없습니다!"));
+        return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("=== ReleaseKatana 노티파이 완료! ==="));
+    // 태그 제거
+    FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+    ASC->RemoveLooseGameplayTag(DrawnTag);
+    UE_LOG(LogTemp, Log, TEXT("Character.State.IsDrawn 태그 제거"));
+
+    //// ⭐ 애님 인스턴스의 bIsKatanaOnHand를 false로 설정
+    //UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance());
+    //if (AnimInst)
+    //{
+    //    AnimInst->bIsKatanaOnHand = false;
+    //    UE_LOG(LogTemp, Log, TEXT("ReleaseKatana 노티파이: bIsKatanaOnHand = false"));
+    //}
+
+    //UE_LOG(LogTemp, Warning, TEXT("=== ReleaseKatana 노티파이 완료! ==="));
 }

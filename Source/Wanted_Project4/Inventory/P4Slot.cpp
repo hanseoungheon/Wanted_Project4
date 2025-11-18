@@ -22,6 +22,10 @@
 #include "P4ItemDragDropOperation.h"
 #include "Components/SizeBox.h"
 
+#include "Inventory/P4EquipmentInvenComponent.h"
+#include "GameplayAbilities/Public/AbilitySystemComponent.h" 
+#include "AbilitySystemGlobals.h"
+
 UP4Slot::UP4Slot(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
@@ -49,28 +53,112 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 		// 해당 슬롯에 아이템 정보가 존재하는지 체크
 		if (CurrentItem.ItemData)
 		{
-			// 잘못된 접근 방법
-			//UP4InventoryComponent InvComp;
+			// ⭐ ItemData를 미리 복사 (델리게이트로 CurrentItem이 초기화될 수 있기 때문)
+			UItemDataBase* ItemDataCache = CurrentItem.ItemData;
+			FGameplayTag SlotTypeCache = SlotType;
+			int32 SlotIndexCache = SlotIndex;
 
-			// 올바른 접근 방법
 			if (APlayerController* PC = GetOwningPlayer())
 			{
 				if (APawn* Pawn = PC->GetPawn())
 				{
-					if (UP4InventoryComponent* InvComp = Pawn->FindComponentByClass<UP4InventoryComponent>())
+					// 인벤토리 슬롯인지 장비창 슬롯인지 구분
+					if (bIsEquipmentSlot)
 					{
-						if (CurrentItem.ItemData->HasTag(P4InventoryTags::Item::Equipment))
+						// 장비창 슬롯 우클릭 → 장비 해제
+						UE_LOG(LogTemp, Log, TEXT("[P4Slot] 장비창 슬롯 우클릭 - 해제 시도: %s"),
+							*ItemDataCache->GetItemName().ToString());
+
+						// ⭐ 무기인 경우, 발도 상태(Character.State.IsDrawn)면 해제 불가
+						FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
+						if (ItemDataCache->HasTag(WeaponTag))
 						{
-							InvComp->EquipItem(CurrentItem.ItemData, SlotIndex);
+							// ASC 가져오기
+							if (UAbilitySystemComponent* AbilitySystemComp = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Pawn))
+							{
+								FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+								if (AbilitySystemComp->HasMatchingGameplayTag(DrawnTag))
+								{
+									UE_LOG(LogTemp, Warning, TEXT("[P4Slot] 발도 상태에서는 장비 해제 불가! 먼저 납도하세요."));
+									return FReply::Handled();
+								}
+							}
 						}
-						else if (CurrentItem.ItemData->HasTag(P4InventoryTags::Item::Consumable))
+
+						if (UP4EquipmentInvenComponent* EquipInvenComp =
+							Pawn->FindComponentByClass<UP4EquipmentInvenComponent>())
 						{
-							InvComp->UseItem(CurrentItem.ItemData, SlotIndex);
+							if (UP4InventoryComponent* InvComp = Pawn->FindComponentByClass<UP4InventoryComponent>())
+							{
+								// 인벤토리에 빈 공간이 있는지 확인
+								if (!InvComp->HasSpace(ItemDataCache))
+								{
+									UE_LOG(LogTemp, Warning, TEXT("[P4Slot] 인벤토리 공간 부족!"));
+									return FReply::Handled();
+								}
+
+								// 무기인 경우 WeaponComponent + InventoryComponent의 UnequipItem 먼저 호출
+								//FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
+								if (ItemDataCache->HasTag(WeaponTag))
+								{
+									UE_LOG(LogTemp, Log, TEXT("[P4Slot] 무기 해제 시작"));
+
+									// InventoryComponent의 UnequipItem 호출 (WeaponComponent 해제 + GE 제거)
+									bool bUnequipFromInv = InvComp->UnequipItem(ItemDataCache, -1);
+									if (!bUnequipFromInv)
+									{
+										UE_LOG(LogTemp, Error, TEXT("[P4Slot] InventoryComponent 무기 해제 실패"));
+										return FReply::Handled();
+									}
+								}
+
+								// EquipmentInvenComponent에서 해제
+								bool bUnequipSuccess = EquipInvenComp->UnequipItem(SlotTypeCache);
+								if (!bUnequipSuccess)
+								{
+									UE_LOG(LogTemp, Error, TEXT("[P4Slot] EquipmentInvenComponent 해제 실패"));
+									return FReply::Handled();
+								}
+
+								// 인벤토리에 아이템 추가
+								bool bAddSuccess = InvComp->AddItem(ItemDataCache, 1);
+								if (bAddSuccess)
+								{
+									UE_LOG(LogTemp, Log, TEXT("[P4Slot] 장비 해제 성공 - 인벤토리에 추가됨"));
+								}
+								else
+								{
+									UE_LOG(LogTemp, Error, TEXT("[P4Slot] 인벤토리 추가 실패"));
+								}
+							}
+							else
+							{
+								UE_LOG(LogTemp, Error, TEXT("[P4Slot] InventoryComponent 찾을 수 없음"));
+							}
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("[P4Slot] EquipmentInvenComponent 찾을 수 없음"));
 						}
 					}
 					else
 					{
-						UE_LOG(LogTemp, Error, TEXT("인벤토리 컴포넌트를 찾지 못함"));
+						// 인벤토리 슬롯 우클릭 → 장비 장착 또는 아이템 사용
+						if (UP4InventoryComponent* InvComp = Pawn->FindComponentByClass<UP4InventoryComponent>())
+						{
+							if (ItemDataCache->HasTag(P4InventoryTags::Item::Equipment))
+							{
+								InvComp->EquipItem(ItemDataCache, SlotIndexCache);
+							}
+							else if (ItemDataCache->HasTag(P4InventoryTags::Item::Consumable))
+							{
+								InvComp->UseItem(ItemDataCache, SlotIndexCache);
+							}
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("인벤토리 컴포넌트를 찾지 못함"));
+						}
 					}
 				}
 				else
@@ -117,21 +205,21 @@ void UP4Slot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEv
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-	// 1️⃣ 아이템 유효성 확인
+	// 아이템 유효성 확인
 	if (!CurrentItem.ItemData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentItem.ItemData가 nullptr 입니다."));
 		return;
 	}
 
-	// 2️⃣ 드래그 비주얼 클래스 확인
+	// 드래그 비주얼 클래스 확인
 	if (!DragWidgetClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DragVisualClass가 에디터에서 설정되지 않았습니다."));
 		return;
 	}
 
-	// 3️⃣ 월드 유효성 체크
+	// 월드 유효성 체크
 	if (!GetWorld())
 	{
 		UE_LOG(LogTemp, Error, TEXT("GetWorld()가 nullptr 입니다."));

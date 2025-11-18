@@ -48,11 +48,14 @@ protected:
     // 인벤토리 토글 함수
     void ToggleEquipmentInven();
 
-
-
 public:
     //작성 한승헌 일시 2025.11.13
     void OpenQuestUI(int32 QuestCode);
+
+    // -작성: 노현기 -일시: 2025.11.18
+    // UI를 최상위로 가져오기
+    void BringUIToFront(UUserWidget* Widget);   
+
 private:
     // 입력 매핑
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
@@ -158,4 +161,12 @@ private:
 
     // UI 상태에 따라 입력 모드 업데이트
     void UpdateInputMode();
+
+    // UI 위젯들을 추적
+    //UPROPERTY()
+    //TArray<TWeakObjectPtr<UUserWidget>> ActiveUIWidgets;
+
+    // 고정된 ZOrder 범위 사용
+    static constexpr int32 UI_BASE_ZORDER = 0;
+    static constexpr int32 UI_TOP_ZORDER = 1;
 };

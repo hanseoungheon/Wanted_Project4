@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
 	FGameplayTagContainer ItemTags;
 
+	// 이 슬롯이 어느 위젯에 속해있는지 구분 (인벤토리 or 장비창)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
+	bool bIsEquipmentSlot = false;  // true면 장비창 슬롯, false면 인벤토리 슬롯
 protected:
 	// 슬롯이 현재 가진 아이템 정보
 	FInventoryItem CurrentItem;

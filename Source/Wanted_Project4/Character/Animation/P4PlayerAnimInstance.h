@@ -63,7 +63,7 @@ public:
 
 	// -작성자: 노현기 -일시: 2025.11.14
 	// 캐릭터가 발도를 해서 카타나를 손에 쥐고 있는지 ('V'키로 토글)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	UPROPERTY(BlueprintReadOnly, Category = "State")
 	bool bIsKatanaOnHand;
 
 };

@@ -23,7 +23,7 @@ void UP4InventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-    // ✅ 최상위 위젯의 Visibility를 코드로 설정
+    // 최상위 위젯의 Visibility를 코드로 설정
     SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 
 	EquipmentSlots.Empty();
@@ -85,21 +85,18 @@ void UP4InventoryWidget::NativeConstruct()
             }
         }
     }
+}
 
-    // ✅ 디버그: 슬롯 인덱스 확인
-    UE_LOG(LogTemp, Warning, TEXT("=== 장비 슬롯 초기화 ==="));
-    for (int32 i = 0; i < EquipmentSlots.Num(); ++i)
+void UP4InventoryWidget::BeginDestroy()
+{
+    // 델리게이트 바인딩 해제
+    if (InventoryComp)
     {
-        UE_LOG(LogTemp, Warning, TEXT("EquipmentSlots[%d] → SlotIndex: %d"),
-            i, EquipmentSlots[i]->SlotIndex);
+        InventoryComp->OnInventoryUpdated.RemoveAll(this);
+        UE_LOG(LogTemp, Log, TEXT("[InventoryWidget] 델리게이트 바인딩 해제"));
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("=== 소비 슬롯 초기화 ==="));
-    for (int32 i = 0; i < ConsumableSlots.Num(); ++i)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ConsumableSlots[%d] → SlotIndex: %d"),
-            i, ConsumableSlots[i]->SlotIndex);
-    }
+    Super::BeginDestroy();
 }
 
 void UP4InventoryWidget::BindInventory(UP4InventoryComponent* InInventoryComp)
@@ -199,10 +196,8 @@ void UP4InventoryWidget::RefreshSlot(FGameplayTag SlotType, int32 SlotIndex)
 
 FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {  
-
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
-
         // DragHeader를 클릭했는지 체크
         if (DragHeader && DragHeader->IsHovered())
         {
@@ -216,21 +211,29 @@ FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
 
                 // 마우스 위치를 뷰포트 로컬 좌표로 변환
                 FVector2D MousePosViewport = InMouseEvent.GetScreenSpacePosition();
+
                 if (GEngine && GEngine->GameViewport)
                 {
-                    FVector2D ViewportSize;
-                    GEngine->GameViewport->GetViewportSize(ViewportSize);
+                   /* FVector2D ViewportSize;
+                    GEngine->GameViewport->GetViewportSize(ViewportSize);*/
 
                     // DPI 스케일을 고려한 마우스 위치
                     float Scale = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
                     MousePosViewport = MousePosViewport / Scale;
                 }
-
                 // 오프셋 = 마우스 위치 - 패널 위치
                 DragOffset = MousePosViewport - CurrentPanelPosition;
-            }
-            UE_LOG(LogTemp, Log, TEXT("인벤토리 DragHeader 클릭 - Handled"));
+            }   
             return FReply::Handled().CaptureMouse(TakeWidget());
+        }
+
+        // 일반 클릭 (DragHeader 아님)
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            if (AP4PlayerController* P4PC = Cast<AP4PlayerController>(PC))
+            {
+                P4PC->BringUIToFront(this);
+            }
         }
 
         // DragHeader가 아닌 인벤토리 내부를 클릭한 경우
@@ -241,8 +244,6 @@ FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
         }
     }
 
-    // 인벤토리 외부 클릭 - 게임 입력 허용
-    UE_LOG(LogTemp, Warning, TEXT("인벤토리 외부 - Unhandled 반환"));
     return FReply::Unhandled();
 }
 
@@ -269,7 +270,7 @@ FReply UP4InventoryWidget::NativeOnMouseMove(const FGeometry& InGeometry, const 
         // 새 위치 = 마우스 위치 - 오프셋
         FVector2D NewPosition = MousePosViewport - DragOffset;
 
-        // ⭐ 화면 경계 제한 추가
+        // 화면 경계 제한 추가
         FVector2D PanelSize = InventoryPanel->GetCachedGeometry().GetLocalSize();
         FVector2D ViewportSize = FVector2D::ZeroVector;
 
@@ -284,10 +285,9 @@ FReply UP4InventoryWidget::NativeOnMouseMove(const FGeometry& InGeometry, const 
         // 패널 기준이 인벤토리 패널 기준이라 그 밖에 있는 DragHead는 위로 드래그 하다보면 잘림
         // 그래서 Y값은 Min값을 DragHeader크기만큼 늘려줌
         NewPosition.X = FMath::Clamp(NewPosition.X, 0.0f, FMath::Max(0.0f, ViewportSize.X - PanelSize.X));
-        NewPosition.Y = FMath::Clamp(NewPosition.Y, 30.0f, FMath::Max(0.0f, ViewportSize.Y - PanelSize.Y)); 
+        NewPosition.Y = FMath::Clamp(NewPosition.Y, 30.0f, FMath::Max(0.0f, ViewportSize.Y - PanelSize.Y));
 
         CanvasSlot->SetPosition(NewPosition);
-
 
         return FReply::Handled();
     }
@@ -303,6 +303,16 @@ FReply UP4InventoryWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, co
         if (bIsDragging)
         {
             bIsDragging = false;
+
+            // 드래그 종료 후 최상위로 가져오기
+            if (APlayerController* PC = GetOwningPlayer())
+            {
+                if (AP4PlayerController* P4PC = Cast<AP4PlayerController>(PC))
+                {
+                    P4PC->BringUIToFront(this);
+                }
+            }
+
             return FReply::Handled().ReleaseMouseCapture();
         }
 
@@ -317,21 +327,21 @@ FReply UP4InventoryWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, co
 
 
 
-bool UP4InventoryWidget::IsMouseOverInventory() const
-{
-    // 위젯이 보이지 않으면 false
-    if (GetVisibility() != ESlateVisibility::Visible)
-    {
-        return false;
-    }
-
-    // InventoryPanel이 있으면 그것을 체크, 없으면 전체 위젯 체크
-    if (InventoryPanel)
-    {
-        bool bIsHovered = InventoryPanel->IsHovered();
-        return bIsHovered;
-    }
-
-    bool bIsHovered = this->IsHovered();
-    return bIsHovered;
-}
+//bool UP4InventoryWidget::IsMouseOverInventory() const
+//{
+//    // 위젯이 보이지 않으면 false
+//    if (GetVisibility() != ESlateVisibility::Visible)
+//    {
+//        return false;
+//    }
+//
+//    // InventoryPanel이 있으면 그것을 체크, 없으면 전체 위젯 체크
+//    if (InventoryPanel)
+//    {
+//        bool bIsHovered = InventoryPanel->IsHovered();
+//        return bIsHovered;
+//    }
+//
+//    bool bIsHovered = this->IsHovered();
+//    return bIsHovered;
+//}
