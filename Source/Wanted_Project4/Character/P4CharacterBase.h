@@ -55,6 +55,9 @@ public:
 	virtual void GiveDamage(AActor* TargetActor, const float DamageAmount) override;
 
 
+	void HandleRespawn();
+
+
 public:
 	FORCEINLINE virtual class UAnimMontage* GetDefaultAttackMontage() const { return DefaultAttackMontage; }
 	//FORCEINLINE virtual class UAnimMontage* GetJumpMontage() const { return JumpMontage; }
@@ -128,4 +131,7 @@ protected:
 
 
 	//virtual void BeginPlay() override;
+public:
+	FTransform RespawnTransform;
+
 };
