@@ -18,3 +18,14 @@ AP4GameMode::AP4GameMode()
 	}
 	
 }
+
+void AP4GameMode::BeginPlay()
+{
+	//todo: 레밸별로 추가하기
+	Super::BeginPlay();
+
+	if (GetWorld())
+	{
+		GetWorld()->GetWorldSettings()->KillZ = -8000.f;
+	}
+}

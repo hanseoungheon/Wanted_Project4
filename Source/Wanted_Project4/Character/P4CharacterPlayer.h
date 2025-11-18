@@ -33,6 +33,7 @@ public:
 	void HandleLook(const FInputActionValue& Value);
 	void HandleSuicide(const FInputActionValue& Value);
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
 	//작성 한승헌
 	//일시- 2025.11.17
