@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "UI/P4CustomWidget.h"
 #include "Interface/P4NPCEnchantWeaponInterface.h"
+#include "Game/P4UpgradeType.h"
+#include "Interface/P4UpgrageWeaponInterface.h"
 #include "P4EnchantWidget.generated.h"
 
 /**
@@ -13,7 +15,8 @@
 
 
 UCLASS()
-class WANTED_PROJECT4_API UP4EnchantWidget : public UP4CustomWidget
+class WANTED_PROJECT4_API UP4EnchantWidget : public UP4CustomWidget, 
+	public IP4UpgrageWeaponInterface
 {
 	GENERATED_BODY()
 
@@ -36,7 +39,8 @@ protected:
 	//void TryEnchant();
 		
 public:
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Enchant)
+	EP4UpgradeType StoneUpgradeType;
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UButton> AcceptButtton;
@@ -60,5 +64,6 @@ protected:
 	UPROPERTY()
 	TScriptInterface<IP4NPCEnchantWeaponInterface> EnchantNPC;
 
+	virtual EP4UpgradeType GetUpgradeType() const override;
 
 };

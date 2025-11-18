@@ -6,5 +6,6 @@ UENUM(BlueprintType)
 enum class EP4UpgradeType : uint8
 {
 	Attack,
-	MaxHealth
+	MaxHealth,
+	None,
 };

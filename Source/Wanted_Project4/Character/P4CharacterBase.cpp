@@ -282,6 +282,14 @@ void AP4CharacterBase::BeginPlay()
 		UItemDataBase* TestPotion2 = LoadObject<UItemDataBase>(nullptr,
 			TEXT("/Game/Item/Consumable/DA_IncreaseMaxHealthPotion.DA_IncreaseMaxHealthPotion"));
 
+		//작성-한승헌
+		//일시- 2025.11.18
+		//내용- 강화석 강화책 추가.
+		UItemDataBase* MagicBook = LoadObject<UItemDataBase>(nullptr,
+			TEXT("/Game/Item/Upgrades/DA_MagicBook.DA_MagicBook"));
+		UItemDataBase* MagicStone = LoadObject<UItemDataBase>(nullptr,
+			TEXT("/Game/Item/Upgrades/DA_MagicStone.DA_MagicStone"));
+
 		if (TestSword)
 		{
 			InventoryComp->AddItem(TestSword, 2);
@@ -294,6 +302,27 @@ void AP4CharacterBase::BeginPlay()
 			InventoryComp->AddItem(TestPotion, 99);
 			InventoryComp->AddItem(TestPotion, 90);
 			InventoryComp->AddItem(TestPotion2, 50);
+		}
+
+		//작성-한승헌
+		//일시- 2025.11.18
+		//내용- 강화석 강화책 추가.
+		if (MagicBook != nullptr)
+		{
+			InventoryComp->AddItem(MagicBook, 1);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Is MagicBook NULLPTR"));
+		}
+
+		if (MagicStone != nullptr)
+		{
+			InventoryComp->AddItem(MagicStone, 1);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Is MagicStone NULLPTR"));
 		}
 	}
 }
