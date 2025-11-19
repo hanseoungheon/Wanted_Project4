@@ -20,6 +20,8 @@
 #include "Item/Equipment/P4WeaponComponent.h"
 #include "Inventory/P4EquipmentInvenComponent.h"
 
+#include "Components/TimeLineComponent.h"
+
 // Sets default values
 AP4CharacterBase::AP4CharacterBase()
 {
@@ -137,7 +139,17 @@ AP4CharacterBase::AP4CharacterBase()
 	//{
 	//	Weapon->SetSkeletalMesh(WeaponMeshRef.Object);
 	//}
-	
+
+
+	//작성 - 한승헌
+	//일시- 2025.11.19
+	//내용 - 타임라인, 커브들 로드.
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> RollingCurveRef(TEXT("Game/Character/Curve/CV_RollingCurve.CV_RollingCurve"));
+
+	if (RollingCurveRef.Succeeded() == true)
+	{
+		RollingCurve = RollingCurveRef.Object;
+	}
 }
 
 // todo: 죽음과 피격 몽타주로 빼면..
@@ -307,10 +319,40 @@ void AP4CharacterBase::PlayDeadAnimation()
 	}
 }
 
+//작성 : 한승헌
+//일시 : 2025.11.19
+//내용 : 구르기 전용 인터페이스.
+FVector AP4CharacterBase::GetRollingDirection() const
+{
+	return RollingDirection;
+}
+
+void AP4CharacterBase::SetRollingDirection(FVector InRollingDirection)
+{
+	RollingDirection = InRollingDirection;
+}
+
 // -작성: 노현기 -일시: 2025.11.10
 void AP4CharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//작성- 한승헌
+	//일시- 2025.11.19
+	//내용 - 타임라인들 추가.
+	if (RollingCurve != nullptr)
+	{
+		FOnTimelineFloat RollingInterpFunction;
+
+		RollingInterpFunction.BindUFunction(this, FName("OnRollingUpdate"));
+		RollingTimeLine->AddInterpFloat(RollingCurve, RollingInterpFunction);
+
+		//반복하지 않음.
+		RollingTimeLine->SetLooping(false);
+		RollingTimeLine->SetPlayRate(1.0f);
+		//RollingTimeLine->PlayFromStart();
+	}
+
 
 	// 테스트용 아이템 추가 (UI는 컨트롤러가 담당)
 	if (InventoryComp)

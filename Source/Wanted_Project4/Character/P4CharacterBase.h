@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 //#include "Interface/AnimationAttackInterface.h"
 #include "Interface/P4DamageableInterface.h"
+#include "Interface/P4RollingInterface.h"
 #include "Interface/P4CharacterWidgetInterface.h"
 #include "P4CharacterBase.generated.h"
 
@@ -15,7 +16,8 @@ class WANTED_PROJECT4_API AP4CharacterBase :
 	public ACharacter,
 	public IAbilitySystemInterface,
 	public IP4DamageableInterface,
-	public IP4CharacterWidgetInterface
+	public IP4CharacterWidgetInterface,
+	public IP4RollingInterface
 {
 	GENERATED_BODY()
 
@@ -140,4 +142,19 @@ protected:
 public:
 	FTransform RespawnTransform;
 
+
+	//작성 한승헌- 일시 2025.11.19
+	//타임라인 변수 모음
+	//안쓸것같지만 일단 생성
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TimeLine)
+	TObjectPtr<class UTimelineComponent> RollingTimeLine = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TimeLine)
+	TObjectPtr<class UCurveFloat> RollingCurve = nullptr;
+
+	FVector RollingDirection;
+
+	virtual FVector GetRollingDirection() const override;
+	virtual void SetRollingDirection(const FVector InRollingDirection) override;
 };

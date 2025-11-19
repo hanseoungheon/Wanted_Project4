@@ -132,4 +132,5 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UP4ComboAttackData> CurrentComboData;
+
 };	
