@@ -29,7 +29,7 @@ void UP4GA_DashAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	AP4BossMonsterBase* Monster = Cast<AP4BossMonsterBase>(ActorInfo->AvatarActor.Get());
 	if (Monster)
 	{
-		Monster->OnDashStart.AddDynamic(this, &UP4GA_DashAttack::StartDashForce);
+		Monster->OnDashStart.AddUniqueDynamic(this, &UP4GA_DashAttack::StartDashForce);
 		
 		FName MontageSectionName = TEXT("DashAttack");
 		// 몽타주 재생

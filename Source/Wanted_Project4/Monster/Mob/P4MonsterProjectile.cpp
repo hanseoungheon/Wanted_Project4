@@ -66,8 +66,11 @@ AP4MonsterProjectile::AP4MonsterProjectile()
 		ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	}
 
-
-	// 발사체 수명 설정
+	if (!TrailNaiagaraComponent)
+	{
+		TrailNaiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail Niagara Particle"));
+		TrailNaiagaraComponent->SetupAttachment(RootComponent);
+	}
 }
 
 // Called when the game starts or when spawned

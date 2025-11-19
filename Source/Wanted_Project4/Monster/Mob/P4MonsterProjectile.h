@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraComponent.h"
 #include "P4MonsterProjectile.generated.h"
 
 class USphereComponent;
@@ -43,6 +44,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TObjectPtr<UNiagaraComponent> TrailNaiagaraComponent;
 
 protected:
 	// 발사체 수명
