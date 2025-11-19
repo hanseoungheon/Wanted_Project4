@@ -17,6 +17,9 @@ UP4GA_AttackHitCheck::UP4GA_AttackHitCheck()
 void UP4GA_AttackHitCheck::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	// 이벤트 데이터 저장
+	CurrentEventData = TriggerEventData; 
 
 	// AbilityTask_Trace 생성 (UP4AT_Trace)
 	UP4AT_Trace* AttackTraceTask = UP4AT_Trace::CreateTask(this, AP4TA_Trace::StaticClass());
@@ -81,7 +84,18 @@ void UP4GA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 		return;
 	}
 
-	const float AttackDamage = SourceAttribute->GetAttackRate();
+	//const float AttackDamage = SourceAttribute->GetAttackRate();
+
+	const float BaseAttackDamage = SourceAttribute->GetAttackRate();
+
+	// AnimNotify에서 전달된 배율 가져오기
+	float DamageMultiplier = 1.0f;
+	if (CurrentEventData)
+	{
+		DamageMultiplier = CurrentEventData->EventMagnitude;
+	}
+
+	const float AttackDamage = BaseAttackDamage * DamageMultiplier;
 
 	// 여러 타겟 순회
 	for (int32 i = 0; i < NumData; ++i)

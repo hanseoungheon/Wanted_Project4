@@ -28,4 +28,8 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float ComboAttackLevel;
+
+	// -작성: 노현기 -일시: 2025.11.19
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float DamageMultiplier = 1.0f;
 };
