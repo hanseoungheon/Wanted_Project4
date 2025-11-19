@@ -69,6 +69,7 @@ bool UP4InventoryComponent::AddItem(UItemDataBase* ItemData, int32 Quantity)
             (*TargetArray)[i].Quantity = FMath::Min(Quantity, ItemData->GetMaxStackCount());
             (*TargetArray)[i].SlotIndex = i;
             (*TargetArray)[i].SlotType = SlotType;
+            (*TargetArray)[i].bIsNewItem = true;  // 새 아이템 플래그 설정
 
             OnInventoryUpdated.Broadcast(SlotType, i);
 

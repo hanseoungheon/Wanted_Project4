@@ -39,6 +39,7 @@ void UP4InventoryWidget::NativeConstruct()
 			{
                 SlotWidget->SlotType = P4InventoryTags::Slot::Equipment;
                 SlotWidget->SlotIndex = Index++;  // 슬롯 인덱스 설정
+
 				EquipmentSlots.Add(SlotWidget);
 			}
 		}
@@ -107,6 +108,7 @@ void UP4InventoryWidget::BindInventory(UP4InventoryComponent* InInventoryComp)
         return;
 
     }
+
     // 1. 인벤토리 컴포넌트 저장
     InventoryComp = InInventoryComp;
 
