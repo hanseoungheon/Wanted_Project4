@@ -42,7 +42,7 @@ void UP4GA_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	AP4PlayerController* PC = Cast<AP4PlayerController>(PlayerCharacter->GetController());
 
-	PC->Test();
+
 	// 1) 루트 인터랙트 태그부터 검사 (Character.Interact)
 	//static const FGameplayTag InteractTag =
 	//	FGameplayTag::RequestGameplayTag(TEXT("Character.Interact"));
@@ -108,6 +108,7 @@ void UP4GA_Interaction::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		{
 			//Todo: 무기강화 구현해야됨.
 			NPC_Character->ShowEnchantUI();
+			PC->Test();
 		}
 
 		//NPC_Character->ShowQuestUI(NPC_Character->GetNPCQuestCode());

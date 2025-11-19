@@ -21,7 +21,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnQuestStarted);
 DECLARE_MULTICAST_DELEGATE(FOnQuestUpdated);
-DECLARE_MULTICAST_DELEGATE(FOnQuestCleared);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnQuestCleared, int32, ClearedQuestCode);
 
 UCLASS()
 class WANTED_PROJECT4_API UP4QuestManager : public UObject
@@ -40,6 +40,13 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = Quest)
 	int32 GetObjectiveProgress(const FString& ObjectiveID) const; //현재 Object(퀘스트목표) 진행도 조회.
+
+	UFUNCTION(BlueprintPure, Category = Quest)
+
+	FORCEINLINE bool IsQuestCleared(int32 QuestCode) const
+	{
+		return ClearedQuestCodes.Contains(QuestCode);
+	}
 
 	const FP4QuestInfo* GetCurrentQuest() const;
 	const FP4StageDetails* GetCurrentStage() const;
@@ -87,4 +94,6 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Quest)
 	bool bQuestActive = false;
+
+	TSet<int32> ClearedQuestCodes;
 };

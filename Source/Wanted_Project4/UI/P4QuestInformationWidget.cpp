@@ -30,7 +30,7 @@ void UP4QuestInformationWidget::NativeConstruct()
 		//퀘스트 진행사항이 업데이트하면 갱신되게 하는 함수를 델리게이트로 연결.
 		QuestManager->OnQuestUpdated.AddUObject(this, &UP4QuestInformationWidget::HandleQuestUpdated);
 		//퀘스트가 종료되면 UI를 숨기게 하는 함수를 델리게이트로 연결.
-		QuestManager->OnQuestCleared.AddUObject(this, &UP4QuestInformationWidget::HandleQuestCleared);
+		QuestManager->OnQuestCleared.AddDynamic(this, &UP4QuestInformationWidget::HandleQuestCleared);
 	}
 
 	//시작할땐 숨기기.
@@ -95,7 +95,7 @@ void UP4QuestInformationWidget::HandleQuestUpdated()
 	RefreshQuestUI();
 }
 
-void UP4QuestInformationWidget::HandleQuestCleared()
+void UP4QuestInformationWidget::HandleQuestCleared(int32 ClearedQuestCode)
 {
 	// 퀘스트 끝나면 숨기기
 	SetVisibility(ESlateVisibility::Hidden);

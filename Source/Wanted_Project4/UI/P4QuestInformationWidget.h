@@ -25,7 +25,7 @@ protected:
 	//델리게이트용 함수.
 	void HandleQuestStarted();
 	void HandleQuestUpdated();
-	void HandleQuestCleared();
+	void HandleQuestCleared(int32 ClearedQuestCode);
 
 	//변수 섹션
 public:
