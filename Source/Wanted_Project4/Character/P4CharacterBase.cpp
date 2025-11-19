@@ -58,6 +58,7 @@ AP4CharacterBase::AP4CharacterBase()
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	//GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	//GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->MaxAcceleration = 800.f;
 
 	// Mesh
 	GetMesh()->SetRelativeLocationAndRotation(
@@ -132,6 +133,7 @@ AP4CharacterBase::AP4CharacterBase()
 	
 }
 
+// todo: 죽음과 피격 몽타주로 빼면..
 void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 {
 	// todo: 알아먹게 수정
@@ -140,7 +142,16 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 
-		ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->StopAllMontages(0.f);
+		}
+
+		if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDAMAGED) == false)
+		{
+			ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
+		}		
 		// Damaged 모션동안 이동 막기
 		GetCharacterMovement()->SetMovementMode(MOVE_None);
 
@@ -181,6 +192,7 @@ void AP4CharacterBase::HandleRespawn()
 	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
 	// 체력 회복 
 	ASC->SetNumericAttributeBase(AttributeSet->GetHealthAttribute(), AttributeSet->GetMaxHealth());
+	ASC->SetNumericAttributeBase(AttributeSet->GetShieldAttribute(), AttributeSet->GetMaxShield());
 	// 콜리전 복구 
 	SetActorEnableCollision(true); 
 	// 이동 가능 

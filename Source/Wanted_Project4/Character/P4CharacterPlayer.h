@@ -49,6 +49,7 @@ public:
 	// -작성자: 노현기 -일시: 2025.11.14
 	FORCEINLINE class UAnimMontage* GetDrawKatanaMontage() const { return DrawKatanaMontage; }
 	FORCEINLINE class UAnimMontage* GetSheathKatanaMontage() const { return SheathKatanaMontage; }
+	FORCEINLINE class UAnimMontage* GetGrindKatanaMontage() const { return GrindKatanaMontage; }
 	
 protected:
 	// components.
@@ -74,9 +75,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollingMontage;
 
-	///Script/Engine.AnimMontage'/Game/Character/Animation/AM_Rolling.AM_Rolling'
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> RunMontage;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UAnimMontage> RunMontage;
 
 	// -작성자: 노현기 -일시: 2025.11.14
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
@@ -85,6 +85,9 @@ protected:
 	// -작성자: 노현기 -일시: 2025.11.15
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> SheathKatanaMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> GrindKatanaMontage;
 public:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = GAS)

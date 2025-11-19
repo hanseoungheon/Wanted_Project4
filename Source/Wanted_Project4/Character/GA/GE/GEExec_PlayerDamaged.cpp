@@ -8,18 +8,18 @@
 struct FStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Shield);
+
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageAmount);
-	//DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalChance);
-	//DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalMultiplier);
-	//DECLARE_ATTRIBUTE_CAPTUREDEF(Defense);
+
 
 	FStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UP4PlayerAttributeSet, Health, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UP4PlayerAttributeSet, Shield, Source, false);
+
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UP4PlayerAttributeSet, DamageAmount, Source, true);
-		//DEFINE_ATTRIBUTE_CAPTUREDEF(UP4PlayerAttributeSet, CriticalChance, Source, true);
-		//DEFINE_ATTRIBUTE_CAPTUREDEF(UP4PlayerAttributeSet, CriticalMultiplier, Source, true);
-		//DEFINE_ATTRIBUTE_CAPTUREDEF(UP4MonsterAttributeSet, Defense, Target, false);
+
 	}
 };
 
@@ -32,28 +32,55 @@ static FStatics& DamageStatics()
 UGEExec_PlayerDamaged::UGEExec_PlayerDamaged()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(DamageStatics().ShieldDef);
+
 	RelevantAttributesToCapture.Add(DamageStatics().DamageAmountDef);
 }
 
 void UGEExec_PlayerDamaged::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	float PlayerHp = 0.f;
-	float Damage = 0.f;
+	float PlayerHealth = 0.f;
+	float PlayerShield = 0.f;
+	float InDamage = 0.f;
+	float ResultDamage = 0.f;
 
 	// Attribute 캡처
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().HealthDef, {}, PlayerHp);
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageAmountDef, {}, Damage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().HealthDef, {}, PlayerHealth);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ShieldDef, {}, PlayerShield);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageAmountDef, {}, InDamage);
+	ResultDamage = InDamage;
+
+	if (PlayerShield > 0)
+	{
+		float UsedShield = FMath::Min(PlayerShield, InDamage);
+		ResultDamage -= UsedShield;
+
+		// Shield 감소
+		OutExecutionOutput.AddOutputModifier(
+			FGameplayModifierEvaluatedData(DamageStatics().ShieldProperty, EGameplayModOp::Additive, -UsedShield)
+		);
+	}
+
+	if (ResultDamage > 0)
+	{
+		OutExecutionOutput.AddOutputModifier(
+			FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -ResultDamage)
+		);
+	}
+
+
+
 
 	// --- 실제 계산 로직 ---
 
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
-		DamageStatics().DamageAmountDef,
-		FAggregatorEvaluateParameters(),
-		Damage
-	);
+	//ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
+	//	DamageStatics().DamageAmountDef,
+	//	FAggregatorEvaluateParameters(),
+	//	InDamage
+	//);
 
-	// Target의 CurHP에 반영
-	OutExecutionOutput.AddOutputModifier(
-		FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -Damage)
-	);
+	//// Target의 CurHP에 반영
+	//OutExecutionOutput.AddOutputModifier(
+	//	FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -InDamage)
+	//);
 }

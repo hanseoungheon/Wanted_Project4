@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,16 +25,20 @@ public:
 
 	void UpdateHpBar();
 
+	void UpdateShieldBar();
 
 	virtual void SetAbilitySystemComponent(AActor* InOwner) override;
 protected:
-	// À§Á¬ÀÌ ¸ğµÎ ÃÊ±âÈ­°¡ µÈ ÈÄ¿¡ È£ÃâµÇ´Â ÇÔ¼ö.
-	// À§Á¬À» ÂüÁ¶ÇÒ ¶§ »ı¼ºµÆ´Ù´Â °ÍÀ» º¸Àå ¹ŞÀ» ¼ö ÀÖÀ½.
+	// ìœ„ì ¯ì´ ëª¨ë‘ ì´ˆê¸°í™”ê°€ ëœ í›„ì— í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜.
+	// ìœ„ì ¯ì„ ì°¸ì¡°í•  ë•Œ ìƒì„±ëë‹¤ëŠ” ê²ƒì„ ë³´ì¥ ë°›ì„ ìˆ˜ ìˆìŒ.
 	virtual void NativeConstruct() override;
 
 
 	virtual void OnHealthChanged(const FOnAttributeChangeData& ChangedData);
 	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& ChangedData);
+
+	virtual void OnShieldChanged(const FOnAttributeChangeData& Data);
+	virtual void OnMaxShieldChanged(const FOnAttributeChangeData& Data);
 //Var Sections
 public:
 
@@ -43,8 +47,14 @@ protected:
 	TObjectPtr<class UProgressBar> P4HpBar;
 
 	UPROPERTY()
-	float CurrentHp = 0.0f; //ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍÀÇ ÇöÀç Ã¼·Â.
+	float CurrentHp = 0.0f; //í”Œë ˆì´ì–´ ìºë¦­í„°ì˜ í˜„ì¬ ì²´ë ¥.
 
 	UPROPERTY()
-	float MaxHp = 0.1f; //ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍÀÇ ÃÖ´ë Ã¼·Â.
+	float MaxHp = 0.1f; //í”Œë ˆì´ì–´ ìºë¦­í„°ì˜ ìµœëŒ€ ì²´ë ¥.
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UProgressBar> P4ShieldBar;
+
+	float CurrentShield = 0.0f;
+	float MaxShield = 0.0f;
 };

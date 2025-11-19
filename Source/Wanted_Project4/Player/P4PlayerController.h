@@ -14,6 +14,9 @@ enum class GASInputID : uint8
     E_DrawKatanaAction,
     E_SheathKatanaAction,
     E_RunAction,
+    E_StrongAttackAction,
+    E_ComboAttackAction,
+    E_GrindKatanaAction,
 
 };
 
@@ -103,6 +106,10 @@ private:
     // 달리기 토글 'L-Shift'
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> RunAction;    
+
+    // 칼갈기 토글 'L-CTRL'
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UInputAction> GrindKatanaAction;
 
     //작성 - 한승헌 2025-11-10
     //디버그용 데미지 주기.
