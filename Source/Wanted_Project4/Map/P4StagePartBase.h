@@ -47,7 +47,6 @@ protected:
 
 	void SpawnMonsterInTrigger(); //SpawnTirgger안에 몬스터 랜덤 스폰.
 
-	void SpawnNavMeshBounds(); //NavMesh 생성.
 
 public:
 
@@ -67,11 +66,8 @@ protected:
 	int32 MaxMonsterCount = 6;
 
 	
-	//몬스터가 이미 스폰되어있는지.
+	//몬스터가 이미 스폰되어있는지
 	bool bMonsterSpawned = false;
-
-
-
 	//NPC Sections
 protected:
 	//스폰되어있는 NPC들.
@@ -113,6 +109,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
 	TObjectPtr<class UBoxComponent> MonsterDeleteTrigger;
 
+
+	//몬스터를 스폰시키는 트리거. 오버랩기능은 없음.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
+	TObjectPtr<class UBoxComponent> MonsterSpawner;
+
 	//NavMeshBoundsVolume
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
 	TObjectPtr<class ANavMeshBoundsVolume> NavMeshVolume;
@@ -120,6 +121,9 @@ protected:
 	bool bSpawnLocalNavMeshBounds = true;
 
 	FVector NavBoundsExtent; //NavMesh 크기.
+
+	
+
 
 	
 

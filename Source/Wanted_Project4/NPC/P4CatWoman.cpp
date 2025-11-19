@@ -17,9 +17,11 @@ AP4CatWoman::AP4CatWoman()
 	}
 
 	GetMesh()->SetRelativeLocationAndRotation(
-		FVector(0.0f, 0.0f, -90.0f),
+		FVector(0.0f, 0.0f, -80.0f),
 		FRotator(0.0f, -90.0f, 0.0f)
 	);
+
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Game/NPC/DollCat/Animations/ABP_NPCTest.ABP_NPCTest_C"));
 
@@ -39,11 +41,12 @@ AP4CatWoman::AP4CatWoman()
 
 void AP4CatWoman::BeginPlay()
 {
-
+	Super::BeginPlay();
 }
 
 void AP4CatWoman::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 }
 
 void AP4CatWoman::HandleEnchantWeapon()

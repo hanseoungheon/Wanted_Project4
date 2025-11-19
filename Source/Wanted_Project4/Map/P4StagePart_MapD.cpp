@@ -39,9 +39,10 @@ AP4StagePart_MapD::AP4StagePart_MapD()
 		MonsterClass = MonsterClassRef.Class;
 	}
 
-	MonsterSpawnTrigger->SetBoxExtent(FVector(4000.0f, 3000.0f, 1000.0f));
+	//MonsterSpawnTrigger->SetBoxExtent(FVector(4000.0f, 3000.0f, 1000.0f));
+	MonsterSpawner->SetBoxExtent(FVector(4000.0f, 3000.0f, 1000.0f));
 	
-	MonsterDeleteTrigger->SetBoxExtent(FVector(6000.0f, 3000.0f, 1000.0f));
+	MonsterDeleteTrigger->SetBoxExtent(FVector(10000.0f, 6000.0f, 1000.0f));
 
 	//ForestGirl 위치 설정.
 	NPC1SpawnOffset = FVector(730.0f, -2790.0f, 390.0f);

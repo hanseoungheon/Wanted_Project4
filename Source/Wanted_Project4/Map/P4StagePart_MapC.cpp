@@ -41,10 +41,13 @@ AP4StagePart_MapC::AP4StagePart_MapC()
 		MonsterClass = MonsterClassRef.Class; //자그라스.
 	}
 
+	MonsterSpawner->SetBoxExtent(FVector(6000.0f, 6000.0f, 1000.0f));
+	MonsterSpawner->SetRelativeLocationAndRotation(FVector(-5099.9f, 532.5f, 0.0f),FRotator(0.0f, 10.0f, 0.0f));
+
 	MonsterSpawnTrigger->SetBoxExtent(FVector(7000.0f, 5000.0f, 2000.0f));
 	MonsterSpawnTrigger->SetRelativeLocationAndRotation(FVector(-4882.9f, 827.1f, 0), FRotator(0.0f, 10.0f, 0.0f));
 
-	MonsterDeleteTrigger->SetBoxExtent(FVector(10000.0f, 5000.0f, 2000.0f));
+	MonsterDeleteTrigger->SetBoxExtent(FVector(12500.0f, 12500.0f, 2000.0f));
 	MonsterDeleteTrigger->SetRelativeLocationAndRotation(FVector(-5099.9f, 532.5f, 0.0f), FRotator(0.0f, 10.0f, 0.0f));
 
 	NPC1SpawnOffset = FVector(-1845.0f, 2631.0f, -1298.0f);
