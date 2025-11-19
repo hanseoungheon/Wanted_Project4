@@ -8,7 +8,9 @@
 UP4GA_DoubleWaterBomb::UP4GA_DoubleWaterBomb()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.DoubleWaterBomb")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.DoubleWaterBomb")));
+	SetAssetTags(Tags);
 }
 
 void UP4GA_DoubleWaterBomb::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -26,7 +28,7 @@ void UP4GA_DoubleWaterBomb::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		FName MontageSectionName = TEXT("DoubleWaterBomb");
 		// 몽타주 재생
-		Monster->AttackActionBegin(MontageSectionName, 2.f);
+		Monster->AttackActionBegin(MontageSectionName, 1.3f);
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

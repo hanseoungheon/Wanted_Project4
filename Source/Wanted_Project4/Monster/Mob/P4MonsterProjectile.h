@@ -27,8 +27,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* _PrimitiveCom, AActor* _OtherActor, UPrimitiveComponent* _OtherPrimitiveCom, FVector _nNormalImpulse, const FHitResult& _Hit);
+	void OnProjectileOverlappedAnywhere(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnProjectileHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 protected:
 	// 발사체 Sphere 컴포넌트
@@ -43,22 +45,29 @@ protected:
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
 protected:
-	// 발사체 생성 위치
+	// 발사체 수명
+	UPROPERTY(EditDefaultsOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	float LifeSpan = 3.f;
 
-	// 발사체 유효 사거리 (지나면 터트릴거임)
-	float LifeDistance = 0.f;
-
 	// 발사체 데미지
+	UPROPERTY(EditDefaultsOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	float Damage = 0.f;
 
 	// 발사체 폭발 범위
+	UPROPERTY(EditDefaultsOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	float Radius = 0.f;
 
 	// 폭발 여부
-	bool IsBomb = 0.f;
+	UPROPERTY(EditDefaultsOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	bool IsBomb = false;
 
+	// 현재 생성된 시간
+	float CurrentLifeTime = 0.f;
+	
 public:
+	// 데이터 초기화
+	void InitProjectile(float InLifeSpan, float InDamage, float InRadius, bool InIsBomb);
+	
 	// 발사 방향으로 발사체 속도 초기화
 	void FireInDirection(const FVector& ShootDirection);
 

@@ -6,9 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "Monster/P4BossMonsterBase.h"
 
-void UAnimNotify_MonsterDashStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_MonsterDashStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 		
 	APawn* Pawn = Cast<APawn>(MeshComp->GetOwner());
 	if (Pawn)
