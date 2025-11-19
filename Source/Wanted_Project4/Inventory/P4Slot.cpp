@@ -21,6 +21,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "P4ItemDragDropOperation.h"
 #include "Components/SizeBox.h"
+#include "Components/Border.h"
 
 #include "Inventory/P4EquipmentInvenComponent.h"
 #include "GameplayAbilities/Public/AbilitySystemComponent.h" 
@@ -40,6 +41,15 @@ void UP4Slot::NativeConstruct()
 
 	TXT_Quantity = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_Quantity")));
 	ensureAlways(TXT_Quantity);
+
+	// IMG_Notification 바인딩 및 기본 숨김
+	IMG_Notification = Cast<UImage>(GetWidgetFromName(TEXT("IMG_Notification")));
+	ensureAlways(IMG_Notification);
+	if (IMG_Notification)
+	{
+		IMG_Notification->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 }
 
 FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -153,8 +163,27 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 						// 인벤토리 슬롯 우클릭 → 장비 장착 또는 아이템 사용
 						if (UP4InventoryComponent* InvComp = Pawn->FindComponentByClass<UP4InventoryComponent>())
 						{
+
 							if (ItemDataCache->HasTag(P4InventoryTags::Item::Equipment))
 							{
+
+								// 인벤토리 배열에서 실제 아이템 확인
+								FGameplayTag SlotTypeForCheck = InvComp->GetSlotTypeFromItemData(ItemDataCache);
+								TArray<FInventoryItem>*TargetArrayCheck = InvComp->GetInventoryByType(SlotTypeForCheck);
+								if (TargetArrayCheck && TargetArrayCheck->IsValidIndex(SlotIndexCache))
+								{
+									FInventoryItem& ActualItem = (*TargetArrayCheck)[SlotIndexCache];
+									if (ActualItem.ItemData)
+									{
+										UE_LOG(LogTemp, Warning, TEXT("[P4Slot] 인벤토리[%d]의 실제 아이템: %s"),
+											SlotIndexCache, *ActualItem.ItemData->GetItemName().ToString());
+									}
+									else
+									{
+										UE_LOG(LogTemp, Error, TEXT("[P4Slot] 인벤토리[%d]는 비어있음!"), SlotIndexCache);
+									}
+								}
+
 								InvComp->EquipItem(ItemDataCache, SlotIndexCache);
 							}
 							else if (ItemDataCache->HasTag(P4InventoryTags::Item::Consumable))
@@ -322,11 +351,44 @@ bool UP4Slot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& In
 	return false;
 }
 
+void UP4Slot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+
+	// 슬롯 이미지의 색상 변경 (밝게)
+	if (IMG_Slot)
+	{
+		IMG_Slot->SetColorAndOpacity(FLinearColor(0.499f, 2.5, 0.499f, 1.0f));
+	}
+
+
+	// 마우스 호버 시 체크 표시 숨김
+	HideCheckMark();
+}
+
+void UP4Slot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseLeave(InMouseEvent);
+
+	// 슬롯 이미지의 색상을 원래대로 복구
+	if (IMG_Slot)
+	{
+		// 원래 색상 
+		IMG_Slot->SetColorAndOpacity(FLinearColor(1.0f, 1.0, 1.0f, 1.0f));
+	}
+}
+
 void UP4Slot::SetItem(const FInventoryItem& InItemData)
 {
 	CurrentItem = InItemData;
 
 	UpdateSlotUI();
+
+	// 새 아이템이면 체크 표시
+	if (CurrentItem.bIsNewItem)
+	{
+		ShowCheckMark();
+	}
 }
 
 void UP4Slot::UpdateSlotUI()
@@ -383,4 +445,19 @@ void UP4Slot::ClearSlot()
 	}
 }
 
+void UP4Slot::ShowCheckMark()
+{
+	if (IMG_Notification)
+	{
+		IMG_Notification->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UP4Slot::HideCheckMark()
+{
+	if (IMG_Notification)
+	{
+		IMG_Notification->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
 

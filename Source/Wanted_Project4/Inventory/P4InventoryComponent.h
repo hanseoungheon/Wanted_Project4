@@ -29,6 +29,10 @@ struct FInventoryItem
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag SlotType;
 
+	// 새 아이템 플래그
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsNewItem = false;
+
 	//EInventorySlotType SlotType = EInventorySlotType::Equipment;
 
 	FInventoryItem()
