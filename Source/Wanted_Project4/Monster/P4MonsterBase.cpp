@@ -84,6 +84,7 @@ void AP4MonsterBase::BeginPlay()
 				AttributeSet->SetTurnSpeed(Row->TurnSpeed);
 				AttributeSet->SetAttack(Row->Attack);
 				AttributeSet->SetAttackSpeed(Row->AttackSpeed);
+				AttributeSet->SetGroggyGauge(0.f);
 
 				// MonsterBase 의 선공 여부 세팅
 				bIsAgressive = Row->bIsAggressive;

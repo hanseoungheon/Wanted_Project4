@@ -29,6 +29,7 @@
 DECLARE_DELEGATE(FBossMonsterAttackDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDashStartDelegate);
 
+
 UCLASS()
 class WANTED_PROJECT4_API AP4BossMonsterBase
 	: public ACharacter,
@@ -155,10 +156,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DamagedMontage;
 
+	// 몬스터 그로기 몽타주
+	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> GroggyMontage;
+	
 	// 몬스터 사망 몽타주
 	UPROPERTY(EditAnywhere, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
+	
 public:
 	UPROPERTY(BlueprintAssignable, Category = MonsterControl, meta = (AllowPrivateAccess = "true"))
 	FOnDashStartDelegate OnDashStart;
@@ -193,14 +199,33 @@ public:
 
 	// Getter
 	FORCEINLINE UP4MonsterPatternComponent* GetPatternComponent() const { return PatternComponent; }
-
+	
 private:
 	FTimerHandle PatternCheckTimerHandle;
 
 	void CheckPatternProbability();
 
+	
 	// 데미지 관련 인터페이스 함수 구현
 public:
 	virtual void ApplyDamage(const float DamageAmount) override;
 	virtual void GiveDamage(AActor* TargetActor, const float DamageAmount) override;
+
+	TSubclassOf<UGameplayEffect> GetEffectClass(FString Path);
+
+	
+	// 그로기 관련 섹션
+protected:
+	bool IsGroggyStatus = false;
+
+	// 그로기 몽타주 Loop 종료 확인용
+	bool IsGroggyLoopEnd = false;
+	
+	FTimerHandle GroggyTimerHandle;
+
+public:
+	void GroggyStart();
+	void GroggyLoopCheck();
+	void GroggyEnd();
+	
 };

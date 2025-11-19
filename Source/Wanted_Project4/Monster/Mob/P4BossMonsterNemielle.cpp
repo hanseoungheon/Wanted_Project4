@@ -60,6 +60,14 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	{
 		AttackActionMontage = AttackActionMontageRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> GroggyMontageRef(
+		TEXT("/Game/Monster/Model/Nemielle/AM_NemielleGroggy.AM_NemielleGroggy")
+	);
+	if (GroggyMontageRef.Succeeded())
+	{
+		GroggyMontage = GroggyMontageRef.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(
 		TEXT("/Game/Monster/Model/Nemielle/AM_NemielleDead.AM_NemielleDead")

@@ -77,6 +77,7 @@ void AP4BossMonsterBase::BeginPlay()
 				AttributeSet->SetTurnSpeed(Row->TurnSpeed);
 				AttributeSet->SetAttack(Row->Attack);
 				AttributeSet->SetAttackSpeed(Row->AttackSpeed);
+				AttributeSet->SetGroggyGauge(0.f);
 
 				// MonsterBase 의 선공 여부 세팅
 				bIsAgressive = Row->bIsAggressive;
@@ -105,6 +106,9 @@ void AP4BossMonsterBase::PostInitializeComponents()
 
 	// 몬스터 사망 시 발행될 델리게이트 함수 세팅
 	AttributeSet->OnHpZero.AddUObject(this, &AP4BossMonsterBase::SetDead);
+
+	// 몬스터 그로기 게이지 가득 찰 시 발행될 델리게이트 함수 세팅
+	AttributeSet->OnGroggyStart.AddUObject(this, &AP4BossMonsterBase::GroggyStart);
 }
 
 // Called every frame
@@ -160,10 +164,10 @@ void AP4BossMonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, co
 		// 몽타주 실행 후 섹션을 변경하도록 수정
 		// 몽타주 실행 
 		AnimInstance->Montage_Play(AttackActionMontage, AttackSpeed);
-		
+
 		// 입력받은 섹션으로 몽타주 섹션 변경
 		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
-		
+
 		AAIController* AIController = Cast<AAIController>(GetController());
 		if (AIController)
 		{
@@ -244,7 +248,7 @@ void AP4BossMonsterBase::ExecuteAttackSection(const FName& SectionName)
 
 	// @MobTODO: 몽타주 노티파이 확인용 로그
 	UE_LOG(LogTemp, Log, TEXT("%s 몽타주 재생, Index : %d"), *SectionName.ToString(), Index);
-	
+
 	if (AttackDelegates.IsValidIndex(Index) && AttackDelegates[Index].IsBound())
 	{
 		// 해당 인덱스의 함수 실행
@@ -260,11 +264,18 @@ void AP4BossMonsterBase::ExecuteAttackSection(const FName& SectionName)
 
 void AP4BossMonsterBase::CheckPatternProbability()
 {
+	// 죽은 상태
 	if (GetAttributeSet()->GetCurHP() <= 0.f)
 	{
 		return;
 	}
-	
+
+	// 그로기 상태
+	if (IsGroggyStatus)
+	{
+		return;
+	}
+
 	// 만약 패턴이 실행 중이라면 반환
 	if (IsPatternActive)
 	{
@@ -301,18 +312,20 @@ void AP4BossMonsterBase::ApplyDamage(const float DamageAmount)
 		AttributeSet->SetDamageAmount(DamageAmount);
 
 		// 블루프린트로 생성한 GameplayEffect 클래스 불러오기
-		FSoftClassPath GEPath(TEXT("/Game/Monster/GE/BPGE_MonsterDamaged.BPGE_MonsterDamaged_C"));
-		TSoftClassPtr<UGameplayEffect> DamagedEffectSoftClass(GEPath);
-
-		// 메모리에 아직 BPGE_MonsterDamaged 가 없으면
-		if (DamagedEffectSoftClass.IsPending())
-		{
-			// 동기 로드
-			DamagedEffectSoftClass.LoadSynchronous();
-		}
+		// FSoftClassPath GEPath(TEXT("/Game/Monster/GE/BPGE_MonsterDamaged.BPGE_MonsterDamaged_C"));
+		// TSoftClassPtr<UGameplayEffect> DamagedEffectSoftClass(GEPath);
+		//
+		// // 메모리에 아직 BPGE_MonsterDamaged 가 없으면
+		// if (DamagedEffectSoftClass.IsPending())
+		// {
+		// 	// 동기 로드
+		// 	DamagedEffectSoftClass.LoadSynchronous();
+		// }
 
 		// 로드 성공 시 사용
-		TSubclassOf<UGameplayEffect> DamagedEffectClass = DamagedEffectSoftClass.Get();
+		TSubclassOf<UGameplayEffect> DamagedEffectClass
+			= GetEffectClass(TEXT("/Game/Monster/GE/BPGE_MonsterDamaged.BPGE_MonsterDamaged_C"));
+
 		if (DamagedEffectClass)
 		{
 			FGameplayEffectSpecHandle SpecHandle
@@ -320,8 +333,25 @@ void AP4BossMonsterBase::ApplyDamage(const float DamageAmount)
 			if (SpecHandle.IsValid())
 			{
 				ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-				UE_LOG(LogTemp, Log, TEXT("몬스터 데미지 호출"));
-				UE_LOG(LogTemp, Log, TEXT("CurHP: %f"), AttributeSet->GetCurHP());
+			}
+		}
+
+		// @MobTodo: PostGameplayEffectExecute 가 실행될려면 GameplayEffect 로 작동해야함
+		// Groggy Gauge 부여
+		// 그로기 상태가 아닐때만 그로기 게이지 쌓기
+		if (IsGroggyStatus == false)
+		{
+			// 로드 성공 시 사용
+			TSubclassOf<UGameplayEffect> GroggyEffectClass
+				= GetEffectClass(TEXT("/Game/Monster/GE/BPGE_MonsterGroggy.BPGE_MonsterGroggy_C"));
+			if (GroggyEffectClass)
+			{
+				FGameplayEffectSpecHandle SpecHandle
+					= ASC->MakeOutgoingSpec(GroggyEffectClass, 1.f, Context);
+				if (SpecHandle.IsValid())
+				{
+					ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+				}
 			}
 		}
 	}
@@ -332,5 +362,105 @@ void AP4BossMonsterBase::GiveDamage(AActor* TargetActor, const float DamageAmoun
 	if (IP4DamageableInterface* Character = Cast<IP4DamageableInterface>(TargetActor))
 	{
 		Character->ApplyDamage(DamageAmount); // 공격자 정보도 전달
+	}
+}
+
+TSubclassOf<UGameplayEffect> AP4BossMonsterBase::GetEffectClass(FString Path)
+{
+	// 블루프린트로 생성한 GameplayEffect 클래스 불러오기
+	FSoftClassPath GEPath(Path);
+	TSoftClassPtr<UGameplayEffect> EffectSoftClass(GEPath);
+
+	// 메모리에 아직 BPGE_MonsterDamaged 가 없으면
+	if (EffectSoftClass.IsPending())
+	{
+		// 동기 로드
+		EffectSoftClass.LoadSynchronous();
+	}
+
+	return EffectSoftClass.Get();
+}
+
+void AP4BossMonsterBase::GroggyStart()
+{
+	IsGroggyStatus = true;
+	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy Start"));
+
+	// 그로기 모션동안 이동 막기
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+
+	AP4MonsterAIController* AICon = Cast<AP4MonsterAIController>(GetController());
+	if (AICon)
+	{
+		UBlackboardComponent* BB = AICon->GetBlackboardComponent();
+		if (BB)
+		{
+			BB->SetValueAsBool(TEXT("IsGroggy"), true);
+		}
+	}
+
+	// 몽타주 재생을 위해 AnimInstance 갖고 오기
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		IsGroggyLoopEnd = false;
+		AnimInstance->StopAllMontages(0.f);
+
+		// 몽타주 실행 
+		AnimInstance->Montage_Play(GroggyMontage, 2.f);
+
+		// 일정 시간 후 그로기 종료 시키기 위해 실행될 함수 바인딩
+		GetWorld()->GetTimerManager().SetTimer(
+			GroggyTimerHandle,
+			[this]()
+			{
+				IsGroggyLoopEnd = true;
+			},
+			10.0f,
+			false
+		);
+	}
+}
+
+void AP4BossMonsterBase::GroggyLoopCheck()
+{
+	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy Loop Check"));
+
+	if (IsGroggyLoopEnd == false)
+	{
+		return;
+	}
+
+	GroggyEnd();
+}
+
+void AP4BossMonsterBase::GroggyEnd()
+{
+	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy End"));
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_JumpToSection(FName("MonsterGroggyEnd"), GroggyMontage);
+
+		FOnMontageEnded OnMontageEnded;
+		OnMontageEnded.BindLambda([this](UAnimMontage* TargetMontage, bool Interrupted)
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+			IsGroggyStatus = false;
+			AttributeSet->SetGroggyGauge(0.f);
+			
+			AP4MonsterAIController* AICon = Cast<AP4MonsterAIController>(GetController());
+			if (AICon)
+			{
+				UBlackboardComponent* BB = AICon->GetBlackboardComponent();
+				if (BB)
+				{
+					BB->SetValueAsBool(TEXT("IsGroggy"), false);
+				}
+			}
+		});
+
+		AnimInstance->Montage_SetEndDelegate(OnMontageEnded, GroggyMontage);
 	}
 }
