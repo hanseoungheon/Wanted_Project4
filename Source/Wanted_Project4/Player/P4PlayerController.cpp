@@ -69,6 +69,13 @@ AP4PlayerController::AP4PlayerController()
 		StrongAttackAction = StrongAttackActionRef.Object;
 	}
 
+	// -작성: 노현기 -일시: 2025.11.19
+	static ConstructorHelpers::FObjectFinder<UInputAction> ComboAttackActionRef(TEXT("/Game/Character/Input/Action/IA_ComboAttack.IA_ComboAttack"));
+	if (ComboAttackActionRef.Succeeded())
+	{
+		ComboAttackAction = ComboAttackActionRef.Object;
+	}
+
 	//작성- 한승헌 일시- 2025.11.12
 	//InteractionAction 지정
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractionActionRef(TEXT("/Game/Character/Input/Action/IA_Interaction.IA_Interaction"));
@@ -377,6 +384,9 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 
 		// -작성: 노현기 -일시: 2025.11.19
 		EIC->BindAction(StrongAttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_StrongAttackAction);
+
+		// -작성: 노현기 -일시: 2025.11.19
+		EIC->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_ComboAttackAction);
 	}
 }
 

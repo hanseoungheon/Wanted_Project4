@@ -46,9 +46,13 @@ public:
 	// 캐릭터가 인터렉트하고있는 액터.
 	TObjectPtr<AActor> CurrentInteractActor;
 
-	// -작성자: 노현기 -일시: 2025.11.14
+	// -작성: 노현기 -일시: 2025.11.14
 	FORCEINLINE class UAnimMontage* GetDrawKatanaMontage() const { return DrawKatanaMontage; }
 	FORCEINLINE class UAnimMontage* GetSheathKatanaMontage() const { return SheathKatanaMontage; }
+	FORCEINLINE class UAnimMontage* GetComboAttackMontage() const { return ComboAttackMontage; }
+
+	// -작성: 노현기 -일시: 2025.11.19
+	FORCEINLINE class UP4ComboAttackData* GetComboAttackData() const { return CurrentComboData; }
 	
 protected:
 	// components.
@@ -78,13 +82,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RunMontage;
 
-	// -작성자: 노현기 -일시: 2025.11.14
+	// -작성: 노현기 -일시: 2025.11.14
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DrawKatanaMontage;
 
-	// -작성자: 노현기 -일시: 2025.11.15
+	// -작성: 노현기 -일시: 2025.11.15
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> SheathKatanaMontage;
+
+	// -작성: 노현기 -일시: 2025.11.19
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> ComboAttackMontage;
 public:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -114,4 +122,10 @@ protected:
 	//내용 - nav메시 동적 생성.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Map)
 	TObjectPtr<class UNavigationInvokerComponent> NavInvoker;
+
+// -작성: 노현기 -일시: 2025.11.19
+// 콤보어택 데이터
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UP4ComboAttackData> CurrentComboData;
 };	
