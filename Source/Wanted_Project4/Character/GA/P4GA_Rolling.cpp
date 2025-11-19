@@ -12,7 +12,7 @@ UP4GA_Rolling::UP4GA_Rolling()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> RollMontageRef(TEXT("/Game/Character/Animation/AM_Rolling.AM_Rolling"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RollMontageRef(TEXT("/Game/Character/Animation/AM_Roll.AM_Roll"));
 
 	if (RollMontageRef.Succeeded() == true)
 	{
@@ -24,19 +24,31 @@ void UP4GA_Rolling::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+
 	if (CommitAbility(Handle, ActorInfo, ActivationInfo) == false)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Rolling CommitAbility FAILED"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
 	}
 
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor.Get());	
 
 	if (Character == nullptr || RollMontage == nullptr)
 	{
+		if (!RollMontage)
+		{
+			UE_LOG(LogTemp, Display, TEXT("RollMontage NULL"));
+
+		}
+		else if (!Character)
+		{
+			UE_LOG(LogTemp, Display, TEXT("CHAR NULL"));
+
+		}
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-
 	FVector MoveDir = Character->GetLastMovementInputVector();
 	if (MoveDir.IsNearlyZero())
 	{
@@ -61,6 +73,7 @@ void UP4GA_Rolling::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		1.0f,
 		SectionName
 	);
+	UE_LOG(LogTemp, Display, TEXT("IsWorkingTestRolling"));
 	Task->OnCompleted.AddDynamic(this, &UP4GA_Rolling::OnRollMontageEnded);
 	Task->OnInterrupted.AddDynamic(this, &UP4GA_Rolling::OnRollMontageEnded);
 	Task->OnCancelled.AddDynamic(this, &UP4GA_Rolling::OnRollMontageEnded);

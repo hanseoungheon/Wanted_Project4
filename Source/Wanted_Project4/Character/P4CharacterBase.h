@@ -45,8 +45,6 @@ public:
 
 	// todo: 플레이어에 직접 둘지 아니면 플레이어가 오버라이드해야할지 모르겠음.
 	//void SetupGASInputComponent();
-
-
 public:
 	// 공격 받았을 경우 처리 함수
 	UFUNCTION(BlueprintCallable, Category = Monster)
@@ -56,6 +54,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Monster)
 	virtual void GiveDamage(AActor* TargetActor, const float DamageAmount) override;
 
+
+	UFUNCTION(BlueprintCallable, Category = Rolling)
+	void OnRollingUpdate(float Value);
+
+	UFUNCTION(BlueprintCallable, Category = Rolling)
+	void Rolling();
 
 	void HandleRespawn();
 
@@ -78,6 +82,9 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
 protected:
 	// IABAnimationAttackInterface 함수 구현.
 	// 애님 노티파이 기반으로 충돌 판정하는 목적으로 사용.
@@ -145,7 +152,6 @@ public:
 
 	//작성 한승헌- 일시 2025.11.19
 	//타임라인 변수 모음
-	//안쓸것같지만 일단 생성
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = TimeLine)
 	TObjectPtr<class UTimelineComponent> RollingTimeLine = nullptr;
@@ -157,4 +163,5 @@ public:
 
 	virtual FVector GetRollingDirection() const override;
 	virtual void SetRollingDirection(const FVector InRollingDirection) override;
+	virtual void StartRollingTimeLine() override;
 };

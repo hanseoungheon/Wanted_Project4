@@ -25,5 +25,5 @@ public:
 
 	virtual void SetRollingDirection(const FVector InRollingDirection) = 0;
 	virtual FVector GetRollingDirection() const = 0;
-
+	virtual void StartRollingTimeLine() = 0;
 };

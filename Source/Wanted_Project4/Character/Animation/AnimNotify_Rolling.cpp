@@ -4,6 +4,7 @@
 #include "AnimNotify_Rolling.h"
 #include "GameFramework/Character.h"
 #include "Interface/P4RollingInterface.h"
+#include "GameFramework/CharacterMovementComponent.h"
 void UAnimNotify_Rolling::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
@@ -22,16 +23,22 @@ void UAnimNotify_Rolling::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 		return;
 	}
 
-	FVector RollDir = Character->GetActorForwardVector();
+	//FVector RollDir = Character->GetActorForwardVector();
 
-	if (IP4RollingInterface* RollInterface = Cast<IP4RollingInterface>(Character))
+	IP4RollingInterface* RollInterface = Cast<IP4RollingInterface>(Character);
+
+	if(RollInterface == nullptr)
 	{
-		RollDir = RollInterface->GetRollingDirection();
+		return;
 	}
 
+	FVector RollDir = RollInterface->GetRollingDirection();
 	RollDir.Normalize();
+	//FRotator CurrentRot = Character->GetActorRotation();
 
-	Character->LaunchCharacter(RollDir * RollPower, true, false);
-	UE_LOG(LogTemp, Warning, TEXT("Rolling Notify! Dir:%s, Power:%f"),
-		*RollDir.ToString(), RollPower);
+
+	Character->SetActorRotation(RollDir.Rotation());
+
+	//Character->AddActorLocalRotation(PlusRot);
+	RollInterface->StartRollingTimeLine();
 }
