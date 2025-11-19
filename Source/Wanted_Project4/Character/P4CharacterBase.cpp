@@ -94,10 +94,10 @@ AP4CharacterBase::AP4CharacterBase()
 	//	CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	//}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Game/Character/Animation/Katana/ForUse/AM_KatanaDefaultAttack.AM_KatanaDefaultAttack"));
-	if (ComboActionMontageRef.Object)
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DefaultAttackMontageRef(TEXT("/Game/Character/Animation/Katana/ForUse/AM_KatanaDefaultAttack.AM_KatanaDefaultAttack"));
+	if (DefaultAttackMontageRef.Object)
 	{
-		DefaultAttackMontage = ComboActionMontageRef.Object;
+		DefaultAttackMontage = DefaultAttackMontageRef.Object;
 	}
 
 	//static ConstructorHelpers::FObjectFinder<UABComboActionData> ComboActionDataRef(TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'"));

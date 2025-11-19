@@ -9,6 +9,7 @@
 #include "Character/P4CharacterPlayer.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "GameplayAbilities/Public/AbilitySystemComponent.h"
+#include "Tag/P4GameplayTag.h"
 
 UAnimNotify_ReleaseKatana::UAnimNotify_ReleaseKatana()
 {
@@ -56,8 +57,8 @@ void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
     }
 
     // 태그 제거
-    FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
-    ASC->RemoveLooseGameplayTag(DrawnTag);
+    //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+    ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDRAWN);
     UE_LOG(LogTemp, Log, TEXT("Character.State.IsDrawn 태그 제거"));
 
     //// ⭐ 애님 인스턴스의 bIsKatanaOnHand를 false로 설정

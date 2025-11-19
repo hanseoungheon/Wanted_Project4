@@ -103,9 +103,9 @@ void UP4GA_SheathKatana::ActivateAbility(
     UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
     if (ASC)
     {
-        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
-        ASC->RemoveLooseGameplayTag(DrawnTag);
-        UE_LOG(LogTemp, Log, TEXT("[GA_Sheath] Character.State.IsDrawn 태그 제거"));
+        //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        //ASC->RemoveLooseGameplayTag(DrawnTag);
+        //UE_LOG(LogTemp, Log, TEXT("[GA_Sheath] Character.State.IsDrawn 태그 제거"));
     }
 
     // 몽타주 재생
@@ -113,7 +113,7 @@ void UP4GA_SheathKatana::ActivateAbility(
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
             this,
             TEXT("SheathKatana"),
-            SheathMontage
+            SheathMontage, 1.5f
         );
 
     PlayMontageTask->OnCompleted.AddDynamic(this, &UP4GA_SheathKatana::OnCompleteCallback);

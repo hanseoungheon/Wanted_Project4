@@ -9,6 +9,7 @@
 #include "Character/P4CharacterPlayer.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "GameplayAbilities/Public/AbilitySystemComponent.h"
+#include "Tag/P4GameplayTag.h"
 
 UAnimNotify_GrabKatana::UAnimNotify_GrabKatana()
 {
@@ -67,8 +68,8 @@ void UAnimNotify_GrabKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 
     if (ASC)
     {
-        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
-        ASC->AddLooseGameplayTag(DrawnTag);
+        //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDRAWN);
         UE_LOG(LogTemp, Log, TEXT("Character.State.IsDrawn 태그 추가"));
     }
 }
