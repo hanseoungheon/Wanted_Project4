@@ -32,4 +32,17 @@ void UP4MonsterAttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 			OnHpZero.Broadcast();
 		}
 	}
+
+	if (Data.EvaluatedData.Attribute == GetGroggyGaugeAttribute())
+	{
+		float NewGroggyGauge = FMath::Clamp(GetGroggyGauge(), 0.f, 100.f);
+		SetGroggyGauge(NewGroggyGauge);
+
+		UE_LOG(LogTemp, Log, TEXT("[Monster Attribute Set] Current Groggy Gauge = %f"), NewGroggyGauge);
+
+		if (NewGroggyGauge >= 100.f)
+		{
+			OnGroggyStart.Broadcast();
+		}
+	}
 }

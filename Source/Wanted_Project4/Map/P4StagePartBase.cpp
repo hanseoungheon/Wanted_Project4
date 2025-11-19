@@ -23,33 +23,38 @@ AP4StagePartBase::AP4StagePartBase()
 
 	RootComponent = Root;
 
-	//몬스터 스폰 트리거 생성.
+	////몬스터 스폰 영역지정용 오버랩기능은 딱히 없음 그저 거리만 지정하는용도.
+	MonsterSpawner = CreateDefaultSubobject<UBoxComponent>(TEXT("MonsterSpawnArea"));
+	MonsterSpawner->SetupAttachment(Root);
+	MonsterSpawner->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	MonsterSpawner->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	//몬스터 생성 트리거 생성.
 	MonsterSpawnTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("MonsterSpawnTrigger"));
 	MonsterSpawnTrigger->SetupAttachment(Root);
 	MonsterSpawnTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	MonsterSpawnTrigger->SetCollisionResponseToAllChannels(ECR_Ignore);
 	MonsterSpawnTrigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	//몬스터 삭제 트리거 생성.
 	MonsterDeleteTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("MonsterDeleteTrigger"));
 	MonsterDeleteTrigger->SetupAttachment(Root);
+	MonsterDeleteTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	MonsterDeleteTrigger->SetCollisionResponseToAllChannels(ECR_Ignore);
 	MonsterDeleteTrigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	bMonsterSpawned = false;
+	//bMonsterSpawned = false;
 }
 // Called when the game starts or when spawned
 void AP4StagePartBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//Map 파츠 스폰
 	//AP4StagePartBase* Spawned 
 	//	= GetWorld()->SpawnActor<AP4StagePartBase>(MapPart, FVector::ZeroVector,FRotator::ZeroRotator);
 	//맵 파츠 스폰
 	SpawnMapPart();
-
-	//NPC 스폰
-	SpawnNPCs();
 
 	if (MonsterSpawnTrigger != nullptr)
 	{
@@ -59,12 +64,9 @@ void AP4StagePartBase::BeginPlay()
 
 	if (MonsterDeleteTrigger != nullptr)
 	{
-		//MonsterDeleteTrigger->OnComponentBeginOverlap.AddDynamic(this, &AP4StagePartBase::OnDeleteTriggerBeginOverlap);
+		//MonsterDeleteTrigger->OnComponentBeginOverlap.AddDynamic(this, &AP4StagePartBase::OnSpawnTriggerBeginOverlap);
 		MonsterDeleteTrigger->OnComponentEndOverlap.AddDynamic(this, &AP4StagePartBase::OnDeleteTriggerEndOverlap);
 	}
-
-	//몬스터 스폰.
-	SpawnMonsterInTrigger();
 
 	//Nav메시 스폰.
 	//SpawnNavMeshBounds();
@@ -74,7 +76,6 @@ void AP4StagePartBase::BeginPlay()
 void AP4StagePartBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AP4StagePartBase::OnSpawnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -87,10 +88,26 @@ void AP4StagePartBase::OnSpawnTriggerBeginOverlap(UPrimitiveComponent* Overlappe
 		return;
 	}
 
+	//만약 두 배열 모두 비어있으면 TRUE가 된다.
+	//bMonsterSpawned
+	//	= (NPCs.IsEmpty() == false && Monsters.IsEmpty() == false);
+
+	//if (Monsters.Num() > 0 || NPCs.Num() > 0)
+	//{
+	//	return;
+	//}
+
+
 	if (bMonsterSpawned == false)
 	{
 		SpawnMonsterInTrigger();
+		SpawnNPCs();
 	}
+	//bMonsterSpawnd는 안전장치.
+	//if (bMonsterSpawned == false)
+	//{
+	//	//일단 혹시모르니 지우진말기.
+	//}
 }
 
 
@@ -205,7 +222,7 @@ void AP4StagePartBase::SpawnNPCs()
 void AP4StagePartBase::SpawnMonsterInTrigger()
 {
 	if (bMonsterSpawned == true 
-		|| MonsterSpawnTrigger == nullptr 
+		|| MonsterDeleteTrigger == nullptr
 		|| MonsterClass == nullptr)
 	{
 		return;
@@ -222,8 +239,8 @@ void AP4StagePartBase::SpawnMonsterInTrigger()
 	const int32 Count = FMath::RandRange(MinMonsterCount, MaxMonsterCount);
 
 	// 트리거 박스 기준으로 랜덤 위치 뽑기
-	const FVector BoxOrigin = MonsterSpawnTrigger->GetComponentLocation();
-	const FVector BoxExtent = MonsterSpawnTrigger->GetScaledBoxExtent();
+	const FVector BoxOrigin = MonsterSpawner->GetComponentLocation();
+	const FVector BoxExtent = MonsterSpawner->GetScaledBoxExtent();
 
 	FActorSpawnParameters Params;
 	Params.Owner = this;
@@ -247,34 +264,3 @@ void AP4StagePartBase::SpawnMonsterInTrigger()
 	bMonsterSpawned = true;
 }
 
-void AP4StagePartBase::SpawnNavMeshBounds()
-{
-	UWorld* world = GetWorld();
-
-
-	if (bSpawnLocalNavMeshBounds == false || world == nullptr)
-	{
-		return;
-	}
-
-	FActorSpawnParameters Params;
-	Params.Owner = this;
-	Params.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	const FVector Loc = GetActorLocation();   // 타일 중심
-	const FRotator Rot = FRotator::ZeroRotator;
-
-	ANavMeshBoundsVolume* Volume =
-		world->SpawnActor<ANavMeshBoundsVolume>(ANavMeshBoundsVolume::StaticClass(), Loc, Rot, Params);
-
-	if (Volume != nullptr)
-	{
-		FVector DesireExtent = NavBoundsExtent;
-		FVector BoxUnits = DesireExtent / 100.0f;
-
-		Volume->SetActorScale3D(BoxUnits);
-
-		NavMeshVolume = Volume;
-	}
-}

@@ -10,6 +10,9 @@
 // 체력이 다 소진되어 죽음 상태 시 발행할 델리게이트
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 
+// 그로기 수치 Max 시 실행할 델리게이트
+DECLARE_MULTICAST_DELEGATE(FOnGroggyStartDelegate);
+
 /**
  * 
  */
@@ -36,6 +39,7 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UP4MonsterAttributeSet, TurnSpeed);
 	ATTRIBUTE_ACCESSORS_BASIC(UP4MonsterAttributeSet, Attack);
 	ATTRIBUTE_ACCESSORS_BASIC(UP4MonsterAttributeSet, AttackSpeed);
+	ATTRIBUTE_ACCESSORS_BASIC(UP4MonsterAttributeSet, GroggyGauge);
 
 protected:
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
@@ -43,6 +47,7 @@ protected:
 public:
 	// 발행할 이벤트 델리게이트
 	FOnHpZeroDelegate OnHpZero;
+	FOnGroggyStartDelegate OnGroggyStart;
 	
 public:
 	// 스탯=======================================================
@@ -88,4 +93,8 @@ public:
 	// 공격 속도
 	UPROPERTY(BlueprintReadOnly, Category = "Stat", meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData AttackSpeed;
+
+	// 그로기======================================================
+	UPROPERTY(BlueprintReadOnly, Category = "Stat", meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData GroggyGauge;
 };

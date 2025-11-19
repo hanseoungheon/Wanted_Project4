@@ -60,6 +60,14 @@ AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 	{
 		AttackActionMontage = AttackActionMontageRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> GroggyMontageRef(
+		TEXT("/Game/Monster/Model/Nemielle/AM_NemielleGroggy.AM_NemielleGroggy")
+	);
+	if (GroggyMontageRef.Succeeded())
+	{
+		GroggyMontage = GroggyMontageRef.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(
 		TEXT("/Game/Monster/Model/Nemielle/AM_NemielleDead.AM_NemielleDead")
@@ -222,6 +230,65 @@ void AP4BossMonsterNemielle::LeftWingStomp()
 void AP4BossMonsterNemielle::Howling()
 {
 	UE_LOG(LogTemp, Log, TEXT("Call Howling func"));
+	// 패턴 데이터 불러오기
+	FPatternData Pattern = PatternComponent->GetPatterns("Howling");
+	const float AttackRange = Pattern.AttackRange;
+
+	FVector Start =
+		GetActorLocation() +
+		GetActorForwardVector() *
+		AttackRange;
+
+	const float AttackRadius = Pattern.AttackRadius;
+
+	// 자신은 판정 제외
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	TArray<FOverlapResult> OutHitResults;
+	bool HitDetected = GetWorld()->OverlapMultiByChannel(
+		OutHitResults,
+		Start,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params
+	);
+
+	// 몬스터 공격 범위 디버그 표시
+#if ENABLE_DRAW_DEBUG
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugSphere(
+		GetWorld(),
+		Start,
+		AttackRadius,
+		16,
+		DrawColor,
+		false,
+		5.f
+	);
+#endif
+
+	if (HitDetected)
+	{
+		for (auto& OutHitResult : OutHitResults)
+		{
+			AP4CharacterBase* Player = Cast<AP4CharacterBase>(OutHitResult.GetActor());
+			if (Player)
+			{
+				// @MobTODO: 몬스터 충돌 판정 확인용
+				UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트: %s"), *OutHitResult.GetActor()->GetName());
+
+				// 다른 액터가 공격 당했을 시 처리
+				GiveDamage(OutHitResult.GetActor(), AttributeSet->GetAttack());
+			}
+		}
+	}
+	else
+	{
+		// @MobTODO: 몬스터 충돌 판정 확인용
+		UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시 충돌된 오브젝트가 없습니다."));
+	}
 }
 
 void AP4BossMonsterNemielle::EnergyBomb()

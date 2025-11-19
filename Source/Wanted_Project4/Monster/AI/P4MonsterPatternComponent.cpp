@@ -49,9 +49,6 @@ void UP4MonsterPatternComponent::TryExecutePattern(AActor* Target)
 		}
 	}
 
-	// @MobTODO: 사용 가능 패턴 확인용 로그
-	UE_LOG(LogTemp, Log, TEXT("[Available Pattern Count] %d"), AvailablePatterns.Num());
-
 	// 사용 가능한 패턴이 없으면 반환
 	if (AvailablePatterns.IsEmpty())
 	{
@@ -120,8 +117,6 @@ void UP4MonsterPatternComponent::ExecutePattern(const FPatternData& Pattern)
 
 			FGameplayTag AbilityTag = FGameplayTag::RequestGameplayTag(*PatternName);
 
-			// @MobTODO: 패턴 태그 확인용
-			UE_LOG(LogTemp, Log, TEXT("[MobPattern]: %s"), *AbilityTag.ToString());
 			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(AbilityTag));
 
 			// 사용한 패턴 쿨타임 기록

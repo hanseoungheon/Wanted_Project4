@@ -12,7 +12,7 @@ public class Wanted_Project4 : ModuleRules
 			{
 				"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
 				"GameplayAbilities", "GameplayTags", "GameplayTasks", "NavigationSystem", "Paper2D",
-                "Slate", "SlateCore", "UMG", "ApplicationCore"
+                "Slate", "SlateCore", "UMG", "ApplicationCore", "Niagara"
 			}
 		);
 
