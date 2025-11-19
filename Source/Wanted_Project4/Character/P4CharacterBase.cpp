@@ -100,6 +100,13 @@ AP4CharacterBase::AP4CharacterBase()
 		DefaultAttackMontage = ComboActionMontageRef.Object;
 	}
 
+	// -작성: 노현기 -일시: 2025.11.19
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> StrongActionMontageRef(TEXT("/Game/Character/Animation/AM_StrongAttack.AM_StrongAttack"));
+	if (StrongActionMontageRef.Object)
+	{
+		StrongAttackMontage = StrongActionMontageRef.Object;
+	}
+
 	//static ConstructorHelpers::FObjectFinder<UABComboActionData> ComboActionDataRef(TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'"));
 	//if (ComboActionDataRef.Object)
 	//{

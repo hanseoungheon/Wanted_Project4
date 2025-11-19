@@ -60,6 +60,8 @@ public:
 
 public:
 	FORCEINLINE virtual class UAnimMontage* GetDefaultAttackMontage() const { return DefaultAttackMontage; }
+	// -작성: 노현기 -일시: 2025.11.19
+	FORCEINLINE virtual class UAnimMontage* GetStrongAttackMontage() const { return StrongAttackMontage; }
 	//FORCEINLINE virtual class UAnimMontage* GetJumpMontage() const { return JumpMontage; }
 	//FORCEINLINE class UABComboActionData* GetComboActionData() const { return ComboActionData; }
 	FORCEINLINE class UAnimMontage* GetDeadMontage() const { return DeadMontage; }
@@ -116,6 +118,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> DefaultAttackMontage;
+
+	// -작성: 노현기 -일시: 2025.11.19
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> StrongAttackMontage;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	//TObjectPtr<class UABComboActionData> ComboActionData;

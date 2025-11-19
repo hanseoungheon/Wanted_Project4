@@ -47,13 +47,20 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 	FEventReply Reply;
 	Reply.NativeReply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
+	// UI가 Hidden 상태면 모든 입력을 Unhandled로 반환
+	if (GetVisibility() == ESlateVisibility::Hidden ||
+		GetVisibility() == ESlateVisibility::Collapsed)
+	{
+		return FReply::Unhandled();
+	}
+
 	// 우클릭 입력
 	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
 		// 해당 슬롯에 아이템 정보가 존재하는지 체크
 		if (CurrentItem.ItemData)
 		{
-			// ⭐ ItemData를 미리 복사 (델리게이트로 CurrentItem이 초기화될 수 있기 때문)
+			// ItemData를 미리 복사 (델리게이트로 CurrentItem이 초기화될 수 있기 때문)
 			UItemDataBase* ItemDataCache = CurrentItem.ItemData;
 			FGameplayTag SlotTypeCache = SlotType;
 			int32 SlotIndexCache = SlotIndex;
@@ -174,6 +181,7 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 		else
 		{
 			UE_LOG(LogTemp, Log, TEXT("아이템 없음"));
+			return FReply::Handled();
 		}
 
 		// 우클릭은 항상 Handled 반환 (게임 입력 차단)
