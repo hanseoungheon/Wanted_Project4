@@ -389,7 +389,7 @@ void AP4BossMonsterNemielle::DoubleWaterBomb()
 		if (Projectile)
 		{
 			// 초기 값 설정
-			Projectile->InitProjectile(3.f, 20.f, 150.f, true);
+			Projectile->InitProjectile(3.f, 20.f, 150.f, false);
 			
 			// 투사체에게 몬스터 정보를 얻기 위해서 Owner 로 설정
 			Projectile->SetOwner(this);
