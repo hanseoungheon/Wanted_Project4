@@ -13,9 +13,11 @@ UP4PlayerAttributeSet::UP4PlayerAttributeSet() :
 	AttackRate(30.0f),
 	MaxAttackRate(100.0f),
 	MaxHealth(100.0f),
+	MaxShield(50.f),
 	DamageAmount(0.0f)
 {
 	InitHealth(GetMaxHealth());
+	InitShield(GetMaxShield());
 }
 
 void UP4PlayerAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -69,8 +71,9 @@ void UP4PlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 
 
 	//작성 한승헌 - 2025-11-10
-	//작성 이선우 - 2025-11-14 DamageAmount로 수정
+	//작성 이선우 - 2025-11-14 DamageAmount로 수정 19 쉴드 추가
 	const float MinHealth = 0.0f;
+	const float MinShield = 0.0f;
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
@@ -86,8 +89,17 @@ void UP4PlayerAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCa
 	}
 	//==================================================
 
+	else if (Data.EvaluatedData.Attribute == GetShieldAttribute())
+	{
+		SetShield(FMath::Clamp(GetShield(), MinShield, GetMaxShield()));
+	}
 
-	if ((GetHealth() <= 0.0f))
+	//if (Data.EvaluatedData.Attribute == GetShieldAttribute())
+	//{
+	//	SetShield(FMath::Clamp(GetShield(), 0.f, GetMaxShield()));
+	//}
+
+	if (GetHealth() <= 0.0f)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("HP 00000000"));
 		Data.Target.AddLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);

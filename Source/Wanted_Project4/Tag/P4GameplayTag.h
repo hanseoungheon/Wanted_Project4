@@ -18,6 +18,7 @@
 #define P4TAG_CHARACTER_ISDRAWING   FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawing"))
 #define P4TAG_CHARACTER_ISDRAWN     FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"))
 #define P4TAG_CHARACTER_ISJUMPING   FGameplayTag::RequestGameplayTag(FName("Character.State.IsJumping"))
+#define P4TAG_CHARACTER_ISGRINDING   FGameplayTag::RequestGameplayTag(FName("Character.State.IsGrinding"))
 #define P4TAG_CHARACTER_ISSHEATHING FGameplayTag::RequestGameplayTag(FName("Character.State.IsSheathing"))
 #define P4TAG_CHARACTER_ISRUNNING FGameplayTag::RequestGameplayTag(FName("Character.State.IsRunning"))
 

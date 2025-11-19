@@ -105,12 +105,18 @@ AP4PlayerController::AP4PlayerController()
 		EquipmentInvenAction = EquipmentInvenActionRef.Object;
 	}
 
-	//작성- 노현기 일시- 2025.11.18
 	static ConstructorHelpers::FObjectFinder<UInputAction> RunActionRef(TEXT("/Game/Character/Input/Action/IA_Run.IA_Run"));
-	if (EquipmentInvenActionRef.Succeeded())
+	if (RunActionRef.Succeeded())
 	{
 		RunAction = RunActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> GrindKatanaActionRef(TEXT("/Game/Character/Input/Action/IA_GrindKatana.IA_GrindKatana"));
+	if (GrindKatanaActionRef.Succeeded())
+	{
+		GrindKatanaAction = GrindKatanaActionRef.Object;
+	}
+	
 
 	//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
 	static ConstructorHelpers::FClassFinder<UP4HUDWidget> P4HUDWidgetRef(TEXT("/Game/UI/WBP_HUD.WBP_HUD_C"));
@@ -387,7 +393,11 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 
 		// -작성: 노현기 -일시: 2025.11.19
 		EIC->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_ComboAttackAction);
+		
+		EIC->BindAction(GrindKatanaAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_GrindKatanaAction);
+		EIC->BindAction(GrindKatanaAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_GrindKatanaAction);
 	}
+	
 }
 
 void AP4PlayerController::HandleAbilityPressed(int32 InputID)
