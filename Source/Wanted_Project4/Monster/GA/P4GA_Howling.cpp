@@ -8,7 +8,9 @@
 UP4GA_Howling::UP4GA_Howling()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.Howling")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.Howling")));
+	SetAssetTags(Tags);
 }
 
 void UP4GA_Howling::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

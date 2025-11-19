@@ -8,7 +8,9 @@
 UP4GA_EnergyBomb::UP4GA_EnergyBomb()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.EnergyBomb")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.EnergyBomb")));
+	SetAssetTags(Tags);
 }
 
 void UP4GA_EnergyBomb::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

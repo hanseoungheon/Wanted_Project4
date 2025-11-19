@@ -12,8 +12,8 @@
 
 UP4PlayerAnimInstance::UP4PlayerAnimInstance()
 {
-	MovingThreshould = 3.0f;
-	JumpingThreshould = 100.0f;
+	MovingThreshold = 3.0f;
+	JumpingThreshold = 100.0f;
 }
 
 void UP4PlayerAnimInstance::NativeInitializeAnimation()
@@ -48,9 +48,9 @@ void UP4PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		Velocity = Movement->Velocity;
 		GroundSpeed = Velocity.Size2D();
-		CharacterState.bIsIdle = GroundSpeed < MovingThreshould;
+		CharacterState.bIsIdle = GroundSpeed < MovingThreshold;
 		CharacterState.bIsFalling = Movement->IsFalling();
-		CharacterState.bIsJumping = CharacterState.bIsFalling & (Velocity.Z > JumpingThreshould);
+		CharacterState.bIsJumping = CharacterState.bIsFalling && (Velocity.Z > JumpingThreshold);
 	}
 
 	//AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetOwningActor());

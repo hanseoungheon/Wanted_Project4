@@ -11,7 +11,9 @@ UP4GA_LeftWingStomp::UP4GA_LeftWingStomp()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	// 단순히 AddTag의 경우에는 AbilitySped 에 반영되지 않음
 	// 그로인해 TryActivateAbilitiesByTag 가 태그로 AbilitySpec 을 찾지 못함
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.LeftWingStomp")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.LeftWingStomp")));
+	SetAssetTags(Tags);
 }
 
 void UP4GA_LeftWingStomp::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

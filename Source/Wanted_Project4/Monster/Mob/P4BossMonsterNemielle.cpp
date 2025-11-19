@@ -317,11 +317,17 @@ void AP4BossMonsterNemielle::DoubleWaterBomb()
 		Transform.SetLocation(ProjectileStartLocation);
 		Transform.SetRotation(Direction.ToOrientationQuat());
 
-		UE_LOG(LogTemp, Log, TEXT("SetProjectile"));
+		// 투사체 생성
 		AP4MonsterProjectile* Projectile = GetWorld()->SpawnActor<AP4MonsterProjectile>(WaterProjectileClass, Transform, SpawnParams);
 		if (Projectile)
 		{
-			UE_LOG(LogTemp, Log, TEXT("SpawnProjectile"));
+			// 초기 값 설정
+			Projectile->InitProjectile(3.f, 20.f, 150.f, true);
+			
+			// 투사체에게 몬스터 정보를 얻기 위해서 Owner 로 설정
+			Projectile->SetOwner(this);
+
+			// 투사체 속도 초기화
 			Projectile->FireInDirection(Transform.Rotator().Vector());
 		}
 	}

@@ -70,7 +70,7 @@ protected:
 	//uint8 bIsIdle : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-	float MovingThreshould;
+	float MovingThreshold;
 
 	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsFalling : 1;
@@ -85,7 +85,7 @@ protected:
 	uint8 bIsDead : 1;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-	float JumpingThreshould;
+	float JumpingThreshold;
 
 public:
 	//// -작성자: 노현기 -일시: 2025.11.13

@@ -358,7 +358,7 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 		// ( 수정했음 그냥 될 줄 알았는데 (int)형으로 강제 캐스팅 안하면 오류 생기더라구요)
 		// Ability Input (InputID Jump = 0, Attack = 1) 
 		EIC->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_JumpAction);
-		EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_JumpAction);
+		//EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_JumpAction);
 		EIC->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_AttackAction);
 		
 		//작성: 한승헌

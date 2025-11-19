@@ -10,7 +10,9 @@
 UP4GA_DashAttack::UP4GA_DashAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.DashAttack")));
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FGameplayTag::RequestGameplayTag(FName("Monster.Action.DashAttack")));
+	SetAssetTags(Tags);
 }
 
 void UP4GA_DashAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
