@@ -25,4 +25,7 @@ protected:
 	//UPROPERTY(EditAnywhere, Category = "GAS")
 	//TSubclassOf<class UGameplayEffect> AttackDamageEffect;
 
+// -작성: 노현기 -일시: 2025.11.19
+protected:
+	const FGameplayEventData* CurrentEventData = nullptr;
 };

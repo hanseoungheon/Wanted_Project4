@@ -62,6 +62,13 @@ AP4PlayerController::AP4PlayerController()
 		AttackAction = AttackActionRef.Object;
 	}
 
+	// -작성: 노현기 -일시: 2025.11.19
+	static ConstructorHelpers::FObjectFinder<UInputAction> StrongAttackActionRef(TEXT("/Game/Character/Input/Action/IA_StrongAttack.IA_StrongAttack"));
+	if (StrongAttackActionRef.Succeeded())
+	{
+		StrongAttackAction = StrongAttackActionRef.Object;
+	}
+
 	//작성- 한승헌 일시- 2025.11.12
 	//InteractionAction 지정
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractionActionRef(TEXT("/Game/Character/Input/Action/IA_Interaction.IA_Interaction"));
@@ -351,9 +358,9 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 		// ( 수정했음 그냥 될 줄 알았는데 (int)형으로 강제 캐스팅 안하면 오류 생기더라구요)
 		// Ability Input (InputID Jump = 0, Attack = 1) 
 		EIC->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_JumpAction);
-		EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_JumpAction);
+		//EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_JumpAction);
 		EIC->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_AttackAction);
-
+		
 		//작성: 한승헌
 		//일시: 2025.11.12
 		//NPC와 상호작용을 위한 입력 키.
@@ -367,6 +374,9 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 
 		EIC->BindAction(RunAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_RunAction);
 		EIC->BindAction(RunAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_RunAction);
+
+		// -작성: 노현기 -일시: 2025.11.19
+		EIC->BindAction(StrongAttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_StrongAttackAction);
 	}
 }
 
@@ -383,6 +393,44 @@ void AP4PlayerController::HandleAbilityPressed(int32 InputID)
 	//		return; // 공격 차단
 	//	}
 	//}
+
+	// 기본 공격(좌클릭) 차단 로직
+	if (InputID == (int)GASInputID::E_AttackAction && bIsInventoryVisible && InventoryWidget)
+	{
+		// 인벤토리 위젯에게 마우스가 위에 있는지 물어봄
+		// 있으면 공격 차단
+		if (InventoryWidget->IsHovered())
+		{
+			return; // 공격 차단
+		}
+	}
+
+	// 기본 공격(좌클릭) - 장비창 차단 로직 추가
+	if (InputID == (int)GASInputID::E_AttackAction && bIsEquipmentInvenVisible && EquipmentInvenWidget)
+	{
+		if (EquipmentInvenWidget->IsHovered())
+		{
+			return; // 공격 차단
+		}
+	}
+
+	// 강공격(우클릭) - 인벤토리 차단 로직 추가
+	if (InputID == (int)GASInputID::E_StrongAttackAction && bIsInventoryVisible && InventoryWidget)
+	{
+		if (InventoryWidget->IsHovered())
+		{
+			return; // 강공격 차단
+		}
+	}
+
+	// 강공격(우클릭) - 장비창 차단 로직 추가
+	if (InputID == (int)GASInputID::E_StrongAttackAction && bIsEquipmentInvenVisible && EquipmentInvenWidget)
+	{
+		if (EquipmentInvenWidget->IsHovered())
+		{
+			return; // 강공격 차단
+		}
+	}
 
 	if (AP4CharacterPlayer* CharacterPlayer = Cast<AP4CharacterPlayer>(GetPawn()))
 	{

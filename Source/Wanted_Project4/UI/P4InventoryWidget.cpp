@@ -196,6 +196,14 @@ void UP4InventoryWidget::RefreshSlot(FGameplayTag SlotType, int32 SlotIndex)
 
 FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {  
+    // UI가 Hidden 상태면 입력 허용
+    if (GetVisibility() == ESlateVisibility::Hidden ||
+        GetVisibility() == ESlateVisibility::Collapsed)
+    {
+        return FReply::Unhandled();
+    }
+
+    // 좌클릭
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
         // DragHeader를 클릭했는지 체크
@@ -241,6 +249,17 @@ FReply UP4InventoryWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
         {
             UE_LOG(LogTemp, Log, TEXT("인벤토리 내부 클릭 - 게임 입력 차단"));
             return FReply::Handled();  // 게임 입력 차단만
+        }
+    }
+
+    // 우클릭
+    if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+    {
+        // 인벤토리 패널 위에서 우클릭하면 차단 (강공격 방지)
+        if (InventoryPanel && InventoryPanel->IsHovered())
+        {
+            UE_LOG(LogTemp, Log, TEXT("인벤토리 내부 우클릭 - 게임 입력 차단"));
+            return FReply::Handled();  // 우클릭 차단
         }
     }
 

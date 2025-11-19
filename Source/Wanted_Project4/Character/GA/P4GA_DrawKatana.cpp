@@ -6,6 +6,7 @@
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
+#include "Tag/P4GameplayTag.h"
 
 UP4GA_DrawKatana::UP4GA_DrawKatana()
 {
@@ -59,8 +60,8 @@ bool UP4GA_DrawKatana::CanActivateAbility(
     UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
     if (ASC)
     {
-        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
-        if (ASC->HasMatchingGameplayTag(DrawnTag))
+        //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDRAWN))
         {
             UE_LOG(LogTemp, Warning, TEXT("[GA_Draw] 이미 발도 상태입니다!"));
             return false;
@@ -103,9 +104,9 @@ void UP4GA_DrawKatana::ActivateAbility(
     UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent();
     if (ASC)
     {
-        FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
-        ASC->AddLooseGameplayTag(DrawnTag);
-        UE_LOG(LogTemp, Log, TEXT("[GA_Draw] Character.State.IsDrawn 태그 추가"));
+        //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
+        //ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDRAWN);
+        //UE_LOG(LogTemp, Log, TEXT("[GA_Draw] Character.State.IsDrawn 태그 추가"));
     }
 
     // 몽타주 재생
@@ -113,7 +114,7 @@ void UP4GA_DrawKatana::ActivateAbility(
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
             this,
             TEXT("DrawKatana"),
-            DrawMontage
+            DrawMontage, 1.5f
         );
 
     PlayMontageTask->OnCompleted.AddDynamic(this, &UP4GA_DrawKatana::OnCompleteCallback);

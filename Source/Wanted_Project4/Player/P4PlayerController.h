@@ -14,6 +14,7 @@ enum class GASInputID : uint8
     E_DrawKatanaAction,
     E_SheathKatanaAction,
     E_RunAction,
+    E_StrongAttackAction,
 
 };
 
@@ -78,7 +79,10 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> AttackAction;
 
-
+    // -작성: 노현기 -일시: 2025.11.19
+    // 강공격을 위한 키 추가 ('우클릭')
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UInputAction> StrongAttackAction;
 
     //작성- 한승헌 일시 2025.11.12
     //NPC와 상호작용을 위한 키 추가.
