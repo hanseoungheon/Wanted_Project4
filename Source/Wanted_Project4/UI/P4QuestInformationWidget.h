@@ -23,8 +23,11 @@ protected:
 
 
 	//델리게이트용 함수.
+	UFUNCTION()
 	void HandleQuestStarted();
+	UFUNCTION()
 	void HandleQuestUpdated();
+	UFUNCTION()
 	void HandleQuestCleared(int32 ClearedQuestCode);
 
 	//변수 섹션
