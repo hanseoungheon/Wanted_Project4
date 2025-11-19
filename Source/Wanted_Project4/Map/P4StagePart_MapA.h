@@ -21,5 +21,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 protected:
+	//BeginPlay다음에 바로 생성되는 함수.
+	void CheckBeginPlayOverlap();
 	
 };

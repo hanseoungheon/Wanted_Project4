@@ -15,6 +15,7 @@ enum class GASInputID : uint8
     E_SheathKatanaAction,
     E_RunAction,
     E_StrongAttackAction,
+    E_ComboAttackAction,
 
 };
 
@@ -103,6 +104,11 @@ private:
     // 장비창 토글을 위한 키 추가 ('U')
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> EquipmentInvenAction;
+
+    // -작성: 노현기 -일시: 2025.11.19
+    // 콤보 어택을 위한 키 추가 ('Q')
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UInputAction> ComboAttackAction;
 
     // 달리기 토글 'L-Shift'
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))

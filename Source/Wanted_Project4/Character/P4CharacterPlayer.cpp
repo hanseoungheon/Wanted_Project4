@@ -129,6 +129,14 @@ AP4CharacterPlayer::AP4CharacterPlayer()
 		SheathKatanaMontage = SheathKatanaRef.Object;
 	}
 
+	// -작성: 노현기 -일시: 2025.11.19
+	// 납도 몽타주 로드 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboAttackRef(
+		TEXT("/Game/Character/Animation/AM_ComboAttack.AM_ComboAttack"));
+	if (ComboAttackRef.Succeeded())
+	{
+		ComboAttackMontage = ComboAttackRef.Object;
+	}
 
 	//작성 - 한승헌
 	//일시 - 2025.11.18
