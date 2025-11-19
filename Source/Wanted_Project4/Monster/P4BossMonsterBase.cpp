@@ -246,9 +246,6 @@ void AP4BossMonsterBase::ExecuteAttackSection(const FName& SectionName)
 	// 섹션 이름을 Index로 변경
 	int32 Index = AttackSectionNames.IndexOfByKey(SectionName);
 
-	// @MobTODO: 몽타주 노티파이 확인용 로그
-	UE_LOG(LogTemp, Log, TEXT("%s 몽타주 재생, Index : %d"), *SectionName.ToString(), Index);
-
 	if (AttackDelegates.IsValidIndex(Index) && AttackDelegates[Index].IsBound())
 	{
 		// 해당 인덱스의 함수 실행
@@ -299,28 +296,12 @@ void AP4BossMonsterBase::ApplyDamage(const float DamageAmount)
 {
 	if (ASC)
 	{
-		// Damaged 몽타주 실행
-		//DamagedActionBegin();
-
-		UE_LOG(LogTemp, Log, TEXT("보스몬스터 Apply Damage 적용"));
-
 		// 체력 감소 적용 부분
 		FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 		Context.AddSourceObject(this);
 
 		// 받을 데미지 설정
 		AttributeSet->SetDamageAmount(DamageAmount);
-
-		// 블루프린트로 생성한 GameplayEffect 클래스 불러오기
-		// FSoftClassPath GEPath(TEXT("/Game/Monster/GE/BPGE_MonsterDamaged.BPGE_MonsterDamaged_C"));
-		// TSoftClassPtr<UGameplayEffect> DamagedEffectSoftClass(GEPath);
-		//
-		// // 메모리에 아직 BPGE_MonsterDamaged 가 없으면
-		// if (DamagedEffectSoftClass.IsPending())
-		// {
-		// 	// 동기 로드
-		// 	DamagedEffectSoftClass.LoadSynchronous();
-		// }
 
 		// 로드 성공 시 사용
 		TSubclassOf<UGameplayEffect> DamagedEffectClass
@@ -336,7 +317,7 @@ void AP4BossMonsterBase::ApplyDamage(const float DamageAmount)
 			}
 		}
 
-		// @MobTodo: PostGameplayEffectExecute 가 실행될려면 GameplayEffect 로 작동해야함
+		// PostGameplayEffectExecute 가 실행될려면 GameplayEffect 로 작동
 		// Groggy Gauge 부여
 		// 그로기 상태가 아닐때만 그로기 게이지 쌓기
 		if (IsGroggyStatus == false)
@@ -384,7 +365,6 @@ TSubclassOf<UGameplayEffect> AP4BossMonsterBase::GetEffectClass(FString Path)
 void AP4BossMonsterBase::GroggyStart()
 {
 	IsGroggyStatus = true;
-	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy Start"));
 
 	// 그로기 모션동안 이동 막기
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
@@ -424,8 +404,6 @@ void AP4BossMonsterBase::GroggyStart()
 
 void AP4BossMonsterBase::GroggyLoopCheck()
 {
-	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy Loop Check"));
-
 	if (IsGroggyLoopEnd == false)
 	{
 		return;
@@ -436,8 +414,6 @@ void AP4BossMonsterBase::GroggyLoopCheck()
 
 void AP4BossMonsterBase::GroggyEnd()
 {
-	UE_LOG(LogTemp, Log, TEXT("[Monster Status] Groggy End"));
-
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
