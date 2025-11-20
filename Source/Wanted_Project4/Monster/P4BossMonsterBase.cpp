@@ -99,6 +99,9 @@ void AP4BossMonsterBase::BeginPlay()
 
 	// 공격 델리게이트 배열 설정
 	SetupAttackDelegate();
+	
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void AP4BossMonsterBase::PostInitializeComponents()

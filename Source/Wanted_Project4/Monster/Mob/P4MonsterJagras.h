@@ -23,7 +23,7 @@ protected:
 
 	virtual void SetupAttackDelegate() override;
 
-	virtual float GetAIAttackRange() override { return 250.f; }
+	virtual float GetAIAttackRange() override { return 150.f; }
 
 	// 몬스터 스킬별 공격 판정 함수
 
