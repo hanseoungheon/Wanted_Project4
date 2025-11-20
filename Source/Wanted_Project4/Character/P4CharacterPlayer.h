@@ -54,6 +54,8 @@ public:
 	// -작성: 노현기 -일시: 2025.11.19
 	FORCEINLINE class UP4ComboAttackData* GetComboAttackData() const { return CurrentComboData; }
 	
+	FORCEINLINE class UAnimMontage* GetGrindKatanaMontage() const { return GrindKatanaMontage; }
+	
 protected:
 	// components.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -78,9 +80,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollingMontage;
 
-	///Script/Engine.AnimMontage'/Game/Character/Animation/AM_Rolling.AM_Rolling'
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> RunMontage;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UAnimMontage> RunMontage;
 
 	// -작성: 노현기 -일시: 2025.11.14
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
@@ -93,6 +94,9 @@ protected:
 	// -작성: 노현기 -일시: 2025.11.19
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ComboAttackMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> GrindKatanaMontage;
 public:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = GAS)
@@ -128,4 +132,5 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UP4ComboAttackData> CurrentComboData;
+
 };	

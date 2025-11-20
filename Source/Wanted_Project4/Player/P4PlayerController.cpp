@@ -105,12 +105,25 @@ AP4PlayerController::AP4PlayerController()
 		EquipmentInvenAction = EquipmentInvenActionRef.Object;
 	}
 
-	//작성- 노현기 일시- 2025.11.18
 	static ConstructorHelpers::FObjectFinder<UInputAction> RunActionRef(TEXT("/Game/Character/Input/Action/IA_Run.IA_Run"));
-	if (EquipmentInvenActionRef.Succeeded())
+	if (RunActionRef.Succeeded())
 	{
 		RunAction = RunActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> GrindKatanaActionRef(TEXT("/Game/Character/Input/Action/IA_GrindKatana.IA_GrindKatana"));
+	if (GrindKatanaActionRef.Succeeded())
+	{
+		GrindKatanaAction = GrindKatanaActionRef.Object;
+	}
+
+	//작성- 한승헌 일시 - 2025.11.19
+	static ConstructorHelpers::FObjectFinder<UInputAction> RollingActionRef(TEXT("/Game/Character/Input/Action/IA_Rolling.IA_Rolling"));
+	if (RollingActionRef.Succeeded())
+	{
+		RollingAction = RollingActionRef.Object;
+	}
+	
 
 	//HUD 생성 -작성: 한승헌 -일시: 2025.11.07
 	static ConstructorHelpers::FClassFinder<UP4HUDWidget> P4HUDWidgetRef(TEXT("/Game/UI/WBP_HUD.WBP_HUD_C"));
@@ -387,7 +400,13 @@ void AP4PlayerController::SetupGASInputBindings(UAbilitySystemComponent* ASC)
 
 		// -작성: 노현기 -일시: 2025.11.19
 		EIC->BindAction(ComboAttackAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_ComboAttackAction);
+		
+		EIC->BindAction(GrindKatanaAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_GrindKatanaAction);
+		EIC->BindAction(GrindKatanaAction, ETriggerEvent::Completed, this, &AP4PlayerController::HandleAbilityReleased, (int)GASInputID::E_GrindKatanaAction);
+
+		EIC->BindAction(RollingAction, ETriggerEvent::Triggered, this, &AP4PlayerController::HandleAbilityPressed, (int)GASInputID::E_RollingAction);
 	}
+	
 }
 
 void AP4PlayerController::HandleAbilityPressed(int32 InputID)
@@ -459,6 +478,19 @@ void AP4PlayerController::HandleAbilityReleased(int32 InputID)
 
 void AP4PlayerController::HandleMove(const FInputActionValue& Value)
 {
+	//작성 한승헌 2025.11.20 구르기중에는 이동키 안먹게
+	AP4CharacterPlayer* P4Player 
+		= Cast<AP4CharacterPlayer>(GetPawn());
+
+	if (UAbilitySystemComponent* ASC = P4Player->GetAbilitySystemComponent())
+	{
+		if (ASC->HasMatchingGameplayTag(
+			FGameplayTag::RequestGameplayTag(FName("Character.State.IsRolling"))))
+		{
+			return; // 구르는 동안 WASD 안 먹게
+		}
+	}
+
 	if (AP4CharacterPlayer* CharacterPlayer = Cast<AP4CharacterPlayer>(GetPawn()))
 	{
 		CharacterPlayer->HandleMove(Value);

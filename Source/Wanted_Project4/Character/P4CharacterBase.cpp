@@ -20,10 +20,12 @@
 #include "Item/Equipment/P4WeaponComponent.h"
 #include "Inventory/P4EquipmentInvenComponent.h"
 
+#include "Components/TimeLineComponent.h"
+
 // Sets default values
 AP4CharacterBase::AP4CharacterBase()
 {
-	//PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 	// 
 	// GAS 초기화
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
@@ -58,6 +60,7 @@ AP4CharacterBase::AP4CharacterBase()
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	//GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	//GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->MaxAcceleration = 800.f;
 
 	// Mesh
 	GetMesh()->SetRelativeLocationAndRotation(
@@ -136,9 +139,23 @@ AP4CharacterBase::AP4CharacterBase()
 	//{
 	//	Weapon->SetSkeletalMesh(WeaponMeshRef.Object);
 	//}
-	
+
+
+	//작성 - 한승헌
+	//일시- 2025.11.19
+	//내용 - 타임라인, 커브들 로드.
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> RollingCurveRef(TEXT("/Game/Character/Curve/CV_RollingCurve.CV_RollingCurve"));
+
+	if (RollingCurveRef.Succeeded() == true)
+	{
+		RollingCurve = RollingCurveRef.Object;
+	}
+
+	//타임라인 생성
+	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
 }
 
+// todo: 죽음과 피격 몽타주로 빼면..
 void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 {
 	// todo: 알아먹게 수정
@@ -147,7 +164,16 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 
-		ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->StopAllMontages(0.f);
+		}
+
+		if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDAMAGED) == false)
+		{
+			ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
+		}		
 		// Damaged 모션동안 이동 막기
 		GetCharacterMovement()->SetMovementMode(MOVE_None);
 
@@ -175,10 +201,31 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		}
 	}
 }
-
 void AP4CharacterBase::GiveDamage(AActor* TargetActor, const float DamageAmount)
 {
 	// GA로 처리함.
+}
+
+void AP4CharacterBase::OnRollingUpdate(float Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRollingUpdate: %f"), Value);
+	Rolling();
+}
+
+void AP4CharacterBase::Rolling()
+{
+	const float KeepZ = GetCharacterMovement()->IsMovingOnGround() ? 0.0f 
+		: GetCharacterMovement()->GetGravityZ();
+
+	FVector Dir = RollingDirection;
+
+	const float RollingSpeed = 800.0f; //구르기 속도.
+
+	Dir.Normalize(); // 혹시 모르니
+
+
+	GetCharacterMovement()->Velocity = (Dir * RollingSpeed);
+	GetCharacterMovement()->Velocity.Z = KeepZ;
 }
 
 void AP4CharacterBase::HandleRespawn()
@@ -188,6 +235,7 @@ void AP4CharacterBase::HandleRespawn()
 	ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDEAD);
 	// 체력 회복 
 	ASC->SetNumericAttributeBase(AttributeSet->GetHealthAttribute(), AttributeSet->GetMaxHealth());
+	ASC->SetNumericAttributeBase(AttributeSet->GetShieldAttribute(), AttributeSet->GetMaxShield());
 	// 콜리전 복구 
 	SetActorEnableCollision(true); 
 	// 이동 가능 
@@ -295,10 +343,46 @@ void AP4CharacterBase::PlayDeadAnimation()
 	}
 }
 
+//작성 : 한승헌
+//일시 : 2025.11.19
+//내용 : 구르기 전용 인터페이스.
+FVector AP4CharacterBase::GetRollingDirection() const
+{
+	return RollingDirection;
+}
+
+void AP4CharacterBase::SetRollingDirection(FVector InRollingDirection)
+{
+	RollingDirection = InRollingDirection;
+}
+
+void AP4CharacterBase::StartRollingTimeLine()
+{
+	RollingTimeLine->PlayFromStart();
+	UE_LOG(LogTemp, Warning, TEXT("RollingTimeLineStart"));
+}
+
 // -작성: 노현기 -일시: 2025.11.10
 void AP4CharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//작성- 한승헌
+	//일시- 2025.11.19
+	//내용 - 타임라인들 추가.
+	if (RollingCurve != nullptr)
+	{
+		FOnTimelineFloat RollingInterpFunction;
+
+		RollingInterpFunction.BindUFunction(this, FName("OnRollingUpdate"));
+		RollingTimeLine->AddInterpFloat(RollingCurve, RollingInterpFunction);
+
+		//반복하지 않음.
+		RollingTimeLine->SetLooping(false);
+		RollingTimeLine->SetPlayRate(1.0f);
+		//RollingTimeLine->PlayFromStart();
+	}
+
 
 	// 테스트용 아이템 추가 (UI는 컨트롤러가 담당)
 	if (InventoryComp)
@@ -354,6 +438,16 @@ void AP4CharacterBase::BeginPlay()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Is MagicStone NULLPTR"));
 		}
+	}
+}
+
+void AP4CharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (RollingTimeLine)
+	{
+		RollingTimeLine->TickComponent(DeltaTime, ELevelTick::LEVELTICK_TimeOnly, nullptr);
 	}
 }
 

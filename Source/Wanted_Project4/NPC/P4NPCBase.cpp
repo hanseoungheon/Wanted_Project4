@@ -5,8 +5,11 @@
 #include "AbilitySystemComponent.h"
 #include "Components/SphereComponent.h"
 
+#include "Game/P4GameInstance.h"
+
 #include "Character/P4CharacterPlayer.h"
 
+#include "Quest/P4QuestManager.h"
 #include "Quest/P4QuestInfo.h"
 #include "Quest/P4StageDetails.h"
 #include "Quest/P4ObjectiveDetails.h"
@@ -86,6 +89,25 @@ void AP4NPCBase::Interaction(ACharacter* Character)
 
 void AP4NPCBase::ShowQuestUI(int32 QuestCode)
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr)
+	{
+		return;
+	}
+
+	UP4GameInstance* GI = World->GetGameInstance<UP4GameInstance>();
+	if (GI == nullptr || GI->QuestManager == nullptr)
+	{
+		return;
+	}
+
+	if (GI->QuestManager->IsQuestCleared(QuestCode))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Quest %d already cleared. Not showing UI."), QuestCode);
+		return;
+	}
+
+
 	APlayerController* PlayerController =
 		Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
 	if (QuestWidgetClass == nullptr || PlayerController == nullptr)

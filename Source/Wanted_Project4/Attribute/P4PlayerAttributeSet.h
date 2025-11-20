@@ -37,6 +37,10 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UP4PlayerAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS_BASIC(UP4PlayerAttributeSet, MaxHealth);
 
+	// 방어막
+	ATTRIBUTE_ACCESSORS_BASIC(UP4PlayerAttributeSet, Shield);
+	ATTRIBUTE_ACCESSORS_BASIC(UP4PlayerAttributeSet, MaxShield);
+
 	// 받아야할 데미지(받는 데미지 처리용)
 	ATTRIBUTE_ACCESSORS_BASIC(UP4PlayerAttributeSet, DamageAmount);
 
@@ -49,30 +53,37 @@ public:
 	mutable FOnHpZeroDelegate OnHpZero;
 
 public:
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRange;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxAttackRange;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRadius;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxAttackRadius;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData AttackRate;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxAttackRate;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
 
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Shield;
+
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerAttribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxShield;
+
+	// 받은 데미지
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData DamageAmount;
 

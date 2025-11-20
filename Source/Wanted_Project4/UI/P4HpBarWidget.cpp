@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/P4HpBarWidget.h"
@@ -21,7 +21,7 @@ UP4HpBarWidget::UP4HpBarWidget(const FObjectInitializer& ObjectInitializer)
 void UP4HpBarWidget::UpdateHpBar()
 {
 	//CurrentHp = NewCurrentHp;
-
+	UE_LOG(LogTemp, Log, TEXT("UpdateHP!"))
 	ensureAlways(MaxHp > 0.0f);
 
 	if (P4HpBar != nullptr)
@@ -35,13 +35,16 @@ void UP4HpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	//À§Á¬ ÂüÁ¶¸¦ À§ÇÑ ÄÚµå ÀÛ¼º.
+	//ìœ„ì ¯ ì°¸ì¡°ë¥¼ ìœ„í•œ ì½”ë“œ ìž‘ì„±.
 	P4HpBar
 		= Cast<UProgressBar>(
 			GetWidgetFromName(TEXT("P4HpBar"))
 		);
 
 	ensureAlways(P4HpBar != nullptr);
+
+	P4ShieldBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("P4ShieldBar")));
+	ensure(P4ShieldBar != nullptr);
 
 	//IP4CharacterWidgetInterface* CharacterWidget
 	//	= Cast<IP4CharacterWidgetInterface>(OwningActor);
@@ -57,7 +60,7 @@ void UP4HpBarWidget::SetAbilitySystemComponent(AActor* InOwner)
 {
 	Super::SetAbilitySystemComponent(InOwner);
 
-	// 1) ASC Á÷Á¢ È®º¸
+	// 1) ASC ì§ì ‘ í™•ë³´
 	ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(InOwner);
 	if (!ASC)
 	{
@@ -68,20 +71,30 @@ void UP4HpBarWidget::SetAbilitySystemComponent(AActor* InOwner)
 	}
 	if (!ASC) { UE_LOG(LogTemp, Error, TEXT("[HpBar] ASC not found")); return; }
 
-	// 2) AttributeSet È®º¸
+	// 2) AttributeSet í™•ë³´
 	const UP4PlayerAttributeSet* Attr = ASC->GetSet<UP4PlayerAttributeSet>();
 	if (!Attr) { UE_LOG(LogTemp, Error, TEXT("[HpBar] Attr not found")); return; }
 
-	// 3) ÃÊ±â°ª Áï½Ã ¹Ý¿µ (¡Ú Áß¿ä: Ã³À½¿¡ 0%·Î º¸ÀÌ´Â ¹®Á¦ ÇØ°á)
+	// 3) ì´ˆê¸°ê°’ ì¦‰ì‹œ ë°˜ì˜ (â˜… ì¤‘ìš”: ì²˜ìŒì— 0%ë¡œ ë³´ì´ëŠ” ë¬¸ì œ í•´ê²°)
 	MaxHp = Attr->GetMaxHealth();
 	CurrentHp = Attr->GetHealth();
 	UpdateHpBar();
 
-	// 4) µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+	MaxShield = Attr->GetMaxShield();
+	CurrentShield = Attr->GetShield();
+	UpdateShieldBar();
+
+	// 4) ë¸ë¦¬ê²Œì´íŠ¸ ë°”ì¸ë”©
 	ASC->GetGameplayAttributeValueChangeDelegate(UP4PlayerAttributeSet::GetHealthAttribute())
 		.AddUObject(this, &UP4HpBarWidget::OnHealthChanged);
 	ASC->GetGameplayAttributeValueChangeDelegate(UP4PlayerAttributeSet::GetMaxHealthAttribute())
 		.AddUObject(this, &UP4HpBarWidget::OnMaxHealthChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(UP4PlayerAttributeSet::GetShieldAttribute())
+		.AddUObject(this, &UP4HpBarWidget::OnShieldChanged);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(UP4PlayerAttributeSet::GetMaxShieldAttribute())
+		.AddUObject(this, &UP4HpBarWidget::OnMaxShieldChanged);
 }
 
 void UP4HpBarWidget::OnHealthChanged(const FOnAttributeChangeData& ChangedData)
@@ -94,4 +107,31 @@ void UP4HpBarWidget::OnMaxHealthChanged(const FOnAttributeChangeData& ChangedDat
 {
 	MaxHp = ChangedData.NewValue;
 	UpdateHpBar();
+}
+
+void UP4HpBarWidget::UpdateShieldBar()
+{
+	UE_LOG(LogTemp,Log,TEXT("UpdateShield!"))
+	if (!P4ShieldBar || MaxShield <= 0.f)
+		return;
+
+	const float Percent = CurrentShield / MaxShield;
+	P4ShieldBar->SetPercent(Percent);
+
+	// ì‰´ë“œ ì—†ìœ¼ë©´ ìˆ¨ê¸°ê¸°
+	P4ShieldBar->SetVisibility(MaxShield > 0.f ?
+		ESlateVisibility::Visible :
+		ESlateVisibility::Collapsed);
+}
+
+void UP4HpBarWidget::OnShieldChanged(const FOnAttributeChangeData& Data)
+{
+	CurrentShield = Data.NewValue;
+	UpdateShieldBar();
+}
+
+void UP4HpBarWidget::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
+{
+	MaxShield = Data.NewValue;
+	UpdateShieldBar();
 }

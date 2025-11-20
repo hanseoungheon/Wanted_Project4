@@ -178,13 +178,17 @@ void UP4QuestManager::UpdateObjective(const FString& ObjectiveID)
 	{
 		// 4) 더 이상 스테이지 없다 → 퀘스트 완료
 		UE_LOG(LogTemp, Log, TEXT("Quest %d complete!"), CurrentQuestCode);
+		const int32 FinishedQuestCode = CurrentQuestCode;
 
 		bQuestActive = false;
 		CurrentQuestCode = -1;
 		CurrentStageIndex = 0;
 		ObjectiveProgress.Empty();
 
-		OnQuestCleared.Broadcast();
+		ClearedQuestCodes.Add(FinishedQuestCode);
+
+		OnQuestCleared.Broadcast(FinishedQuestCode);
+
 	}
 }
 

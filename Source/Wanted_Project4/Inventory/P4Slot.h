@@ -38,6 +38,15 @@ public:
 		const FDragDropEvent& InDragDropEvent,
 		UDragDropOperation* InOperation) override;
 
+	// 위젯 위에 마우스 포인터 진입 감지
+	virtual void NativeOnMouseEnter(
+		const FGeometry& InGeometry,
+		const FPointerEvent& InMouseEvent) override;
+
+	// 위젯에서 마우스 포인터 떠남 감지
+	virtual void NativeOnMouseLeave(
+		const FPointerEvent& InMouseEvent) override;
+
 	// 아이템 인벤토리에 세팅
 	void SetItem(const FInventoryItem& InItemData);
 
@@ -45,6 +54,10 @@ public:
 	void UpdateSlotUI();
 
 	void ClearSlot();
+
+	// 체크 표시 이미지 표시/숨김
+	void ShowCheckMark();
+	void HideCheckMark();
 
 	// 현재 아이템 정보 가져오기
 	FORCEINLINE const FInventoryItem& GetCurrentItem() const { return CurrentItem; }
@@ -86,4 +99,10 @@ protected:
 	// 드래그 할때 사용될 아이템 이미지 위젯
 	UPROPERTY(EditAnywhere, Category = "Slot")
 	TSubclassOf<UP4Slot> DragWidgetClass;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> IMG_Slot;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UImage> IMG_Notification;
 };
