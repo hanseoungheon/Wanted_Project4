@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,6 +23,35 @@
  * AI : Tick 에서 일정 시간마다 패턴 발동 확률 계산 -> 발동 조건 충족 시 StartPattern (이동중단)
  * 패턴 : Gameplay Ability 로 각 보스 몬스터 클래스에서 생성
  */
+
+ // -작성: 노현기 -일시: 2025.11.19
+ // 드롭 아이템 정보 구조체
+USTRUCT(BlueprintType)
+struct FBossMonsterDropItem
+{
+	GENERATED_BODY()
+
+	// 드롭할 아이템
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UItemDataBase> ItemData;
+
+	// 이 아이템의 최소 드롭 개수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MinQuantity = 1;
+
+	// 이 아이템의 최대 드롭 개수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxQuantity = 1;
+
+	// 드롭 확률 (0.0 ~ 1.0, 1.0 = 100%)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DropChance = 1.0f;
+
+	FBossMonsterDropItem()
+		: ItemData(nullptr), MinQuantity(1), MaxQuantity(1), DropChance(1.0f)
+	{
+	}
+};
 
 
 // 몬스터 공격 시 각 공격을 실행할 델리게이트
@@ -119,6 +148,10 @@ protected:
 protected:
 	// 몬스터가 죽었을 시 실행 될 함수
 	virtual void SetDead();
+
+	// -작성: 노현기 -일시: 2025.11.20
+	// 랜덤 아이템 드롭 함수
+	void DropRandomItems();
 	
 	// ASC 섹션
 protected:
@@ -228,4 +261,17 @@ public:
 	void GroggyLoopCheck();
 	void GroggyEnd();
 	
+// -작성: 노현기 -일시: 2025.11.19
+// 몬스터 아이템 드랍 섹션
+ protected:
+	 // 드롭 아이템 목록 (구조체 배열로 변경)
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop")
+	 TArray<FBossMonsterDropItem> DropItemPool;
+
+	 // 한 번에 드롭할 아이템 종류 최소/최대 개수
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop")
+	 int32 MinDropItemTypes = 1;  // 최소 1종류
+
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop")
+	 int32 MaxDropItemTypes = 4;  // 최대 4종류
 };
