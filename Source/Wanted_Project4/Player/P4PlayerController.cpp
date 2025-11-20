@@ -9,6 +9,7 @@
 #include "AbilitySystemComponent.h"
 #include "UI/P4HUDWidget.h"
 #include "UI/P4HpBarWidget.h"
+#include "UI/P4HpAndShieldWidget.h"
 #include "Attribute/P4PlayerAttributeSet.h"
 #include "Inventory/P4InventoryComponent.h"
 #include "UI/P4InventoryWidget.h"
@@ -188,9 +189,14 @@ void AP4PlayerController::BeginPlay()
 		{
 			if (UAbilitySystemComponent* ASC = CharacterPlayer->GetAbilitySystemComponent())
 			{
-				if (UP4HpBarWidget* HpBar = P4HUDWidget->GetHpBar())
+				//if (UP4HpBarWidget* HpBar = P4HUDWidget->GetHpBar())
+				//{
+				//	HpBar->SetAbilitySystemComponent(CharacterPlayer);
+				//}
+
+				if (UP4HpAndShieldWidget* HpAndShieldBar = P4HUDWidget->GetHpAndShieldBar())
 				{
-					HpBar->SetAbilitySystemComponent(CharacterPlayer);
+					HpAndShieldBar->SetAbilitySystemComponent(CharacterPlayer);
 				}
 			}
 		}
@@ -261,9 +267,9 @@ void AP4PlayerController::OnPossess(APawn* InPawn)
 
 			SetupGASInputBindings(ASC);
 
-			if (P4HUDWidget != nullptr && P4HUDWidget->GetHpBar() != nullptr)
+			if (P4HUDWidget != nullptr && P4HUDWidget->GetHpAndShieldBar() != nullptr)
 			{
-				P4HUDWidget->GetHpBar()->SetAbilitySystemComponent(CharacterPlayer);
+				P4HUDWidget->GetHpAndShieldBar()->SetAbilitySystemComponent(CharacterPlayer);
 			}
 		}
 	}

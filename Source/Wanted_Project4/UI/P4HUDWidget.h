@@ -24,12 +24,17 @@ public:
 	void SetBoss(AActor* NewBoss);
 	TObjectPtr<class UP4HpBarWidget> GetHpBar() const;
 
+	TObjectPtr<class UP4HpAndShieldWidget> GetHpAndShieldBar() const;
+
 protected:
 	virtual void NativeConstruct() override;
 
 protected:
-	UPROPERTY()
-	TObjectPtr<class UP4HpBarWidget> HpBar;
+	//UPROPERTY()
+	//TObjectPtr<class UP4HpBarWidget> HpBar;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UP4HpAndShieldWidget> HpAndShieldBar;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UP4BossHpBar> WidgetBossHpBar;

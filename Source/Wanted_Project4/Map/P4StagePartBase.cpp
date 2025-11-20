@@ -26,7 +26,7 @@ AP4StagePartBase::AP4StagePartBase()
 	////몬스터 스폰 영역지정용 오버랩기능은 딱히 없음 그저 거리만 지정하는용도.
 	MonsterSpawner = CreateDefaultSubobject<UBoxComponent>(TEXT("MonsterSpawnArea"));
 	MonsterSpawner->SetupAttachment(Root);
-	MonsterSpawner->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	MonsterSpawner->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MonsterSpawner->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	//몬스터 생성 트리거 생성.
@@ -221,7 +221,7 @@ void AP4StagePartBase::SpawnNPCs()
 
 void AP4StagePartBase::SpawnMonsterInTrigger()
 {
-	if (bMonsterSpawned == true 
+	if (bMonsterSpawned == true
 		|| MonsterDeleteTrigger == nullptr
 		|| MonsterClass == nullptr)
 	{
@@ -229,29 +229,63 @@ void AP4StagePartBase::SpawnMonsterInTrigger()
 	}
 
 	UWorld* world = GetWorld();
-
 	if (world == nullptr)
 	{
 		return;
 	}
 
-	//스폰 갯수 랜덤.
+	// 스폰 갯수 랜덤.
 	const int32 Count = FMath::RandRange(MinMonsterCount, MaxMonsterCount);
 
-	// 트리거 박스 기준으로 랜덤 위치 뽑기
+	// 트리거 박스 기준으로 랜덤 위치 뽑기 (XY만 의미 있게 사용)
 	const FVector BoxOrigin = MonsterSpawner->GetComponentLocation();
 	const FVector BoxExtent = MonsterSpawner->GetScaledBoxExtent();
 
 	FActorSpawnParameters Params;
 	Params.Owner = this;
-	Params.SpawnCollisionHandlingOverride 
-		= ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	Params.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	for (int32 i = 0; i < Count; ++i)
 	{
-		const FVector RandLoc = UKismetMathLibrary::RandomPointInBoundingBox(BoxOrigin, BoxExtent);
+		// 1) XY는 랜덤, Z는 일단 박스 위쪽에서 시작
+		FVector RandLoc = UKismetMathLibrary::RandomPointInBoundingBox(BoxOrigin, BoxExtent);
+		RandLoc.Z = BoxOrigin.Z + BoxExtent.Z + 5000.f;   // 위쪽 여유
+
+		// 2) 위에서 아래로 라인 트레이스해서 "진짜 바닥" 찾기
+		FHitResult Hit;
+		FCollisionQueryParams QueryParams;
+		QueryParams.bTraceComplex = true;
+		QueryParams.AddIgnoredActor(this); // 타일 액터 자신은 무시 (원하면 몬스터, 플레이어 등 추가)
+
+		const FVector TraceStart = RandLoc;
+		const FVector TraceEnd = RandLoc - FVector(0.f, 0.f, 20000.f);
+
+		if (world->LineTraceSingleByChannel(
+			Hit,
+			TraceStart,
+			TraceEnd,
+			ECC_Visibility,
+			QueryParams))
+		{
+			// 3) 맞은 곳 위로 약간 띄워서 스폰 (지면 관통 방지)
+			RandLoc = Hit.ImpactPoint + FVector(0.f, 0.f, 10.f);
+		}
+		else
+		{
+			// 바닥을 못 찾았으면 그냥 이 위치는 버리고 다음으로
+			UE_LOG(LogTemp, Warning, TEXT("SpawnMonsterInTrigger: Failed to find ground, skip one spawn"));
+			continue;
+		}
+
 		const FRotator RandRot = FRotator::ZeroRotator;
-		AP4MonsterBase* Monster = world->SpawnActor<AP4MonsterBase>(MonsterClass, RandLoc, RandRot, Params);
+
+		AP4MonsterBase* Monster = world->SpawnActor<AP4MonsterBase>(
+			MonsterClass,
+			RandLoc,
+			RandRot,
+			Params
+		);
 
 		if (Monster != nullptr)
 		{
@@ -259,7 +293,6 @@ void AP4StagePartBase::SpawnMonsterInTrigger()
 			Monsters.Add(Monster);
 		}
 	}
-
 
 	bMonsterSpawned = true;
 }
