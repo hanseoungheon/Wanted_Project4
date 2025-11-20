@@ -1,13 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AnimNotify_Rolling.h"
 #include "GameFramework/Character.h"
 #include "Interface/P4RollingInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
-void UAnimNotify_Rolling::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+
+void UAnimNotify_Rolling::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 
 	ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner());
 

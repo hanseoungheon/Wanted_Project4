@@ -57,4 +57,6 @@ protected:
 
 	float CurrentShield = 0.0f;
 	float MaxShield = 0.0f;
+
+	//어떻게 해야할까? 체력이 차면...?
 };

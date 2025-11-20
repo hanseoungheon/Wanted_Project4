@@ -66,7 +66,7 @@ void UP4WeaponComponent::UnequipWeapon()
 	DestroyWeaponMesh();
 	CurrentWeaponData = nullptr;
 }
-
+#include "Components/SceneComponent.h"
 void UP4WeaponComponent::AttachWeaponToSocket(FName SocketName)
 {
 	if (!WeaponMesh) return;

@@ -59,6 +59,9 @@ AP4MonsterBase::AP4MonsterBase()
 
 	// 맵에 배치 또는 생성 시 MonsterAIController 에 빙의되도록
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void AP4MonsterBase::BeginPlay()
