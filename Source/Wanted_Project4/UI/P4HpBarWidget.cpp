@@ -21,7 +21,6 @@ UP4HpBarWidget::UP4HpBarWidget(const FObjectInitializer& ObjectInitializer)
 void UP4HpBarWidget::UpdateHpBar()
 {
 	//CurrentHp = NewCurrentHp;
-	UE_LOG(LogTemp, Log, TEXT("UpdateHP!"))
 	ensureAlways(MaxHp > 0.0f);
 
 	if (P4HpBar != nullptr)
@@ -111,7 +110,6 @@ void UP4HpBarWidget::OnMaxHealthChanged(const FOnAttributeChangeData& ChangedDat
 
 void UP4HpBarWidget::UpdateShieldBar()
 {
-	UE_LOG(LogTemp,Log,TEXT("UpdateShield!"))
 	if (!P4ShieldBar || MaxShield <= 0.f)
 		return;
 
@@ -128,10 +126,12 @@ void UP4HpBarWidget::OnShieldChanged(const FOnAttributeChangeData& Data)
 {
 	CurrentShield = Data.NewValue;
 	UpdateShieldBar();
+	UE_LOG(LogTemp, Log, TEXT("UpdateShield!"))
 }
 
 void UP4HpBarWidget::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
 {
 	MaxShield = Data.NewValue;
 	UpdateShieldBar();
+	UE_LOG(LogTemp, Log, TEXT("UpdateMaxShield!"))
 }

@@ -53,25 +53,6 @@ void UP4PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		CharacterState.bIsJumping = CharacterState.bIsFalling && (Velocity.Z > JumpingThreshold);
 	}
 
-	//AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetOwningActor());
-	//if (Character)
-	//{
-	//	if (Character->GetAbilitySystemComponent()->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDEAD))
-	//	{
-	//		bIsDead = true;
-	//	}
-	//	//todo: testcode
-	//	else if (Character->GetAbilitySystemComponent()->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDAMAGED))
-	//	{
-	//		bIsDamaged = true;
-	//	}
-	//	else
-	//	{
-	//		bIsDead = false;
-	//		bIsDamaged = false;
-	//	}
-	//}
-	
 	// -작성: 노현기 -일시: 2025.11.18
 	// 매 프레임 태그를 체크해서 변수 업데이트
 	//APawn* Pawn = TryGetPawnOwner();
