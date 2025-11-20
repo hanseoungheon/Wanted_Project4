@@ -75,7 +75,7 @@ bool UP4GA_DrawKatana::CanActivateAbility(
 
 void UP4GA_DrawKatana::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    OnCompleteCallback();
+    OnInterruptedCallback();
 }
 
 void UP4GA_DrawKatana::ActivateAbility(
@@ -154,5 +154,8 @@ void UP4GA_DrawKatana::OnCompleteCallback()
 
 void UP4GA_DrawKatana::OnInterruptedCallback()
 {
+    AP4CharacterBase* P4Character = Cast<AP4CharacterBase>(GetAvatarActorFromActorInfo());
+    P4Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

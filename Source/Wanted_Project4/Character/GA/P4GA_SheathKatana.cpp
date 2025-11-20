@@ -74,7 +74,7 @@ bool UP4GA_SheathKatana::CanActivateAbility(
 
 void UP4GA_SheathKatana::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    OnCompleteCallback();
+    OnInterruptedCallback();
 }
 
 void UP4GA_SheathKatana::ActivateAbility(
@@ -154,5 +154,8 @@ void UP4GA_SheathKatana::OnCompleteCallback()
 
 void UP4GA_SheathKatana::OnInterruptedCallback()
 {
+    AP4CharacterBase* P4Character = Cast<AP4CharacterBase>(GetAvatarActorFromActorInfo());
+    P4Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }

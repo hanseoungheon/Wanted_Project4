@@ -1,5 +1,4 @@
-﻿﻿// Fill out your copyright notice in the Description page of Project Settings.
-
+﻿
 #pragma once
 
 #include "CoreMinimal.h"
@@ -38,11 +37,6 @@ public:
     // 현재 장착된 무기 메시
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
     TObjectPtr<USkeletalMeshComponent> WeaponMesh;
-private:
-    void CreateWeaponMesh(USkeletalMesh* Mesh);
-    void DestroyWeaponMesh();
-
-protected:
 
 private:
     void CreateWeaponMesh(USkeletalMesh* Mesh);
