@@ -17,6 +17,7 @@
 #include "Player/P4PlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Monster/ObjectPool/P4ProjectilePoolSubsystem.h"
 
 AP4BossMonsterNemielle::AP4BossMonsterNemielle()
 {
@@ -385,17 +386,23 @@ void AP4BossMonsterNemielle::DoubleWaterBomb()
 		Transform.SetRotation(Direction.ToOrientationQuat());
 
 		// 투사체 생성
-		AP4MonsterProjectile* Projectile = GetWorld()->SpawnActor<AP4MonsterProjectile>(WaterProjectileClass, Transform, SpawnParams);
-		if (Projectile)
+		//AP4MonsterProjectile* Projectile = GetWorld()->SpawnActor<AP4MonsterProjectile>(WaterProjectileClass, Transform, SpawnParams);
+		auto* Pool = GetWorld()->GetSubsystem<UP4ProjectilePoolSubsystem>();
+		AActor* ProjectileActor = Pool->SpawnProjectile(WaterProjectileClass, Transform.GetLocation(), Transform.GetRotation().Rotator());
+		if (ProjectileActor)
 		{
-			// 초기 값 설정
-			Projectile->InitProjectile(3.f, 20.f, 150.f, true);
+			AP4MonsterProjectile* Projectile = Cast<AP4MonsterProjectile>(ProjectileActor);
+			if (Projectile)
+			{
+				// 초기 값 설정
+				Projectile->InitProjectile(3.f, 10.f, 150.f, false);
 			
-			// 투사체에게 몬스터 정보를 얻기 위해서 Owner 로 설정
-			Projectile->SetOwner(this);
+				// 투사체에게 몬스터 정보를 얻기 위해서 Owner 로 설정
+				Projectile->SetOwner(this);
 
-			// 투사체 속도 초기화
-			Projectile->FireInDirection(Transform.Rotator().Vector());
+				// 투사체 속도 초기화
+				Projectile->FireInDirection(Transform.Rotator().Vector());
+			}
 		}
 	}
 }

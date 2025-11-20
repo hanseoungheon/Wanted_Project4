@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Monster/P4BossMonsterBase.h"
 #include "Monster/P4MonsterBase.h"
+#include "Monster/ObjectPool/P4ProjectilePoolSubsystem.h"
 
 // Sets default values
 AP4MonsterProjectile::AP4MonsterProjectile()
@@ -92,7 +93,7 @@ void AP4MonsterProjectile::Tick(float DeltaTime)
 		{
 			Bomb();
 		}
-		Destroy();
+		DeactivateProjectile();
 	}
 }
 
@@ -129,7 +130,7 @@ void AP4MonsterProjectile::OnProjectileOverlappedAnywhere(UPrimitiveComponent* O
 			}
 		}
 		
-		Destroy();
+		DeactivateProjectile();
 	}
 }
 
@@ -146,7 +147,7 @@ void AP4MonsterProjectile::OnProjectileHit(UPrimitiveComponent* HitComp, AActor*
 	{
 		Bomb();
 	}
-	Destroy();
+		DeactivateProjectile();
 }
 
 void AP4MonsterProjectile::InitProjectile(float InLifeSpan, float InDamage, float InRadius, bool InIsBomb)
@@ -218,4 +219,12 @@ void AP4MonsterProjectile::Bomb()
 		// @MobTODO: 몬스터 충돌 판정 확인용
 		UE_LOG(LogTemp, Log, TEXT("투사체 공격 시 충돌된 오브젝트가 없습니다."));
 	}
+}
+
+void AP4MonsterProjectile::DeactivateProjectile()
+{
+	UE_LOG(LogTemp, Log, TEXT("[Projectile Test] DeactivateProjectile"));
+	auto* Pool = GetWorld()->GetSubsystem<UP4ProjectilePoolSubsystem>();
+	CurrentLifeTime = 0.f;
+	Pool->ReturnProjectile(this);
 }
