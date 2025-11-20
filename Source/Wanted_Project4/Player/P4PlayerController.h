@@ -18,7 +18,6 @@ enum class GASInputID : uint8
     E_ComboAttackAction,
     E_GrindKatanaAction,
     E_RollingAction,
-
 };
 
 /**
@@ -61,7 +60,10 @@ public:
 
     // -작성: 노현기 -일시: 2025.11.18
     // UI를 최상위로 가져오기
-    void BringUIToFront(UUserWidget* Widget);   
+    void BringUIToFront(UUserWidget* Widget);  
+
+    //작성 한승헌, 일시 2025.11.20
+    class UP4HUDWidget* GetHUDWidget() const;
 
 private:
     // 입력 매핑
@@ -124,6 +126,7 @@ private:
     // 구르기 토글 'B'
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UInputAction> RollingAction;
+
     //작성 - 한승헌 2025-11-10
     //디버그용 데미지 주기.
     UFUNCTION(Exec)

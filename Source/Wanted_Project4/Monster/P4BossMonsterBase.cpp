@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Stat/P4MonsterStat.h"
+#include "UI/P4HUDWidget.h"
 
 // Sets default values
 AP4BossMonsterBase::AP4BossMonsterBase()

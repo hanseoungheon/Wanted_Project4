@@ -707,6 +707,10 @@ void AP4PlayerController::BringUIToFront(UUserWidget* Widget)
 
 	UE_LOG(LogTemp, Log, TEXT("UI를 최상위로 가져옴"));
 }
+UP4HUDWidget* AP4PlayerController::GetHUDWidget() const
+{
+	return P4HUDWidget;
+}
 void AP4PlayerController::HandleRespawnRequest()
 {
 	//if (AP4CharacterBase* Character = Cast<AP4CharacterBase>(GetPawn()))
