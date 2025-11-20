@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,14 +7,14 @@
 #include "P4WeaponComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class WANTED_PROJECT4_API UP4WeaponComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UP4WeaponComponent();
+public:
+    // Sets default values for this component's properties
+    UP4WeaponComponent();
 
     // 무기 장착/해제
     UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -34,13 +34,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Weapon")
     void SheathWeapon();  // 손 → 등
 
-private:
-    void CreateWeaponMesh(USkeletalMesh* Mesh);
-    void DestroyWeaponMesh();
-protected:
+    //todo: 선우 - Getter 사용하기?
     // 현재 장착된 무기 메시
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
     TObjectPtr<USkeletalMeshComponent> WeaponMesh;
+
+private:
+    void CreateWeaponMesh(USkeletalMesh* Mesh);
+    void DestroyWeaponMesh();
+
+protected:
 
     // 현재 장착된 무기 데이터
     UPROPERTY()
