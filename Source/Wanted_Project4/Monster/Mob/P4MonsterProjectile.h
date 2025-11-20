@@ -33,6 +33,9 @@ public:
 	UFUNCTION()
 	void OnProjectileHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
+	UPROPERTY(BlueprintReadOnly)
+	bool IsPooledActive = false;
+	
 protected:
 	// 발사체 Sphere 컴포넌트
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
@@ -65,8 +68,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	bool IsBomb = false;
 
+	
 	// 현재 생성된 시간
 	float CurrentLifeTime = 0.f;
+
 	
 public:
 	// 데이터 초기화
@@ -77,5 +82,8 @@ public:
 
 	// 최대 사거리 또는 오브젝트에 닿았을 경우 폭발
 	void Bomb();
+
+	// 오브젝트 풀로 반환해줄 함수
+	void DeactivateProjectile();
 	
 };
