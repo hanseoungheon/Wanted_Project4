@@ -54,10 +54,6 @@ bool UP4EquipmentInvenComponent::EquipItem(UItemDataBase* ItemData, FGameplayTag
 
     EquippedItems[EquipSlotType] = NewEquipItem;
 
-    UE_LOG(LogTemp, Log, TEXT("[EquipmentInvenComp] 장비 장착 성공: %s -> 슬롯[%s]"),
-        *ItemData->GetItemName().ToString(),
-        *EquipSlotType.ToString());
-
     // UI 업데이트를 위한 델리게이트 브로드캐스트
     OnEquipmentUpdated.Broadcast(EquipSlotType);
 
@@ -82,10 +78,6 @@ bool UP4EquipmentInvenComponent::UnequipItem(FGameplayTag EquipSlotType)
             *EquipSlotType.ToString());
         return false;
     }
-
-    UE_LOG(LogTemp, Log, TEXT("[EquipmentInvenComp] 장비 해제: %s (슬롯[%s])"),
-        *CurrentEquipped.ItemData->GetItemName().ToString(),
-        *EquipSlotType.ToString());
 
     // 슬롯을 빈 상태로 변경
     EquippedItems[EquipSlotType] = FInventoryItem();

@@ -82,11 +82,7 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 					// 인벤토리 슬롯인지 장비창 슬롯인지 구분
 					if (bIsEquipmentSlot)
 					{
-						// 장비창 슬롯 우클릭 → 장비 해제
-						UE_LOG(LogTemp, Log, TEXT("[P4Slot] 장비창 슬롯 우클릭 - 해제 시도: %s"),
-							*ItemDataCache->GetItemName().ToString());
-
-						// ⭐ 무기인 경우, 발도 상태(Character.State.IsDrawn)면 해제 불가
+						// 무기인 경우, 발도 상태(Character.State.IsDrawn)면 해제 불가
 						FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
 						if (ItemDataCache->HasTag(WeaponTag))
 						{
@@ -118,8 +114,6 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 								//FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
 								if (ItemDataCache->HasTag(WeaponTag))
 								{
-									UE_LOG(LogTemp, Log, TEXT("[P4Slot] 무기 해제 시작"));
-
 									// InventoryComponent의 UnequipItem 호출 (WeaponComponent 해제 + GE 제거)
 									bool bUnequipFromInv = InvComp->UnequipItem(ItemDataCache, -1);
 									if (!bUnequipFromInv)
@@ -166,24 +160,6 @@ FReply UP4Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 
 							if (ItemDataCache->HasTag(P4InventoryTags::Item::Equipment))
 							{
-
-								// 인벤토리 배열에서 실제 아이템 확인
-								FGameplayTag SlotTypeForCheck = InvComp->GetSlotTypeFromItemData(ItemDataCache);
-								TArray<FInventoryItem>*TargetArrayCheck = InvComp->GetInventoryByType(SlotTypeForCheck);
-								if (TargetArrayCheck && TargetArrayCheck->IsValidIndex(SlotIndexCache))
-								{
-									FInventoryItem& ActualItem = (*TargetArrayCheck)[SlotIndexCache];
-									if (ActualItem.ItemData)
-									{
-										UE_LOG(LogTemp, Warning, TEXT("[P4Slot] 인벤토리[%d]의 실제 아이템: %s"),
-											SlotIndexCache, *ActualItem.ItemData->GetItemName().ToString());
-									}
-									else
-									{
-										UE_LOG(LogTemp, Error, TEXT("[P4Slot] 인벤토리[%d]는 비어있음!"), SlotIndexCache);
-									}
-								}
-
 								InvComp->EquipItem(ItemDataCache, SlotIndexCache);
 							}
 							else if (ItemDataCache->HasTag(P4InventoryTags::Item::Consumable))

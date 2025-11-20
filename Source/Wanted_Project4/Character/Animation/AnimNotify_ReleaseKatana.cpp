@@ -17,8 +17,6 @@ UAnimNotify_ReleaseKatana::UAnimNotify_ReleaseKatana()
 
 void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-    // ⭐ 로그 추가
-    UE_LOG(LogTemp, Warning, TEXT("=== ReleaseKatana 노티파이 실행! ==="));
 
     if (!MeshComp)
     {
@@ -33,8 +31,6 @@ void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("캐릭터 찾음: %s"), *Character->GetName());
-
     // WeaponComponent로 무기를 손으로 이동
     UP4WeaponComponent* WeaponComp = Character->GetWeaponComponent();
     if (!WeaponComp)
@@ -42,8 +38,6 @@ void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         UE_LOG(LogTemp, Error, TEXT("WeaponComponent가 nullptr!"));
         return;
     }
-
-    UE_LOG(LogTemp, Warning, TEXT("WeaponComponent 찾음"));
 
     //  무기를 손으로 이동
     WeaponComp->SheathWeapon();
@@ -59,7 +53,6 @@ void UAnimNotify_ReleaseKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
     // 태그 제거
     //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
     ASC->RemoveLooseGameplayTag(P4TAG_CHARACTER_ISDRAWN);
-    UE_LOG(LogTemp, Log, TEXT("Character.State.IsDrawn 태그 제거"));
 
     //// ⭐ 애님 인스턴스의 bIsKatanaOnHand를 false로 설정
     //UP4PlayerAnimInstance* AnimInst = Cast<UP4PlayerAnimInstance>(MeshComp->GetAnimInstance());
