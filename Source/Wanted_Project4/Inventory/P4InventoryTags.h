@@ -27,11 +27,14 @@ namespace P4InventoryTags
         namespace Equipments
         {
             WANTED_PROJECT4_API extern const FGameplayTag Weapon;
-            WANTED_PROJECT4_API extern const FGameplayTag Head;
-            WANTED_PROJECT4_API extern const FGameplayTag Chest;
-            WANTED_PROJECT4_API extern const FGameplayTag Gloves;
-            WANTED_PROJECT4_API extern const FGameplayTag Legs;
-            WANTED_PROJECT4_API extern const FGameplayTag Shoes;
+            namespace Armor
+            {
+                WANTED_PROJECT4_API extern const FGameplayTag Head;
+                WANTED_PROJECT4_API extern const FGameplayTag Chest;
+                WANTED_PROJECT4_API extern const FGameplayTag Gloves;
+                WANTED_PROJECT4_API extern const FGameplayTag Legs;
+                WANTED_PROJECT4_API extern const FGameplayTag Shoes;
+            }
         }
     }
 }

@@ -7,8 +7,8 @@ namespace P4InventoryTags
     {
         const FGameplayTag Equipment = FGameplayTag::RequestGameplayTag(FName("Item.Equipment"));
         const FGameplayTag Consumable = FGameplayTag::RequestGameplayTag(FName("Item.Consumable"));
-        const FGameplayTag Quest = FGameplayTag::RequestGameplayTag(FName("Item.Quest"));
-        const FGameplayTag Material = FGameplayTag::RequestGameplayTag(FName("Item.Material"));
+        /*const FGameplayTag Quest = FGameplayTag::RequestGameplayTag(FName("Item.Quest"));
+        const FGameplayTag Material = FGameplayTag::RequestGameplayTag(FName("Item.Material"));*/
     }
 
     namespace Slot
@@ -19,11 +19,14 @@ namespace P4InventoryTags
         namespace Equipments
         {
             const FGameplayTag Weapon = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Weapon"));
-            const FGameplayTag Head = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Head"));
-            const FGameplayTag Chest = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Chest"));
-            const FGameplayTag Gloves = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Gloves"));
-            const FGameplayTag Legs = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Legs"));
-            const FGameplayTag Shoes = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Shoes"));
+            namespace Armor
+            {
+                const FGameplayTag Head = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Armor.Head"));
+                const FGameplayTag Chest = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Armor.Chest"));
+                const FGameplayTag Gloves = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Armor.Gloves"));
+                const FGameplayTag Legs = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Armor.Legs"));
+                const FGameplayTag Shoes = FGameplayTag::RequestGameplayTag(FName("Slot.Equipment.Armor.Shoes"));
+            }
         }
     }
 }
