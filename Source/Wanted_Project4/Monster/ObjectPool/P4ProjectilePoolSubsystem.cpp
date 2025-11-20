@@ -20,6 +20,27 @@ void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection
 	{
 		return;
 	}
+	
+	// 에디터에서 월드 열 때는 PreSpawn 하지 않음
+#if WITH_EDITOR
+	if (!World->IsPlayInEditor()) // PIE가 아니라면 생략
+	{
+		return;
+	}
+#endif
+	
+	// 기존 액터 삭제
+	for (auto& Pair : Pools)
+	{
+		for (AActor* Actor : Pair.Value)
+		{
+			if (IsValid(Actor))
+			{
+				Actor->Destroy();
+			}
+		}
+	}
+	Pools.Empty();
 
 	// 클래스 별 미리 스폰해놓기
 	for (const auto& Pair : PreSpawnList)
