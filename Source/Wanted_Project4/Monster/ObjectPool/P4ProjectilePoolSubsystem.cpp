@@ -52,6 +52,8 @@ void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection
 
 				// 풀에 넣기
 				PoolArray.Add(Projectile);
+
+				Projectile->SetFolderPath(TEXT("ProjectilePool"));
 			}
 		}
 
@@ -138,4 +140,6 @@ void UP4ProjectilePoolSubsystem::ReturnProjectile(AActor* Projectile)
 
 	// 화면 밖으로 이동시키기
 	Projectile->SetActorLocation(FVector(0, 0, -5000));
+
+	Projectile->SetOwner(nullptr);
 }
