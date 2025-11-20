@@ -101,6 +101,12 @@ void AP4MonsterProjectile::OnProjectileOverlappedAnywhere(UPrimitiveComponent* O
 {
 	if (OtherActor && Owner && OtherActor != this && OtherActor != Owner && OtherComp)
 	{
+		IMonsterAIInterface* AIInterface = Cast<IMonsterAIInterface>(OtherActor);
+		if (AIInterface)
+		{
+			return;
+		}
+		
 		UE_LOG(LogTemp, Log, TEXT("[Projectile Test] Overlapped Object : %s"), *OtherActor->GetName());
 		if (IsBomb)
 		{
@@ -113,7 +119,7 @@ void AP4MonsterProjectile::OnProjectileOverlappedAnywhere(UPrimitiveComponent* O
 			{
 				// 다른 액터가 공격 당했을 시 처리
 				// 생성 시 Monster 를 Owner 로 설정해줌
-				AP4BossMonsterBase* Monster = Cast<AP4BossMonsterBase>(GetOwner());
+				IP4DamageableInterface* Monster = Cast<IP4DamageableInterface>(GetOwner());
 				if (Monster)
 				{
 					// 몬스터의 GiveDamage 함수 호출
@@ -130,6 +136,11 @@ void AP4MonsterProjectile::OnProjectileOverlappedAnywhere(UPrimitiveComponent* O
 void AP4MonsterProjectile::OnProjectileHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	IMonsterAIInterface* AIInterface = Cast<IMonsterAIInterface>(OtherActor);
+	if (AIInterface)
+	{
+		return;
+	}
 	UE_LOG(LogTemp, Log, TEXT("[Projectile Test] Hit Object : %s"), *OtherActor->GetName());
 	if (IsBomb)
 	{

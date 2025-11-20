@@ -126,7 +126,7 @@ void AP4MonsterJagras::MeleeAttack()
 
 	// 공격 범위 설정
 	// @Todo: 나중에 변수 값으로 변경하기
-	const float AttackRange = 50.f;
+	const float AttackRange = GetAIAttackRange();
 	FVector End = Start + GetActorForwardVector() * AttackRange;
 
 	const float AttackRadius = 50.f;

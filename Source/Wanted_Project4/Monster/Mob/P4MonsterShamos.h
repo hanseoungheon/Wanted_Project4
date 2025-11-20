@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../P4MonsterBase.h"
-#include "P4MonsterJagras.generated.h"
+#include "Monster/P4MonsterBase.h"
+#include "P4MonsterShamos.generated.h"
+
+class AP4MonsterProjectile;
 /**
  * 
  */
-
 UCLASS()
-class WANTED_PROJECT4_API AP4MonsterJagras : public AP4MonsterBase
+class WANTED_PROJECT4_API AP4MonsterShamos : public AP4MonsterBase
 {
 	GENERATED_BODY()
 
 public:
-	AP4MonsterJagras();
+	AP4MonsterShamos();
 
 protected:
 	virtual void AttackByAI() override;
@@ -23,20 +24,18 @@ protected:
 
 	virtual void SetupAttackDelegate() override;
 
-	virtual float GetAIAttackRange() override { return 250.f; }
-
-	// 몬스터 스킬별 공격 판정 함수
-
-
-	//작성 - 한승헌
-	//일시 - 2025.11.14
-	//자그라스 죽으면 메세지 전송하는거를 위한 SetDead 오버라이딩.
 	virtual void SetDead() override;
+	
+	FORCEINLINE virtual float GetAIAttackRange() override { return 1000.f; }
 
 protected:
-	void MeleeAttack();
+	void RangeAttack();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UBoxComponent> BoxCollision;
+	
+	// DoubleWaterBomb 의 투사체 Class
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	TSubclassOf<AP4MonsterProjectile> WaterProjectileClass;
 };
