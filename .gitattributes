@@ -31,3 +31,8 @@ Content/Quest/QuestData.uasset -filter -diff -merge -text
 Content/Character/GA/BPGA_Rolling.uasset -filter -diff -merge -text
 Content/Character/Animation/AM_Roll.uasset -filter -diff -merge -text
 Content/Character/Curve/CV_RollingCurve.uasset -filter -diff -merge -text
+
+Content/Weapon/Katana_Skeleton.uasset -filter -diff -merge -text
+Content/Character/Animation/AM_StrongAttack.uasset -filter -diff -merge -text
+Content/Character/Animation/Katana/ForUse/AM_KatanaDefaultAttack.uasset -filter -diff -merge -text
+CContent/Character/Animation/AM_ComboAttack.uasset -filter -diff -merge -text

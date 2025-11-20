@@ -69,7 +69,7 @@ void UP4WeaponComponent::UnequipWeapon()
 
 	UE_LOG(LogTemp, Log, TEXT("무기 해제"));
 }
-
+#include "Components/SceneComponent.h"
 void UP4WeaponComponent::AttachWeaponToSocket(FName SocketName)
 {
 	if (!WeaponMesh) return;

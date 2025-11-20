@@ -34,13 +34,15 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Weapon")
     void SheathWeapon();  // 손 → 등
 
-private:
-    void CreateWeaponMesh(USkeletalMesh* Mesh);
-    void DestroyWeaponMesh();
-protected:
+    //todo: 선우 - Getter 사용하기?
     // 현재 장착된 무기 메시
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
     TObjectPtr<USkeletalMeshComponent> WeaponMesh;
+private:
+    void CreateWeaponMesh(USkeletalMesh* Mesh);
+    void DestroyWeaponMesh();
+
+protected:
 
     // 현재 장착된 무기 데이터
     UPROPERTY()
