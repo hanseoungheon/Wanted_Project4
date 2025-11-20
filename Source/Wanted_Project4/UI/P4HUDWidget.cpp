@@ -3,9 +3,14 @@
 
 #include "UI/P4HUDWidget.h"
 #include "P4HpBarWidget.h"
+#include "P4BossHpBar.h"
+
 #include "P4QuestInformationWidget.h"
 #include "P4MiniMapWidget.h"
 #include "Interface/P4CharacterHUDInterface.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Monster/P4BossMonsterBase.h"
 
 UP4HUDWidget::UP4HUDWidget(const FObjectInitializer& ObjectInitalizer)
 	:Super(ObjectInitalizer)
@@ -38,7 +43,7 @@ void UP4HUDWidget::NativeConstruct()
 		GetWidgetFromName(TEXT("WidgetQuestLog"))
 	);
 	ensureAlways(QuestTextBlock != nullptr);
-
+	ensureAlways(WidgetBossHpBar != nullptr);
 	//ÀÛ¼º ÇÑ½ÂÇå - 2025 -11 - 10
 
 	//APawn* Pawn = GetOwningPlayer() ? GetOwningPlayer()->GetPawn() : nullptr;
@@ -81,8 +86,49 @@ void UP4HUDWidget::NativeConstruct()
 	//	HUDPawn->SetupHUDWidget(this);
 	//}
 
+
+	UWorld* world = GetWorld();
+
+	if (world == nullptr)
+	{
+		return;
+	}
+
+	TArray<AActor*> FoundBosses;
+
+	UGameplayStatics::GetAllActorsOfClass(world, AP4BossMonsterBase::StaticClass(), FoundBosses);
+
+	if (FoundBosses.Num() > 0)
+	{
+		AActor* Boss = FoundBosses[0];
+
+		if (WidgetBossHpBar)
+		{
+			WidgetBossHpBar->SetAbilitySystemComponent(Boss);
+			WidgetBossHpBar->SetVisibility(ESlateVisibility::Visible);
+			UE_LOG(LogTemp, Error, TEXT("[HUD] BossHpBar bind complete"));
+		}
+	}
 }
 
+
+void UP4HUDWidget::SetBoss(AActor* NewBoss)
+{
+	UE_LOG(LogTemp, Error, TEXT("SetBoss Activate"));
+	if (WidgetBossHpBar == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BossHpBar Is Null"));
+
+	}
+	
+	if (WidgetBossHpBar != nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BossHpBar Is Not Null"));
+		WidgetBossHpBar->SetAbilitySystemComponent(NewBoss);
+		UE_LOG(LogTemp, Display, TEXT("Setting BossComplete."));
+		WidgetBossHpBar->SetVisibility(ESlateVisibility::Visible);
+	}
+}
 
 TObjectPtr<class UP4HpBarWidget> UP4HUDWidget::GetHpBar() const
 {

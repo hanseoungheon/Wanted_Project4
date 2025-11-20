@@ -4,6 +4,7 @@
 #include "Game/P4GameInstance.h"
 #include "NPC/Quest/P4QuestManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Character/P4CharacterPlayer.h"
 
 UP4GameInstance::UP4GameInstance()
 {
@@ -29,9 +30,14 @@ void UP4GameInstance::HandleClearQuest(int32 ClearQuestCode)
 	if (ClearQuestCode == 1)
 	{
 		FName NextLevelName(TEXT("BattleAeranMap"));
-
 		UGameplayStatics::OpenLevel(this, NextLevelName);
 	}
 
+
+}
+
+void UP4GameInstance::ChangingLevel(FName NewLevelName)
+{
+	UGameplayStatics::OpenLevel(this, NewLevelName);
 
 }

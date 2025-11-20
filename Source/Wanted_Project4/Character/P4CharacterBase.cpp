@@ -161,6 +161,14 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 	// todo: 알아먹게 수정
 	if (ASC)
 	{
+		//작성-한승헌
+		//일시- 2025.11.20
+		//내용- 구르기시 무적상태. 
+		if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.IsRolling"))))
+		{
+			return;
+		}
+		
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 

@@ -21,7 +21,7 @@ public:
 
 	void UpdataMiniMap(FVector PlayerLocation);
 
-
+	void SetBoss(AActor* NewBoss);
 	TObjectPtr<class UP4HpBarWidget> GetHpBar() const;
 
 protected:
@@ -30,6 +30,9 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<class UP4HpBarWidget> HpBar;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<class UP4BossHpBar> WidgetBossHpBar;
 
 	//UPROPERTY()
 	//TObjectPtr<class UP4MiniMapWidget> MiniMap;
