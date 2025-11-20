@@ -29,4 +29,7 @@ public:
 protected:
 	UFUNCTION()
 	void HandleClearQuest(int32 ClearQuestCode);
+
+	UFUNCTION()
+	void ChangingLevel(FName NewLevelName);
 };
