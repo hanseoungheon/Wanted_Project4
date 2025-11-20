@@ -8,7 +8,7 @@
 UP4ProjectilePoolSubsystem::UP4ProjectilePoolSubsystem()
 {
 	// 미리 40개 만들거라고 등록해두기
-	PreSpawnList.Add(AP4MonsterProjectile::StaticClass(), 40);
+	PreSpawnList.Add(AP4MonsterProjectile::StaticClass(), 10);
 }
 
 void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection)
