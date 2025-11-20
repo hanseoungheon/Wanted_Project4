@@ -360,10 +360,15 @@ void UP4Slot::SetItem(const FInventoryItem& InItemData)
 
 	UpdateSlotUI();
 
-	// 새 아이템이면 체크 표시
-	if (CurrentItem.bIsNewItem)
+	// 아이템이 실제로 있고, 새 아이템일 때만 체크 표시
+	if (CurrentItem.ItemData && CurrentItem.bIsNewItem)
 	{
 		ShowCheckMark();
+	}
+	else
+	{
+		// 아이템이 없거나 새 아이템이 아니면 숨김
+		HideCheckMark();
 	}
 }
 

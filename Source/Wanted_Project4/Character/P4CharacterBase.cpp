@@ -168,30 +168,29 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		{
 			return;
 		}
-		/*if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.IsDrawing"))))
-		{
-			return;
-		}
-		if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.IsSheathing"))))
-		{
-			return;
-		}*/
-		
+
+
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		FGameplayTagContainer CancelTags;
+		CancelTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Character.State.IsAttacking")));
+		ASC->CancelAbilities(&CancelTags);
+
+		/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
 			AnimInstance->StopAllMontages(0.f);
-		}
+		}*/
 
 		if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDAMAGED) == false)
 		{
 			ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
-		}		
+		}
 		// Damaged 모션동안 이동 막기
-		GetCharacterMovement()->SetMovementMode(MOVE_None);
+		//GetCharacterMovement()->SetMovementMode(MOVE_None);
+		GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 
 		// 받을 데미지 설정
 		AttributeSet->SetDamageAmount(DamageAmount);
@@ -217,6 +216,7 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		}
 	}
 }
+
 void AP4CharacterBase::GiveDamage(AActor* TargetActor, const float DamageAmount)
 {
 	// GA로 처리함.

@@ -104,6 +104,9 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
         {
             (*TargetArray)[SlotIndex].Quantity -= Quantity;
 
+            // 수량이 감소하면 더 이상 새 아이템이 아님
+            (*TargetArray)[SlotIndex].bIsNewItem = false;
+
             // 수량이 0 이하면 슬롯 비우기
             if ((*TargetArray)[SlotIndex].Quantity <= 0)
             {
@@ -129,12 +132,16 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
         {
             (*TargetArray)[i].Quantity -= Quantity;
 
+            // 수량이 감소하면 더 이상 새 아이템이 아님
+            (*TargetArray)[i].bIsNewItem = false;
+
             // 수량이 0 이하면 슬롯 비우기
             if ((*TargetArray)[i].Quantity <= 0)
             {
                 (*TargetArray)[i] = FInventoryItem();
                 (*TargetArray)[i].SlotType = SlotType;
                 (*TargetArray)[i].SlotIndex = i;
+                (*TargetArray)[SlotIndex].bIsNewItem = false;
             }
 
             OnInventoryUpdated.Broadcast(SlotType, i);

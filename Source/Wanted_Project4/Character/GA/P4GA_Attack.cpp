@@ -11,6 +11,8 @@
 #include "GameplayAbilities/Public/AbilitySystemComponent.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "Character/P4CharacterPlayer.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "Tag/P4GameplayTag.h"
 
 UP4GA_Attack::UP4GA_Attack()
 {
@@ -93,7 +95,7 @@ void UP4GA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		// AT의 함수 호출
 		PlayAttackTask->ReadyForActivation();
 	}
-		
+	
 
 	//StartComboTimer();
 }
@@ -123,11 +125,15 @@ void UP4GA_Attack::InputPressed(const FGameplayAbilitySpecHandle Handle, const F
 
 void UP4GA_Attack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("[GA_Attack] CancelAbility 호출됨!"));
+
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void UP4GA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 	AP4CharacterBase* P4Character = CastChecked<AP4CharacterBase>(ActorInfo->AvatarActor.Get());
@@ -149,5 +155,6 @@ void UP4GA_Attack::OnInterruptedCallback()
 {
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = true;
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }

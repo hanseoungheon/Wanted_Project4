@@ -42,6 +42,9 @@ protected:
 	//void StartComboTimer();
 	//void CheckComboInput();
 
+	UPROPERTY()
+	TObjectPtr<class UAbilityTask_PlayMontageAndWait> CurrentMontageTask;
+
 protected:
 	uint8 CurrentIndex = 0;
 	uint8 MaxCount = 2;
