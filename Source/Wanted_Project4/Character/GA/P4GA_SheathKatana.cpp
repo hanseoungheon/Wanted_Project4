@@ -6,6 +6,9 @@
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
+#include "Tag/P4GameplayTag.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UP4GA_SheathKatana::UP4GA_SheathKatana()
 {
@@ -69,6 +72,11 @@ bool UP4GA_SheathKatana::CanActivateAbility(
     return true;
 }
 
+void UP4GA_SheathKatana::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+    OnCompleteCallback();
+}
+
 void UP4GA_SheathKatana::ActivateAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
@@ -108,6 +116,11 @@ void UP4GA_SheathKatana::ActivateAbility(
         //UE_LOG(LogTemp, Log, TEXT("[GA_Sheath] Character.State.IsDrawn 태그 제거"));
     }
 
+    // 공격당하면 실패 → 태그 감지
+    UAbilityTask_WaitGameplayTagAdded* WaitDamaged = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(this, P4TAG_CHARACTER_ISDAMAGED);
+    WaitDamaged->Added.AddDynamic(this, &UP4GA_SheathKatana::OnInterruptedCallback);
+    WaitDamaged->ReadyForActivation();
+
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -117,7 +130,7 @@ void UP4GA_SheathKatana::ActivateAbility(
         );
 
     PlayMontageTask->OnCompleted.AddDynamic(this, &UP4GA_SheathKatana::OnCompleteCallback);
-    PlayMontageTask->OnInterrupted.AddDynamic(this, &UP4GA_SheathKatana::OnInterruptedCallback);
+    //PlayMontageTask->OnInterrupted.AddDynamic(this, &UP4GA_SheathKatana::OnInterruptedCallback);
     PlayMontageTask->ReadyForActivation();
 }
 
@@ -133,6 +146,9 @@ void UP4GA_SheathKatana::EndAbility(
 
 void UP4GA_SheathKatana::OnCompleteCallback()
 {
+    AP4CharacterBase* P4Character = Cast<AP4CharacterBase>(GetAvatarActorFromActorInfo());
+    P4Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 

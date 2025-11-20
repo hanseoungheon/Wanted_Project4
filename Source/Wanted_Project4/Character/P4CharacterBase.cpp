@@ -168,6 +168,14 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		{
 			return;
 		}
+		/*if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.IsDrawing"))))
+		{
+			return;
+		}
+		if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.IsSheathing"))))
+		{
+			return;
+		}*/
 		
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();

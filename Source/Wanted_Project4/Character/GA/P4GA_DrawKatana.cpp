@@ -7,6 +7,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
 #include "Tag/P4GameplayTag.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UP4GA_DrawKatana::UP4GA_DrawKatana()
 {
@@ -71,6 +73,11 @@ bool UP4GA_DrawKatana::CanActivateAbility(
     return true;
 }
 
+void UP4GA_DrawKatana::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+    OnCompleteCallback();
+}
+
 void UP4GA_DrawKatana::ActivateAbility(
     const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo,
@@ -109,6 +116,11 @@ void UP4GA_DrawKatana::ActivateAbility(
         //UE_LOG(LogTemp, Log, TEXT("[GA_Draw] Character.State.IsDrawn 태그 추가"));
     }
 
+    // 공격당하면 실패 → 태그 감지
+    UAbilityTask_WaitGameplayTagAdded* WaitDamaged = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(this, P4TAG_CHARACTER_ISDAMAGED);
+    WaitDamaged->Added.AddDynamic(this, &UP4GA_DrawKatana::OnInterruptedCallback);
+    WaitDamaged->ReadyForActivation();
+
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -118,7 +130,7 @@ void UP4GA_DrawKatana::ActivateAbility(
         );
 
     PlayMontageTask->OnCompleted.AddDynamic(this, &UP4GA_DrawKatana::OnCompleteCallback);
-    PlayMontageTask->OnInterrupted.AddDynamic(this, &UP4GA_DrawKatana::OnInterruptedCallback);
+    //PlayMontageTask->OnInterrupted.AddDynamic(this, &UP4GA_DrawKatana::OnInterruptedCallback);
     PlayMontageTask->ReadyForActivation();
 }
 
@@ -134,6 +146,9 @@ void UP4GA_DrawKatana::EndAbility(
 
 void UP4GA_DrawKatana::OnCompleteCallback()
 {
+    AP4CharacterBase* P4Character = Cast<AP4CharacterBase>(GetAvatarActorFromActorInfo());
+    P4Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
