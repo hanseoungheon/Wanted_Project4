@@ -9,11 +9,11 @@ UP4EquipmentInvenComponent::UP4EquipmentInvenComponent()
 {
     // EquippedItems 초기화
     EquippedItems.Add(P4InventoryTags::Slot::Equipments::Weapon, FInventoryItem());
-    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Head, FInventoryItem());
-    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Chest, FInventoryItem());
-    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Gloves, FInventoryItem());
-    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Legs, FInventoryItem());
-    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Shoes, FInventoryItem());
+    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Armor::Head, FInventoryItem());
+    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Armor::Chest, FInventoryItem());
+    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Armor::Gloves, FInventoryItem());
+    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Armor::Legs, FInventoryItem());
+    EquippedItems.Add(P4InventoryTags::Slot::Equipments::Armor::Shoes, FInventoryItem());
 }
 
 bool UP4EquipmentInvenComponent::EquipItem(UItemDataBase* ItemData, FGameplayTag EquipSlotType)

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Monster/P4BossMonsterBase.h"
@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Stat/P4MonsterStat.h"
+#include "Inventory/P4InventoryComponent.h"
 
 // Sets default values
 AP4BossMonsterBase::AP4BossMonsterBase()
@@ -223,6 +224,10 @@ void AP4BossMonsterBase::SetDead()
 		P4MonsterAIController->StopAI();
 	}
 
+	// -작성: 노현기 -일시: 2025.11.20
+	// 랜덤 아이템 드롭
+	DropRandomItems();
+
 	// DeadEventDelayTime 후 액터 삭제
 	FTimerHandle DeadTimerHandle;
 	float DeadEventDelayTime = 5.f;
@@ -235,6 +240,109 @@ void AP4BossMonsterBase::SetDead()
 		DeadEventDelayTime,
 		false
 	);
+}
+
+// -작성: 노현기 -일시: 2025.11.20
+void AP4BossMonsterBase::DropRandomItems()
+{
+	// 드롭 아이템 목록이 비어있으면 리턴
+	if (DropItemPool.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] 드롭 아이템 목록이 비어있습니다."), *this->GetName());
+		return;
+	}
+
+	// 플레이어의 InventoryComponent 찾기
+	APlayerController* PC = this->GetWorld()->GetFirstPlayerController();
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] PlayerController를 찾을 수 없습니다."), *this->GetName());
+		return;
+	}
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] PlayerPawn을 찾을 수 없습니다."), *this->GetName());
+		return;
+	}
+
+	UP4InventoryComponent* InvComp = PlayerPawn->FindComponentByClass<UP4InventoryComponent>();
+	if (!InvComp)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] InventoryComponent를 찾을 수 없습니다."), *this->GetName());
+		return;
+	}
+
+	// 드롭할 아이템 종류 개수 결정 (1~4개 사이)
+	int32 NumItemTypesToDrop = FMath::RandRange(
+		FMath::Min(MinDropItemTypes, DropItemPool.Num()),
+		FMath::Min(MaxDropItemTypes, DropItemPool.Num())
+	);
+
+	UE_LOG(LogTemp, Log, TEXT("[%s] %d종류의 아이템 드롭 시도"), *this->GetName(), NumItemTypesToDrop);
+
+	// 드롭 풀을 섞기 위한 임시 배열 생성
+	TArray<int32> ItemIndices;
+	for (int32 i = 0; i < DropItemPool.Num(); ++i)
+	{
+		ItemIndices.Add(i);
+	}
+
+	// 배열 섞기 (Fisher-Yates shuffle)
+	for (int32 i = ItemIndices.Num() - 1; i > 0; --i)
+	{
+		int32 j = FMath::RandRange(0, i);
+		ItemIndices.Swap(i, j);
+	}
+
+	// 섞인 배열에서 앞에서부터 N개 선택
+	int32 SuccessCount = 0;
+	for (int32 i = 0; i < NumItemTypesToDrop; ++i)
+	{
+		const FBossMonsterDropItem& DropInfo = DropItemPool[ItemIndices[i]];
+
+		if (!DropInfo.ItemData)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[%s] 드롭 아이템[%d]이 nullptr"), *this->GetName(), i);
+			continue;
+		}
+
+		// 드롭 확률 체크 (0.0 ~ 1.0)
+		float RandomChance = FMath::FRand();  // 0.0 ~ 1.0 사이의 랜덤 값
+		if (RandomChance > DropInfo.DropChance)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[%s] %s 드롭 실패 (확률: %.2f, 랜덤: %.2f)"),
+				*this->GetName(),
+				*DropInfo.ItemData->GetItemName().ToString(),
+				DropInfo.DropChance,
+				RandomChance);
+			continue;
+		}
+
+		// 해당 아이템의 개수를 Min~Max 사이에서 랜덤 결정
+		int32 DropCount = FMath::RandRange(DropInfo.MinQuantity, DropInfo.MaxQuantity);
+
+		// 인벤토리에 아이템 추가
+		bool bSuccess = InvComp->AddItem(DropInfo.ItemData, DropCount);
+
+		if (bSuccess)
+		{
+			SuccessCount++;
+			UE_LOG(LogTemp, Log, TEXT("[%s] 아이템 드롭 성공: %s x%d"),
+				*this->GetName(),
+				*DropInfo.ItemData->GetItemName().ToString(),
+				DropCount);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[%s] %s 드롭 실패: 인벤토리 공간 부족"),
+				*this->GetName(),
+				*DropInfo.ItemData->GetItemName().ToString());
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("[%s] 총 %d종류 아이템 드롭 성공"), *this->GetName(), SuccessCount);
 }
 
 void AP4BossMonsterBase::SetupAttackDelegate()

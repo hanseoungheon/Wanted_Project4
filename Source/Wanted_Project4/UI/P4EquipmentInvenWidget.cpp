@@ -51,31 +51,31 @@ void UP4EquipmentInvenWidget::NativeConstruct()
 
     if (HeadSlot)
     {
-        HeadSlot->SlotType = P4InventoryTags::Slot::Equipments::Head;
+        HeadSlot->SlotType = P4InventoryTags::Slot::Equipments::Armor::Head;
         HeadSlot->bIsEquipmentSlot = true; 
     }
 
     if (ChestSlot)
     {
-        ChestSlot->SlotType = P4InventoryTags::Slot::Equipments::Chest;
+        ChestSlot->SlotType = P4InventoryTags::Slot::Equipments::Armor::Chest;
         ChestSlot->bIsEquipmentSlot = true;  
     }
 
     if (GlovesSlot)
     {
-        GlovesSlot->SlotType = P4InventoryTags::Slot::Equipments::Gloves;
+        GlovesSlot->SlotType = P4InventoryTags::Slot::Equipments::Armor::Gloves;
         GlovesSlot->bIsEquipmentSlot = true; 
     }
 
     if (LegsSlot)
     {
-        LegsSlot->SlotType = P4InventoryTags::Slot::Equipments::Legs;
+        LegsSlot->SlotType = P4InventoryTags::Slot::Equipments::Armor::Legs;
         LegsSlot->bIsEquipmentSlot = true; 
     }
 
     if (ShoesSlot)
     {
-        ShoesSlot->SlotType = P4InventoryTags::Slot::Equipments::Shoes;
+        ShoesSlot->SlotType = P4InventoryTags::Slot::Equipments::Armor::Shoes;
         ShoesSlot->bIsEquipmentSlot = true; 
     }
 
@@ -150,7 +150,7 @@ void UP4EquipmentInvenWidget::RefreshUI()
     // 투구 슬롯
     if (HeadSlot)
     {
-        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Head);
+        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Armor::Head);
         if (Item && Item->ItemData != nullptr)
         {
             HeadSlot->SetItem(*Item);
@@ -164,7 +164,7 @@ void UP4EquipmentInvenWidget::RefreshUI()
     // 갑옷 슬롯
     if (ChestSlot)
     {
-        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Chest);
+        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Armor::Chest);
         if (Item && Item->ItemData != nullptr)
         {
             ChestSlot->SetItem(*Item);
@@ -178,7 +178,7 @@ void UP4EquipmentInvenWidget::RefreshUI()
     // 장갑 슬롯
     if (GlovesSlot)
     {
-        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Gloves);
+        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Armor::Gloves);
         if (Item && Item->ItemData != nullptr)
         {
             GlovesSlot->SetItem(*Item);
@@ -192,7 +192,7 @@ void UP4EquipmentInvenWidget::RefreshUI()
     // 바지 슬롯
     if (LegsSlot)
     {
-        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Legs);
+        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Armor::Legs);
         if (Item && Item->ItemData != nullptr)
         {
             LegsSlot->SetItem(*Item);
@@ -206,7 +206,7 @@ void UP4EquipmentInvenWidget::RefreshUI()
     // 신발 슬롯
     if (ShoesSlot)
     {
-        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Shoes);
+        FInventoryItem* Item = EquipInvenComp->GetEquippedItem(P4InventoryTags::Slot::Equipments::Armor::Shoes);
         if (Item && Item->ItemData != nullptr)
         {
             ShoesSlot->SetItem(*Item);
@@ -234,23 +234,23 @@ void UP4EquipmentInvenWidget::RefreshSlot(FGameplayTag SlotType)
     {
         TargetSlot = WeaponSlot;
     }
-    else if (SlotType == P4InventoryTags::Slot::Equipments::Head)
+    else if (SlotType == P4InventoryTags::Slot::Equipments::Armor::Head)
     {
         TargetSlot = HeadSlot;
     }
-    else if (SlotType == P4InventoryTags::Slot::Equipments::Chest)
+    else if (SlotType == P4InventoryTags::Slot::Equipments::Armor::Chest)
     {
         TargetSlot = ChestSlot;
     }
-    else if (SlotType == P4InventoryTags::Slot::Equipments::Gloves)
+    else if (SlotType == P4InventoryTags::Slot::Equipments::Armor::Gloves)
     {
         TargetSlot = GlovesSlot;
     }
-    else if (SlotType == P4InventoryTags::Slot::Equipments::Legs)
+    else if (SlotType == P4InventoryTags::Slot::Equipments::Armor::Legs)
     {
         TargetSlot = LegsSlot;
     }
-    else if (SlotType == P4InventoryTags::Slot::Equipments::Shoes)
+    else if (SlotType == P4InventoryTags::Slot::Equipments::Armor::Shoes)
     {
         TargetSlot = ShoesSlot;
     }
