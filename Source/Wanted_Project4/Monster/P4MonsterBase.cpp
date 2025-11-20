@@ -16,7 +16,7 @@
 //#include "GameplayEffectTypes.h"	HandleGameplayCue()
 #include "Game/P4GameInstance.h"
 #include "Inventory/P4InventoryComponent.h"
-#include "Item/ItemDataBase.h"   
+#include "Item/ItemDataBase.h"
 
 class UP4PlayerAttributeSet;
 // Sets default values
@@ -28,7 +28,7 @@ AP4MonsterBase::AP4MonsterBase()
 	ASC->AddAttributeSetSubobject<UP4MonsterAttributeSet>(AttributeSet);
 
 	//GetCapsuleComponent()->SetCollisionProfileName(CPROPILE_P4CAPSULE);
-	
+
 	// Monster Stat Data Table
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(
 		TEXT("/Game/Monster/Data/MonsterData.MonsterData")
@@ -53,7 +53,7 @@ AP4MonsterBase::AP4MonsterBase()
 	{
 		BTAsset = BTAssetRef.Object;
 	}
-	
+
 	// AI 설정===========================================
 	AIControllerClass = AP4MonsterAIController::StaticClass();
 
@@ -209,20 +209,26 @@ void AP4MonsterBase::NotifyActionEnd()
 
 void AP4MonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, const float AttackSpeed)
 {
+	UE_LOG(LogTemp, Log, TEXT("몬스터 공격 시작"));
+	if (IsDamaged)
+	{
+		UE_LOG(LogTemp, Log, TEXT("몬스터 공격 받아서 공격 못함"));
+		return;
+	}
 	// 공격 모션동안 이동 막기
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
-	
+
 	// 몽타주 재생을 위해 AnimInstance 갖고 오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
 		IsAttacking = true;
-		
-		// 입력받은 섹션으로 몽타주 섹션 변경
-		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
 
 		// 몽타주 실행 
 		AnimInstance->Montage_Play(AttackActionMontage, AttackSpeed);
+
+		// 입력받은 섹션으로 몽타주 섹션 변경
+		AnimInstance->Montage_JumpToSection(InAttackMontageSectionName, AttackActionMontage);
 
 		// 몽타주 재생이 끝날 때 실행될 함수 바인딩
 		FOnMontageEnded OnMontageEnded;
@@ -236,12 +242,12 @@ void AP4MonsterBase::AttackActionBegin(FName& InAttackMontageSectionName, const 
 void AP4MonsterBase::AttackActionEnd(UAnimMontage* TargetMontage, bool Interrupted)
 {
 	IsAttacking = false;
-	
+
 	// 피격 모션이 진행중이 아니라면
 	if (IsDamaged == false)
 	{
-	    // 무브먼트 모드 복구
-	    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		// 무브먼트 모드 복구
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	}
 
 	// 공격이 끝났음을 알림
@@ -255,15 +261,16 @@ void AP4MonsterBase::DamagedActionBegin()
 	if (AnimInstance)
 	{
 		IsDamaged = true;
-				
+
 		// @Todo: 임시 Damaged 모션 시작 로그
 		UE_LOG(LogTemp, Log, TEXT("[Monster] Monster Damaged Action Begin"));
-		
+
 		// Damaged 모션동안 이동 막기
 		GetCharacterMovement()->SetMovementMode(MOVE_None);
 
 		// Damaged 몽타주 재생
 		AnimInstance->Montage_Play(DamagedMontage, 1.f);
+		AnimInstance->Montage_JumpToSection("MonsterHit", DamagedMontage);
 
 		FOnMontageEnded OnMontageEnded;
 		OnMontageEnded.BindUObject(
@@ -275,12 +282,14 @@ void AP4MonsterBase::DamagedActionBegin()
 }
 
 void AP4MonsterBase::DamagedActionEnd(UAnimMontage* TargetMontage, bool Interrupted)
-{	
+{
+	if (Interrupted) return;
+	
 	// @Todo: 임시 Damaged 모션 끝 로그
 	UE_LOG(LogTemp, Log, TEXT("[Monster] Monster Damaged Action End"));
 
 	IsDamaged = false;
-	
+
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
@@ -392,14 +401,14 @@ void AP4MonsterBase::DropRandomItems()
 		}
 
 		// 드롭 확률 체크 (0.0 ~ 1.0)
-		float RandomChance = FMath::FRand();  // 0.0 ~ 1.0 사이의 랜덤 값
+		float RandomChance = FMath::FRand(); // 0.0 ~ 1.0 사이의 랜덤 값
 		if (RandomChance > DropInfo.DropChance)
 		{
 			UE_LOG(LogTemp, Log, TEXT("[%s] %s 드롭 실패 (확률: %.2f, 랜덤: %.2f)"),
-				*this->GetName(),
-				*DropInfo.ItemData->GetItemName().ToString(),
-				DropInfo.DropChance,
-				RandomChance);
+			       *this->GetName(),
+			       *DropInfo.ItemData->GetItemName().ToString(),
+			       DropInfo.DropChance,
+			       RandomChance);
 			continue;
 		}
 
@@ -413,15 +422,15 @@ void AP4MonsterBase::DropRandomItems()
 		{
 			SuccessCount++;
 			UE_LOG(LogTemp, Log, TEXT("[%s] 아이템 드롭 성공: %s x%d"),
-				*this->GetName(),
-				*DropInfo.ItemData->GetItemName().ToString(),
-				DropCount);
+			       *this->GetName(),
+			       *DropInfo.ItemData->GetItemName().ToString(),
+			       DropCount);
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[%s] %s 드롭 실패: 인벤토리 공간 부족"),
-				*this->GetName(),
-				*DropInfo.ItemData->GetItemName().ToString());
+			       *this->GetName(),
+			       *DropInfo.ItemData->GetItemName().ToString());
 		}
 	}
 
@@ -439,7 +448,7 @@ void AP4MonsterBase::ExecuteAttackSection(const FName& SectionName)
 
 	// @MobTODO: 몽타주 노티파이 확인용 로그
 	UE_LOG(LogTemp, Log, TEXT("몽타주 재생, Index : %d"), Index);
-	
+
 	if (AttackDelegates.IsValidIndex(Index) && AttackDelegates[Index].IsBound())
 	{
 		// 해당 인덱스의 함수 실행
