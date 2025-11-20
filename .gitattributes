@@ -27,3 +27,7 @@ Content/Monster/Animation/ABP_Namielle.uasset -filter -diff -merge -text
 Content/NPC/DollCat/Animations/ABP_NPCTest.uasset -filter -diff -merge -text
 
 Content/Quest/QuestData.uasset -filter -diff -merge -text
+
+Content/Character/GA/BPGA_Rolling.uasset -filter -diff -merge -text
+Content/Character/Animation/AM_Roll.uasset -filter -diff -merge -text
+Content/Character/Curve/CV_RollingCurve.uasset -filter -diff -merge -text
