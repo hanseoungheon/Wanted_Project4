@@ -9,6 +9,8 @@
 #include "Tag/P4GameplayTag.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Animation/Data/P4ComboAttackData.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "Tag/P4GameplayTag.h"
 
 UP4GA_ComboAttack::UP4GA_ComboAttack()
 {
@@ -77,6 +79,12 @@ void UP4GA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
         return;
     }
+
+    // ★ 1. 피격 태그 감지 Task 추가
+    UAbilityTask_WaitGameplayTagAdded* WaitDamaged = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(this, P4TAG_CHARACTER_ISDAMAGED);
+
+    WaitDamaged->Added.AddDynamic(this, &UP4GA_ComboAttack::OnInterruptedCallback);
+    WaitDamaged->ReadyForActivation();
 
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =

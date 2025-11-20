@@ -20,8 +20,8 @@ void AP4StageGimmck::BeginPlay()
 	//BaseAB.Z = 0.0f;
 	//BaseAC.Z = 0.0f;
 
-	FVector ComputeD = (TileOffsetCoordB + TileOffsetCoordC - TileOffsetCoordA);
-	TileOffsetCoordD = ComputeD;
+	//FVector ComputeD = (TileOffsetCoordB + TileOffsetCoordC - TileOffsetCoordA);
+	//TileOffsetCoordD = ComputeD;
 
 	// 2) 시작 셀 계산
 	if (APawn* P = UGameplayStatics::GetPlayerPawn(this, 0))

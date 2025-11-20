@@ -8,7 +8,7 @@
 UP4ProjectilePoolSubsystem::UP4ProjectilePoolSubsystem()
 {
 	// 미리 40개 만들거라고 등록해두기
-	PreSpawnList.Add(AP4MonsterProjectile::StaticClass(), 40);
+	PreSpawnList.Add(AP4MonsterProjectile::StaticClass(), 10);
 }
 
 void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -20,6 +20,27 @@ void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection
 	{
 		return;
 	}
+	
+	// 에디터에서 월드 열 때는 PreSpawn 하지 않음
+#if WITH_EDITOR
+	if (!World->IsPlayInEditor()) // PIE가 아니라면 생략
+	{
+		return;
+	}
+#endif
+	
+	// 기존 액터 삭제
+	for (auto& Pair : Pools)
+	{
+		for (AActor* Actor : Pair.Value)
+		{
+			if (IsValid(Actor))
+			{
+				Actor->Destroy();
+			}
+		}
+	}
+	Pools.Empty();
 
 	// 클래스 별 미리 스폰해놓기
 	for (const auto& Pair : PreSpawnList)
@@ -52,6 +73,8 @@ void UP4ProjectilePoolSubsystem::Initialize(FSubsystemCollectionBase& Collection
 
 				// 풀에 넣기
 				PoolArray.Add(Projectile);
+
+				Projectile->SetFolderPath(TEXT("ProjectilePool"));
 			}
 		}
 
@@ -138,4 +161,6 @@ void UP4ProjectilePoolSubsystem::ReturnProjectile(AActor* Projectile)
 
 	// 화면 밖으로 이동시키기
 	Projectile->SetActorLocation(FVector(0, 0, -5000));
+
+	Projectile->SetOwner(nullptr);
 }

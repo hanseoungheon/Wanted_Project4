@@ -84,7 +84,7 @@ void UAnimNotifyState_AttackHitCheck::PerformTrace(USkeletalMeshComponent* MeshC
 	if (!PlayerAttribute) return;
 
 	// todo: 플레이어 공격력? 카타나 공격력?
-	const float Damage = PlayerAttribute->GetAttackRate();
+	const float Damage = PlayerAttribute->GetAttackRate() * DamageMultiplier;
 
 	for (auto& Hit : Hits)
 	{

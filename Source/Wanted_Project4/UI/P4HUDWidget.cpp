@@ -34,10 +34,10 @@ void UP4HUDWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	//데이터 연동.
-	HpBar =  Cast<UP4HpBarWidget>(
-		GetWidgetFromName(TEXT("WidgetHpBar"))
-	);
-	ensureAlways(HpBar != nullptr);
+	//HpBar =  Cast<UP4HpBarWidget>(
+	//	GetWidgetFromName(TEXT("widgethpbar"))
+	//);
+	//ensureAlways(HpBar != nullptr);
 
 	QuestTextBlock = Cast<UP4QuestInformationWidget>(
 		GetWidgetFromName(TEXT("WidgetQuestLog"))
@@ -130,7 +130,12 @@ void UP4HUDWidget::SetBoss(AActor* NewBoss)
 	}
 }
 
-TObjectPtr<class UP4HpBarWidget> UP4HUDWidget::GetHpBar() const
+//TObjectPtr<class UP4HpBarWidget> UP4HUDWidget::GetHpBar() const
+//{
+//	//return HpBar;
+//}
+
+TObjectPtr<class UP4HpAndShieldWidget> UP4HUDWidget::GetHpAndShieldBar() const
 {
-	return HpBar;
+	return HpAndShieldBar;
 }

@@ -30,6 +30,7 @@ AP4MonsterProjectile::AP4MonsterProjectile()
 		MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		MeshComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 		MeshComponent->SetNotifyRigidBodyCollision(true);
+		MeshComponent->SetCanEverAffectNavigation(false);
 		MeshComponent->OnComponentHit.AddDynamic(this, &AP4MonsterProjectile::OnProjectileHit);
 		
 		MeshComponent->SetRelativeScale3D(FVector(0.3f, 0.3f, 0.3f));
@@ -50,6 +51,7 @@ AP4MonsterProjectile::AP4MonsterProjectile()
 		CollisionComponent->InitSphereRadius(55.f);
 		CollisionComponent->SetCollisionProfileName(TEXT("P4Projectile"));
 		CollisionComponent->SetGenerateOverlapEvents(true);
+		CollisionComponent->SetCanEverAffectNavigation(false);
 		
 		CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AP4MonsterProjectile::OnProjectileOverlappedAnywhere);
 	}
@@ -71,6 +73,7 @@ AP4MonsterProjectile::AP4MonsterProjectile()
 	{
 		TrailNaiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail Niagara Particle"));
 		TrailNaiagaraComponent->SetupAttachment(RootComponent);
+		TrailNaiagaraComponent->SetCanEverAffectNavigation(false);
 	}
 }
 

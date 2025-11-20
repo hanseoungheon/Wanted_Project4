@@ -155,6 +155,7 @@ AP4CharacterBase::AP4CharacterBase()
 	RollingTimeLine = CreateDefaultSubobject<UTimelineComponent>(TEXT("RollingTimeLine"));
 }
 
+#include "GameplayTagContainer.h"
 // todo: 죽음과 피격 몽타주로 빼면..
 void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 {
@@ -173,24 +174,32 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 
-
-		FGameplayTagContainer CancelTags;
-		CancelTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Character.State.IsAttacking")));
-		ASC->CancelAbilities(&CancelTags);
-
-		/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
-			AnimInstance->StopAllMontages(0.f);
-		}*/
+			//AnimInstance->StopAllMontages(0.f);
+		}
 
+		// 1. 취소하고 싶은 태그를 컨테이너에 담습니다.
+		FGameplayTagContainer TargetTags;
+		TargetTags.AddTag(P4TAG_CHARACTER_ISATTACKING);
+
+		// 2. CancelAbilities에 컨테이너의 주소를 넘깁니다.
+		// 매개변수 순서: (포함된 태그, 제외할 태그, 무시할 어빌리티)
+		ASC->CancelAbilities(&TargetTags, nullptr, nullptr);
+
+		UE_LOG(LogTemp, Warning, TEXT("PLAYER DAMAGED"))
 		if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISDAMAGED) == false)
 		{
 			ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDAMAGED);
 		}
-		// Damaged 모션동안 이동 막기
+
+		// todo: 임시 수정 점프 상태 제외 Damaged 모션동안 이동 막기
+		if (ASC->HasMatchingGameplayTag(P4TAG_CHARACTER_ISJUMPING) == false)
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_None);
+		}
 		//GetCharacterMovement()->SetMovementMode(MOVE_None);
-		GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 
 		// 받을 데미지 설정
 		AttributeSet->SetDamageAmount(DamageAmount);
