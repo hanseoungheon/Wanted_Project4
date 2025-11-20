@@ -9,6 +9,8 @@
 #include "Tag/P4GameplayTag.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Animation/Data/P4ComboAttackData.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "Tag/P4GameplayTag.h"
 
 UP4GA_ComboAttack::UP4GA_ComboAttack()
 {
@@ -78,6 +80,12 @@ void UP4GA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         return;
     }
 
+    // ★ 1. 피격 태그 감지 Task 추가
+    UAbilityTask_WaitGameplayTagAdded* WaitDamaged = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(this, P4TAG_CHARACTER_ISDAMAGED);
+
+    WaitDamaged->Added.AddDynamic(this, &UP4GA_ComboAttack::OnInterruptedCallback);
+    WaitDamaged->ReadyForActivation();
+
     // 몽타주 재생
     UAbilityTask_PlayMontageAndWait* PlayMontageTask =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -137,10 +145,14 @@ void UP4GA_ComboAttack::OnCompleteCallback()
 
 void UP4GA_ComboAttack::OnInterruptedCallback()
 {
-    bool bReplicatedEndAbility = true;
-    bool bWasCancelled = true;
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] OnInterruptedCallback - 몽타주 중단됨!"));
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+    // ★ 1. 몽타주 강제 정지
+    if (UAnimInstance* Anim = CurrentActorInfo->GetAnimInstance())
+    {
+        Anim->StopAllMontages(0.f);
+    }
+
+    // ★ 2. Ability 강제 종료
+    CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }
 
 FName UP4GA_ComboAttack::GetNextSection()

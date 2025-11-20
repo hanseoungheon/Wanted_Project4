@@ -9,6 +9,8 @@
 #include "GameplayAbilities/Public/AbilitySystemComponent.h"
 #include "Character/Animation/P4PlayerAnimInstance.h"
 #include "Character/P4CharacterPlayer.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "Tag/P4GameplayTag.h"
 
 UP4GA_StrongAttack::UP4GA_StrongAttack()
 {
@@ -63,32 +65,28 @@ bool UP4GA_StrongAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UP4GA_StrongAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AP4CharacterBase* P4Character = CastChecked<AP4CharacterBase>(ActorInfo->AvatarActor.Get());
-	P4Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+    AP4CharacterBase* P4Character = CastChecked<AP4CharacterBase>(ActorInfo->AvatarActor.Get());
+    P4Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+    // ★ 1. 피격 태그 감지 Task 추가
+    UAbilityTask_WaitGameplayTagAdded* WaitDamaged = UAbilityTask_WaitGameplayTagAdded::WaitGameplayTagAdd(this, P4TAG_CHARACTER_ISDAMAGED);
+
+    WaitDamaged->Added.AddDynamic(this, &UP4GA_StrongAttack::OnInterruptedCallback);
+    WaitDamaged->ReadyForActivation();
 
 
-	UAnimMontage* StrongAttackMontage = P4Character->GetStrongAttackMontage();
-    if (!StrongAttackMontage)
+    UAnimMontage* StrongAttackMontage = P4Character->GetStrongAttackMontage();
+    if (StrongAttackMontage)
     {
-        UE_LOG(LogTemp, Error, TEXT("[GA_StrongAttack] StrongAttack 몽타주가 설정되지 않았습니다!"));
-        EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-        return;
+        UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), StrongAttackMontage);
+        PlayAttackTask->OnCompleted.AddDynamic(this, &UP4GA_StrongAttack::OnCompleteCallback);
+        PlayAttackTask->OnInterrupted.AddDynamic(this, &UP4GA_StrongAttack::OnInterruptedCallback);
+
+        // AT의 함수 호출
+        PlayAttackTask->ReadyForActivation();
     }
-
-    // 몽타주 재생
-    UAbilityTask_PlayMontageAndWait* PlayMontageTask =
-        UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-            this,
-            TEXT("StrongAttack"),
-            StrongAttackMontage
-        );
-    PlayMontageTask->OnCompleted.AddDynamic(this, &UP4GA_StrongAttack::OnCompleteCallback);
-    PlayMontageTask->OnInterrupted.AddDynamic(this, &UP4GA_StrongAttack::OnInterruptedCallback);
-
-    // AT의 함수 호출
-    PlayMontageTask->ReadyForActivation();
 	
 }
 
@@ -114,7 +112,12 @@ void UP4GA_StrongAttack::OnCompleteCallback()
 
 void UP4GA_StrongAttack::OnInterruptedCallback()
 {
-	bool bReplicatedEndAbility = true;
-	bool bWasCancelled = true;
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+    // ★ 1. 몽타주 강제 정지
+    if (UAnimInstance* Anim = CurrentActorInfo->GetAnimInstance())
+    {
+        Anim->StopAllMontages(0.f);
+    }
+
+    // ★ 2. Ability 강제 종료
+    CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
 }
