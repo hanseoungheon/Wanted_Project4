@@ -11,6 +11,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "Tag/P4GameplayTag.h"
 
+
 UP4GA_Attack::UP4GA_Attack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

@@ -105,9 +105,6 @@ void UP4GA_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UP4GA_ComboAttack::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] InputPressed 호출됨! TimerValid: %d"),
-        ComboTimerHandle.IsValid());
-
     if (!ComboTimerHandle.IsValid())
     {
         HasNextComboInput = false;
@@ -139,20 +136,14 @@ void UP4GA_ComboAttack::OnCompleteCallback()
 {
     bool bReplicatedEndAbility = true;
     bool bWasCancelled = false;
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] OnCompleteCallback - 몽타주 완료"));
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
 void UP4GA_ComboAttack::OnInterruptedCallback()
 {
-    // ★ 1. 몽타주 강제 정지
-    if (UAnimInstance* Anim = CurrentActorInfo->GetAnimInstance())
-    {
-        Anim->StopAllMontages(0.f);
-    }
-
-    // ★ 2. Ability 강제 종료
-    CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+    bool bReplicatedEndAbility = true;
+    bool bWasCancelled = true;
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
 FName UP4GA_ComboAttack::GetNextSection()
@@ -165,32 +156,23 @@ FName UP4GA_ComboAttack::GetNextSection()
 void UP4GA_ComboAttack::StartComboTimer()
 {
     int32 ComboIndex = CurrentCombo - 1;
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] StartComboTimer - CurrentCombo: %d, ComboIndex: %d"),
-        CurrentCombo, ComboIndex);
     ensure(CurrentComboData->EffectiveFrameCount.IsValidIndex(ComboIndex));
 
     const float ComboEffectiveTime = CurrentComboData->EffectiveFrameCount[ComboIndex] / CurrentComboData->FRameRate;
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] ComboEffectiveTime: %f초"), ComboEffectiveTime);
     if (ComboEffectiveTime > 0.0f)
     {
         GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UP4GA_ComboAttack::CheckComboInput, ComboEffectiveTime, false);
-        UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] 타이머 시작됨!"));
     }
 }
 
 void UP4GA_ComboAttack::CheckComboInput()
 {
     ComboTimerHandle.Invalidate();
-    UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] CheckComboInput - HasNextComboInput: %d"), HasNextComboInput);
 
     if (HasNextComboInput)
     {
         MontageJumpToSection((GetNextSection()));
         StartComboTimer();
         HasNextComboInput = false;
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[ComboAttack] 다음 입력 없음 - 콤보 종료"));
     }
 }

@@ -58,7 +58,6 @@ bool UP4WeaponComponent::EquipWeapon(UItemDataBase* WeaponData)
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("무기 장착: %s"), *WeaponData->GetItemName().ToString());
 	return true;
 }
 
@@ -66,8 +65,6 @@ void UP4WeaponComponent::UnequipWeapon()
 {
 	DestroyWeaponMesh();
 	CurrentWeaponData = nullptr;
-
-	UE_LOG(LogTemp, Log, TEXT("무기 해제"));
 }
 #include "Components/SceneComponent.h"
 void UP4WeaponComponent::AttachWeaponToSocket(FName SocketName)
@@ -86,26 +83,18 @@ void UP4WeaponComponent::AttachWeaponToSocket(FName SocketName)
 		FAttachmentTransformRules::SnapToTargetIncludingScale,
 		SocketName
 	);
-
-	UE_LOG(LogTemp, Log, TEXT("무기를 소켓 '%s'에 부착"), *SocketName.ToString());
 }
 
 void UP4WeaponComponent::GrabWeapon()
 {
-	UE_LOG(LogTemp, Warning, TEXT("=== GrabWeapon 함수 호출됨! ==="));
-
 	if (!WeaponMesh)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GrabWeapon: 장착된 무기가 없습니다!"));
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("WeaponMesh 존재: %s"), *WeaponMesh->GetName());
-
 	// 등 → 손으로 이동
 	AttachWeaponToSocket(HandSocketName);
-
-	UE_LOG(LogTemp, Log, TEXT("무기를 손에 쥠 (발도)"));
 }
 
 void UP4WeaponComponent::SheathWeapon()
@@ -118,8 +107,6 @@ void UP4WeaponComponent::SheathWeapon()
 
 	// 손 → 등으로 이동
 	AttachWeaponToSocket(BackSocketName);
-
-	UE_LOG(LogTemp, Log, TEXT("무기를 등에 꽂음 (납도)"));
 }
 
 

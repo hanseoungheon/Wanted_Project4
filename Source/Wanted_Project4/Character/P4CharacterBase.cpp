@@ -169,7 +169,8 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		{
 			return;
 		}
-		
+
+
 		// todo: Hit 몽타주, 넉백 같은 즉각 반응 -> ABP에서 처리
 		//DamagedActionBegin();
 
@@ -224,6 +225,7 @@ void AP4CharacterBase::ApplyDamage(const float DamageAmount)
 		}
 	}
 }
+
 void AP4CharacterBase::GiveDamage(AActor* TargetActor, const float DamageAmount)
 {
 	// GA로 처리함.

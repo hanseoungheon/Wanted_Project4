@@ -104,6 +104,9 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
         {
             (*TargetArray)[SlotIndex].Quantity -= Quantity;
 
+            // 수량이 감소하면 더 이상 새 아이템이 아님
+            (*TargetArray)[SlotIndex].bIsNewItem = false;
+
             // 수량이 0 이하면 슬롯 비우기
             if ((*TargetArray)[SlotIndex].Quantity <= 0)
             {
@@ -113,8 +116,6 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
             }
 
             OnInventoryUpdated.Broadcast(SlotType, SlotIndex);
-            UE_LOG(LogTemp, Log, TEXT("RemoveItem: 슬롯[%d]에서 %s %d개 제거"),
-                SlotIndex, *ItemData->GetItemName().ToString(), Quantity);
             return true;
         }
         else
@@ -131,12 +132,16 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
         {
             (*TargetArray)[i].Quantity -= Quantity;
 
+            // 수량이 감소하면 더 이상 새 아이템이 아님
+            (*TargetArray)[i].bIsNewItem = false;
+
             // 수량이 0 이하면 슬롯 비우기
             if ((*TargetArray)[i].Quantity <= 0)
             {
                 (*TargetArray)[i] = FInventoryItem();
                 (*TargetArray)[i].SlotType = SlotType;
                 (*TargetArray)[i].SlotIndex = i;
+                (*TargetArray)[SlotIndex].bIsNewItem = false;
             }
 
             OnInventoryUpdated.Broadcast(SlotType, i);
@@ -150,8 +155,6 @@ bool UP4InventoryComponent::RemoveItem(UItemDataBase* ItemData, int32 Quantity, 
 bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
 {
     if (!ItemData) return false;
-
-    UE_LOG(LogTemp, Log, TEXT("UseItem 함수 호출"));
 
     // 특정 슬롯이 지정된 경우 해당 슬롯의 아이템 확인
     if (SlotIndex >= 0)
@@ -198,21 +201,21 @@ bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
     AActor* Owner = GetOwner();
     if (!Owner)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetOwner 실패"));
+        UE_LOG(LogTemp, Warning, TEXT("GetOwner 실패"));
         return false;
     }
 
     IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(Owner);
     if (!ASI)
     {
-        UE_LOG(LogTemp, Log, TEXT("IAbilitySystemInterface 캐스트 실패"));
+        UE_LOG(LogTemp, Warning, TEXT("IAbilitySystemInterface 캐스트 실패"));
         return false;
     }
 
     UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
     if (!ASC)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetAbilitySystemComponent() 실패"));
+        UE_LOG(LogTemp, Warning, TEXT("GetAbilitySystemComponent() 실패"));
         return false;
     }
 
@@ -227,7 +230,6 @@ bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
         if (SpecHandle.IsValid())
         {
             ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-            UE_LOG(LogTemp, Log, TEXT("아이템 효과 적용: %s"), *ItemData->GetItemName().ToString());
         }
         else
         {
@@ -243,15 +245,12 @@ bool UP4InventoryComponent::UseItem(UItemDataBase* ItemData, int32 SlotIndex)
         RemoveItem(ItemData, 1, SlotIndex);
     }
 
-    UE_LOG(LogTemp, Log, TEXT("UseItem 함수 리턴"));
     return true;
 }
 
 bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
 {
     if (!ItemData) return false;
-
-    UE_LOG(LogTemp, Log, TEXT("EquipItem 함수 호출"));
 
     // 특정 슬롯이 지정된 경우 해당 슬롯의 아이템 확인
     if (SlotIndex >= 0)
@@ -326,15 +325,12 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
 
             // 효과 핸들 저장 (나중에 해제할 때 사용)
             ActiveEquipmentEffects.Add(ItemData, EffectHandle);
-
-            UE_LOG(LogTemp, Log, TEXT("장비 착용: %s"), *ItemData->GetItemName().ToString());
         }
     }
     else
     {
         // PassiveEffect가 없어도 ActiveEquipmentEffects에 등록 (더미 핸들)
         ActiveEquipmentEffects.Add(ItemData, FActiveGameplayEffectHandle());
-        UE_LOG(LogTemp, Log, TEXT("장비 착용: %s (패시브 효과 없음)"), *ItemData->GetItemName().ToString());
     }
 
     // // 무기라면 WeaponComponent에 전달 + bIsEquipped 설정
@@ -392,8 +388,6 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
                     UE_LOG(LogTemp, Warning, TEXT("[EquipItem] 장비창 등록 실패"));
                     return false;
                 }
-
-                UE_LOG(LogTemp, Log, TEXT("[EquipItem] 장비창에 무기 등록 성공"));
             }
             else
             {
@@ -419,7 +413,6 @@ bool UP4InventoryComponent::EquipItem(UItemDataBase* ItemData, int32 SlotIndex)
                 {
                     // todo: 자동으로 되는지 바인딩하고 테스트
                     AnimInst->CharacterState.bIsEquipped = true;
-                    UE_LOG(LogTemp, Log, TEXT("bIsEquipped = true (등에 무기 장착)"));
                 }
             }
         }
@@ -455,7 +448,6 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData, int32 SlotIndex
     if (EffectHandle.IsValid())
     {
         ASC->RemoveActiveGameplayEffect(EffectHandle);
-        UE_LOG(LogTemp, Log, TEXT("장비 효과 제거: %s"), *ItemData->GetItemName().ToString());
     }
     else
     {
@@ -463,8 +455,6 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData, int32 SlotIndex
             *ItemData->GetItemName().ToString());
     }
     ActiveEquipmentEffects.Remove(ItemData);
-
-    UE_LOG(LogTemp, Log, TEXT("장비 해제: %s"), *ItemData->GetItemName().ToString());
 
     // 무기라면 WeaponComponent에서 제거 + bIsEquipped 설정
     FGameplayTag WeaponTag = FGameplayTag::RequestGameplayTag(FName("Item.Equipment.Weapon"));
@@ -492,8 +482,6 @@ bool UP4InventoryComponent::UnequipItem(UItemDataBase* ItemData, int32 SlotIndex
                         FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
                         ASC->RemoveLooseGameplayTag(DrawnTag);
                     }
-
-                    UE_LOG(LogTemp, Log, TEXT("bIsEquipped = false, bIsKatanaOnHand = false (무기 해제)"));
                 }
             }
         }
@@ -531,9 +519,6 @@ void UP4InventoryComponent::SwapSlots(int32 SlotIndexA, int32 SlotIndexB, FGamep
     // SlotIndex 재설정
     (*TargetArray)[SlotIndexA].SlotIndex = SlotIndexA;
     (*TargetArray)[SlotIndexB].SlotIndex = SlotIndexB;
-
-    UE_LOG(LogTemp, Log, TEXT("SwapSlots: 타입[%s] 슬롯[%d] ↔ 슬롯[%d]"),
-        *SlotType.ToString(), SlotIndexA, SlotIndexB);
 
     // UI 갱신 이벤트 브로드캐스트
     OnInventoryUpdated.Broadcast(SlotType, SlotIndexA);

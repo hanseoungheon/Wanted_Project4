@@ -17,9 +17,6 @@ UAnimNotify_GrabKatana::UAnimNotify_GrabKatana()
 
 void UAnimNotify_GrabKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-    // ⭐ 로그 추가
-    UE_LOG(LogTemp, Warning, TEXT("=== GrabKatana 노티파이 실행! ==="));
-
     if (!MeshComp)
     {
         UE_LOG(LogTemp, Error, TEXT("MeshComp가 nullptr!"));
@@ -33,8 +30,6 @@ void UAnimNotify_GrabKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
         return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("캐릭터 찾음: %s"), *Character->GetName());
-
     // WeaponComponent로 무기를 손으로 이동
     UP4WeaponComponent* WeaponComp = Character->GetWeaponComponent();
     if (!WeaponComp)
@@ -42,8 +37,6 @@ void UAnimNotify_GrabKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
         UE_LOG(LogTemp, Error, TEXT("WeaponComponent가 nullptr!"));
         return;
     }
-
-    UE_LOG(LogTemp, Warning, TEXT("WeaponComponent 찾음"));
 
     // 무기를 손으로 이동
     WeaponComp->GrabWeapon();
@@ -70,6 +63,5 @@ void UAnimNotify_GrabKatana::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
     {
         //FGameplayTag DrawnTag = FGameplayTag::RequestGameplayTag(FName("Character.State.IsDrawn"));
         ASC->AddLooseGameplayTag(P4TAG_CHARACTER_ISDRAWN);
-        UE_LOG(LogTemp, Log, TEXT("Character.State.IsDrawn 태그 추가"));
     }
 }
