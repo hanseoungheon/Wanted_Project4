@@ -33,8 +33,6 @@ struct FInventoryItem
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsNewItem = false;
 
-	//EInventorySlotType SlotType = EInventorySlotType::Equipment;
-
 	FInventoryItem()
 		: ItemData(nullptr), Quantity(0), SlotIndex(-1), SlotType(FGameplayTag())
 	{
