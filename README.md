@@ -2,7 +2,7 @@
 **Unreal Engine 5 / Gameplay Ability System 기반 오픈월드 RPG**
 
 📸 1차 데모 영상
-- https://youtu.be/QYTR_kaGeNI
+- https://youtu.be/tKVDAmAYPUU
 ---
 
 ## 🧩 프로젝트 개요
